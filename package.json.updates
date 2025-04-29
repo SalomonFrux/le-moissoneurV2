@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    // Keep existing dependencies and add these:
+    "@supabase/supabase-js": "^2.36.0",
+    "react-router-dom": "^6.17.0"
+  }
+}
+
+// Run the following commands to install these dependencies:
+// npm install @supabase/supabase-js react-router-dom
