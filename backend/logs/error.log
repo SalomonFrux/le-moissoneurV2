@@ -1,0 +1,85 @@
+2025-05-03T19:27:43.256Z error: Error fetching scraper status for ID undefined: invalid input syntax for type uuid: "undefined"
+2025-05-03T19:29:30.814Z error: Error fetching scraper status for ID undefined: invalid input syntax for type uuid: "undefined"
+2025-05-03T19:30:26.727Z error: Error fetching scraper status for ID undefined: invalid input syntax for type uuid: "undefined"
+2025-05-03T19:31:47.166Z error: Error fetching scraper status for ID undefined: invalid input syntax for type uuid: "undefined"
+2025-05-03T20:37:00.741Z error: Error executing scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:00.912Z error: Error running scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:09.924Z error: Error executing scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:10.064Z error: Error running scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:10.977Z error: Error executing scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:11.078Z error: Error running scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:55.776Z error: Error executing scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:55.928Z error: Error running scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:40:34.198Z error: Error executing scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:40:34.292Z error: Error running scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T21:09:21.715Z error: Error creating scraper: Could not find the 'frequency' column of 'scrapers' in the schema cache
+2025-05-03T21:11:48.924Z error: Error creating scraper: Could not find the 'frequency' column of 'scrapers' in the schema cache
+2025-05-03T21:16:38.707Z error: Error creating scraper: Could not find the 'frequency' column of 'scrapers' in the schema cache
+2025-05-03T21:31:40.154Z error: Error executing scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:31:40.317Z error: Error running scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:39:37.295Z error: Error executing scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T21:39:37.480Z error: Error running scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T21:41:29.097Z error: Error executing scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T21:41:29.216Z error: Error running scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T21:42:33.661Z error: Error executing scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:42:33.765Z error: Error running scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:43:10.276Z error: Error executing scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:43:10.374Z error: Error running scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:44:00.889Z error: Error executing scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:44:00.984Z error: Error running scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:47:23.017Z error: Error executing scraper 7003f1a8-864e-42d6-b653-8435d7f0eac5: socket hang up
+2025-05-03T21:47:23.106Z error: Error running scraper 7003f1a8-864e-42d6-b653-8435d7f0eac5: socket hang up
+2025-05-03T22:05:57.070Z error: Error executing scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T22:05:57.195Z error: Error running scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T22:13:37.525Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-03T22:13:37.641Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-03T22:14:19.347Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-03T22:14:19.482Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T15:11:05.215Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T15:11:05.321Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T15:29:38.919Z error: Error executing scraper d99a07c2-ae2e-49d6-83cb-84bf67dc8789: socket hang up
+2025-05-04T15:29:39.034Z error: Error running scraper d99a07c2-ae2e-49d6-83cb-84bf67dc8789: socket hang up
+2025-05-04T15:37:28.150Z error: Error executing scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:37:28.365Z error: Error running scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:45:11.103Z error: Error executing scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:45:11.388Z error: Error running scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:57:54.723Z error: Error executing scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:57:55.060Z error: Error running scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:58:39.048Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T15:58:39.333Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T16:11:31.691Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T16:11:34.364Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T16:53:20.237Z error: Error executing scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
+2025-05-04T16:53:23.149Z error: Error running scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
+2025-05-04T16:57:11.111Z error: Error executing scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
+2025-05-04T16:57:13.905Z error: Error running scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up

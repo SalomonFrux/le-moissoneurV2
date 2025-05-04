@@ -1,0 +1,174 @@
+2025-04-29T19:15:26.948Z info: Server running on port 4000
+2025-04-29T21:26:07.985Z info: Server running on port 4000
+2025-04-29T22:31:24.058Z info: Server running on port 4000
+2025-05-03T17:04:07.686Z info: Server running on port 4000
+2025-05-03T19:08:47.248Z info: Server running on port 4000
+2025-05-03T19:27:43.256Z error: Error fetching scraper status for ID undefined: invalid input syntax for type uuid: "undefined"
+2025-05-03T19:29:30.814Z error: Error fetching scraper status for ID undefined: invalid input syntax for type uuid: "undefined"
+2025-05-03T19:30:26.727Z error: Error fetching scraper status for ID undefined: invalid input syntax for type uuid: "undefined"
+2025-05-03T19:31:47.166Z error: Error fetching scraper status for ID undefined: invalid input syntax for type uuid: "undefined"
+2025-05-03T19:48:30.461Z info: Server running on port 4000
+2025-05-03T20:23:24.967Z info: Server running on port 4000
+2025-05-03T20:27:41.829Z info: Server running on port 4000
+2025-05-03T20:29:29.321Z info: Server running on port 4000
+2025-05-03T20:34:58.649Z info: Server running on port 4000
+2025-05-03T20:37:00.737Z info: Starting scraper: Suisse Enterprise Scraper (cca694af-d990-46bd-9b8f-0358a6cbc96d)
+2025-05-03T20:37:00.741Z error: Error executing scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:00.912Z error: Error running scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:09.922Z info: Starting scraper: Suisse Enterprise Scraper (cca694af-d990-46bd-9b8f-0358a6cbc96d)
+2025-05-03T20:37:09.924Z error: Error executing scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:10.064Z error: Error running scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:10.975Z info: Starting scraper: Suisse Enterprise Scraper (cca694af-d990-46bd-9b8f-0358a6cbc96d)
+2025-05-03T20:37:10.977Z error: Error executing scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:11.078Z error: Error running scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:55.773Z info: Starting scraper: Suisse Enterprise Scraper (cca694af-d990-46bd-9b8f-0358a6cbc96d)
+2025-05-03T20:37:55.776Z error: Error executing scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:37:55.928Z error: Error running scraper cca694af-d990-46bd-9b8f-0358a6cbc96d: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:40:34.196Z info: Starting scraper: Suisse Enterprise Scraper (9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb)
+2025-05-03T20:40:34.198Z error: Error executing scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:40:34.292Z error: Error running scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+ 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+ 2. your cache path is incorrectly configured (which is: /Users/salomonks/.cache/puppeteer).
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+2025-05-03T20:53:49.288Z info: Server running on port 4000
+2025-05-03T20:58:08.113Z info: Server running on port 4000
+2025-05-03T21:04:51.508Z info: Server running on port 4000
+2025-05-03T21:09:21.715Z error: Error creating scraper: Could not find the 'frequency' column of 'scrapers' in the schema cache
+2025-05-03T21:11:48.924Z error: Error creating scraper: Could not find the 'frequency' column of 'scrapers' in the schema cache
+2025-05-03T21:16:38.707Z error: Error creating scraper: Could not find the 'frequency' column of 'scrapers' in the schema cache
+2025-05-03T21:23:27.969Z info: Server running on port 4000
+2025-05-03T21:31:36.352Z info: Starting scraper: Suisse Scraper (ae497eae-a976-4a6f-8f8f-67a57dcc4281)
+2025-05-03T21:31:40.154Z error: Error executing scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:31:40.317Z error: Error running scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:34:49.689Z info: Server running on port 4000
+2025-05-03T21:35:32.657Z info: Server running on port 4000
+2025-05-03T21:37:10.462Z info: Server running on port 4000
+2025-05-03T21:37:59.973Z info: Server running on port 4000
+2025-05-03T21:38:23.641Z info: Server running on port 4000
+2025-05-03T21:38:46.304Z info: Server running on port 4000
+2025-05-03T21:39:35.750Z info: Starting scraper: Suisse Enterprise Scraper (9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb)
+2025-05-03T21:39:37.295Z error: Error executing scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T21:39:37.480Z error: Error running scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T21:41:27.871Z info: Starting scraper: Suisse Enterprise Scraper (9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb)
+2025-05-03T21:41:29.097Z error: Error executing scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T21:41:29.216Z error: Error running scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T21:42:32.500Z info: Starting scraper: Suisse Scraper (ae497eae-a976-4a6f-8f8f-67a57dcc4281)
+2025-05-03T21:42:33.661Z error: Error executing scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:42:33.765Z error: Error running scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:43:09.113Z info: Starting scraper: Suisse Scraper (ae497eae-a976-4a6f-8f8f-67a57dcc4281)
+2025-05-03T21:43:10.276Z error: Error executing scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:43:10.374Z error: Error running scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:43:59.731Z info: Starting scraper: Suisse Scraper (ae497eae-a976-4a6f-8f8f-67a57dcc4281)
+2025-05-03T21:44:00.889Z error: Error executing scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:44:00.984Z error: Error running scraper ae497eae-a976-4a6f-8f8f-67a57dcc4281: socket hang up
+2025-05-03T21:47:21.618Z info: Starting scraper: suisse ent (7003f1a8-864e-42d6-b653-8435d7f0eac5)
+2025-05-03T21:47:23.017Z error: Error executing scraper 7003f1a8-864e-42d6-b653-8435d7f0eac5: socket hang up
+2025-05-03T21:47:23.106Z error: Error running scraper 7003f1a8-864e-42d6-b653-8435d7f0eac5: socket hang up
+2025-05-03T21:56:52.103Z info: Server running on port 4000
+2025-05-03T21:57:31.108Z info: Server running on port 4000
+2025-05-03T22:03:21.517Z info: Server running on port 4000
+2025-05-03T22:05:30.997Z info: Server running on port 4000
+2025-05-03T22:05:56.222Z info: Starting scraper: Suisse Enterprise Scraper (9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb)
+2025-05-03T22:05:57.070Z error: Error executing scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T22:05:57.195Z error: Error running scraper 9f6154b6-f47d-4d7b-8af0-a0ab3e0d9cdb: socket hang up
+2025-05-03T22:13:36.613Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-03T22:13:37.525Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-03T22:13:37.641Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-03T22:14:06.848Z info: Server running on port 4000
+2025-05-03T22:14:18.552Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-03T22:14:19.347Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-03T22:14:19.482Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-03T22:15:45.106Z info: Server running on port 4000
+2025-05-03T22:17:40.788Z info: Server running on port 4000
+2025-05-03T22:18:00.545Z info: Server running on port 4000
+2025-05-04T15:09:11.471Z info: Server running on port 4000
+2025-05-04T15:11:04.242Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-04T15:11:05.215Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T15:11:05.321Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T15:29:37.929Z info: Starting scraper: Abdjan-Scraper (d99a07c2-ae2e-49d6-83cb-84bf67dc8789)
+2025-05-04T15:29:38.919Z error: Error executing scraper d99a07c2-ae2e-49d6-83cb-84bf67dc8789: socket hang up
+2025-05-04T15:29:39.034Z error: Error running scraper d99a07c2-ae2e-49d6-83cb-84bf67dc8789: socket hang up
+2025-05-04T15:37:14.720Z info: Server running on port 4000
+2025-05-04T15:37:27.126Z info: Starting scraper: Atlanta Photo (0cefeb49-8621-48f9-bb8b-78e1b79682ff)
+2025-05-04T15:37:28.150Z error: Error executing scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:37:28.365Z error: Error running scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:41:01.832Z info: Server running on port 4000
+2025-05-04T15:42:39.121Z info: Server running on port 4000
+2025-05-04T15:44:54.188Z info: Starting scraper: Atlanta Photo (0cefeb49-8621-48f9-bb8b-78e1b79682ff)
+2025-05-04T15:44:55.198Z warn: Attempt 1 failed, retrying in 5000ms: socket hang up
+2025-05-04T15:45:00.567Z warn: Attempt 2 failed, retrying in 10000ms: socket hang up
+2025-05-04T15:45:11.103Z error: Error executing scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:45:11.388Z error: Error running scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:51:50.444Z info: Server running on port 4000
+2025-05-04T15:53:13.146Z info: Server running on port 4000
+2025-05-04T15:53:33.689Z info: Server running on port 4000
+2025-05-04T15:56:35.948Z info: Server running on port 4000
+2025-05-04T15:56:54.199Z info: Server running on port 4000
+2025-05-04T15:57:04.415Z info: Server running on port 4000
+2025-05-04T15:57:37.587Z info: Starting scraper: Atlanta Photo (0cefeb49-8621-48f9-bb8b-78e1b79682ff)
+2025-05-04T15:57:38.513Z warn: Attempt 1 failed, retrying in 5000ms: socket hang up
+2025-05-04T15:57:44.138Z warn: Attempt 2 failed, retrying in 10000ms: socket hang up
+2025-05-04T15:57:54.723Z error: Error executing scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:57:55.060Z error: Error running scraper 0cefeb49-8621-48f9-bb8b-78e1b79682ff: socket hang up
+2025-05-04T15:58:22.099Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-04T15:58:22.982Z warn: Attempt 1 failed, retrying in 5000ms: socket hang up
+2025-05-04T15:58:28.525Z warn: Attempt 2 failed, retrying in 10000ms: socket hang up
+2025-05-04T15:58:39.048Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T15:58:39.333Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T15:59:05.649Z info: Server running on port 4000
+2025-05-04T16:01:11.741Z info: Server running on port 4000
+2025-05-04T16:01:36.934Z info: Server running on port 4000
+2025-05-04T16:02:32.167Z info: Server running on port 4000
+2025-05-04T16:06:46.330Z info: Server running on port 4000
+2025-05-04T16:06:49.992Z info: Server running on port 4000
+2025-05-04T16:06:53.108Z info: Server running on port 4000
+2025-05-04T16:08:37.546Z info: Server running on port 4000
+2025-05-04T16:09:49.167Z info: Server running on port 4000
+2025-05-04T16:11:19.253Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-04T16:11:20.229Z warn: Attempt 1 failed, retrying in 3347.66951193447ms: socket hang up
+2025-05-04T16:11:24.166Z warn: Attempt 2 failed, retrying in 6996.185515989795ms: socket hang up
+2025-05-04T16:11:31.691Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T16:11:34.364Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T16:35:17.111Z info: Server running on port 4000
+2025-05-04T16:50:16.777Z info: Server running on port 4000
+2025-05-04T16:51:02.684Z info: Server running on port 4000
+2025-05-04T16:52:16.287Z info: Server running on port 4000
+2025-05-04T16:52:19.703Z info: Server running on port 4000
+2025-05-04T16:52:56.378Z info: Server running on port 4000
+2025-05-04T16:53:07.940Z info: Starting scraper: Abj (f0bf16ef-9821-49ee-bcf1-172846311bfa)
+2025-05-04T16:53:09.014Z warn: Attempt 1 failed, retrying in 3589.357597942367ms: socket hang up
+2025-05-04T16:53:13.185Z warn: Attempt 2 failed, retrying in 6500.150529530361ms: socket hang up
+2025-05-04T16:53:20.237Z error: Error executing scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
+2025-05-04T16:53:23.149Z error: Error running scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
+2025-05-04T16:56:58.875Z info: Starting scraper: Abj (f0bf16ef-9821-49ee-bcf1-172846311bfa)
+2025-05-04T16:56:59.854Z warn: Attempt 1 failed, retrying in 3297.110599884982ms: socket hang up
+2025-05-04T16:57:03.722Z warn: Attempt 2 failed, retrying in 6787.356260041448ms: socket hang up
+2025-05-04T16:57:11.111Z error: Error executing scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
+2025-05-04T16:57:13.905Z error: Error running scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up

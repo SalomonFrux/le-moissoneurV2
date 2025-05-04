@@ -1,12 +1,18 @@
 const express = require('express');
-const { runScraper, getScraperStatus } = require('../controllers/scraperController');
+const { runScraper, getScraperStatus, createScraper, getAllScrapers } = require('../controllers/scraperController');
 
 const router = express.Router();
 
-// Route to run a scraper
+// Get all scrapers
+router.get('/', getAllScrapers);
+
+// Create a new scraper
+router.post('/', createScraper);
+
+// Run a scraper
 router.post('/run/:id', runScraper);
 
-// Route to check scraper status
+// Get scraper status
 router.get('/status/:id', getScraperStatus);
 
 module.exports = router;

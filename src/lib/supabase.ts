@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize the Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Use process.env (Node-style) instead of import.meta.env
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables');
+  throw new Error(`
+    Missing Supabase env vars. Ensure they're in:
+    /Users/salomonks/Documents/afircScrapper/.env.local
+  `);
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);

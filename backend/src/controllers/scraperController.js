@@ -71,7 +71,7 @@ async function getScraperStatus(req, res, next) {
     
     const { data: scraper, error } = await supabase
       .from('scrapers')
-      .select('id, name, status, last_run')
+      .select('*')
       .eq('id', id)
       .single();
     
@@ -83,14 +83,76 @@ async function getScraperStatus(req, res, next) {
       });
     }
     
-    return res.status(200).json({ scraper });
+    return res.status(200).json(scraper);
   } catch (err) {
     logger.error(`Error in getScraperStatus: ${err.message}`);
     next(err);
   }
 }
 
+/**
+ * Get all scrapers
+ */
+async function getAllScrapers(req, res, next) {
+  try {
+    const { data, error } = await supabase
+      .from('scrapers')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      logger.error(`Error fetching scrapers: ${error.message}`);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error(`Error in getAllScrapers: ${err.message}`);
+    next(err);
+  }
+}
+
+/**
+ * Create a new scraper
+ */
+async function createScraper(req, res, next) {
+  try {
+    const { name, source, selectors, frequency } = req.body;
+
+    if (!name || !source) {
+      return res.status(400).json({ 
+        error: 'Name and source URL are required' 
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('scrapers')
+      .insert([{ 
+        name, 
+        source,
+        selectors,
+        frequency: frequency || 'manual',
+        status: 'idle',
+        data_count: 0
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      logger.error(`Error creating scraper: ${error.message}`);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(201).json(data);
+  } catch (err) {
+    logger.error(`Error in createScraper: ${err.message}`);
+    next(err);
+  }
+}
+
 module.exports = {
+  getAllScrapers,
+  createScraper,
   runScraper,
   getScraperStatus
 };

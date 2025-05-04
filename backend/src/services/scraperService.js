@@ -4,85 +4,231 @@ const { supabase } = require('../db/supabase');
 const { genericScraper } = require('../scrapers/genericScraper');
 const { newsPortalScraper } = require('../scrapers/newsPortalScraper');
 
-/**
- * Execute a scraper based on its configuration
- */
+// Configuration
+const MAX_RETRIES = 3;
+const INITIAL_DELAY = 3000;
+const MAX_DELAY = 30000;
+const MAX_CONCURRENT_PAGES = 2;
+
+let lastRequestTime = 0;
+const activeRequests = new Set();
+
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function waitForRateLimit() {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+  
+  if (timeSinceLastRequest < INITIAL_DELAY) {
+    await sleep(INITIAL_DELAY - timeSinceLastRequest);
+  }
+  
+  lastRequestTime = Date.now();
+}
+
+async function withRetry(operation, maxRetries = MAX_RETRIES) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      // Rate limiting
+      await waitForRateLimit();
+      
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      
+      const isRetryableError = 
+        error.message.includes('socket hang up') ||
+        error.message.includes('net::') ||
+        error.message.includes('Protocol error') ||
+        error.message.includes('Target closed') ||
+        error.message.includes('Connection closed') ||
+        error.message.includes('ERR_CONNECTION_RESET') ||
+        error.message.includes('ERR_CONNECTION_REFUSED') ||
+        error.message.includes('ERR_EMPTY_RESPONSE');
+      
+      if (!isRetryableError) throw error;
+      
+      if (attempt < maxRetries) {
+        const delay = Math.min(
+          INITIAL_DELAY * Math.pow(2, attempt - 1) + Math.random() * 1000,
+          MAX_DELAY
+        );
+        
+        logger.warn(`Attempt ${attempt} failed, retrying in ${delay}ms: ${error.message}`);
+        await sleep(delay);
+      }
+    }
+  }
+  
+  throw lastError;
+}
+
+async function createBrowserInstance() {
+  const args = [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-accelerated-2d-canvas',
+    '--disable-gpu',
+    '--window-size=1920x1080',
+    '--no-first-run',
+    '--no-zygote',
+    '--disable-extensions',
+    '--disable-component-extensions-with-background-pages',
+    '--disable-background-networking',
+    '--disable-sync',
+    '--metrics-recording-only',
+    '--disable-default-apps',
+    '--mute-audio',
+    '--no-default-browser-check',
+    '--disable-blink-features=AutomationControlled',
+    // HTTP/2 specific flags
+    '--disable-http2',  // Force HTTP/1.1
+    '--host-resolver-rules="MAP * ~NOTFOUND, EXCLUDE localhost"',  // Prevent DNS caching
+    // Additional performance flags
+    '--disable-features=site-per-process,TranslateUI',
+    '--disable-client-side-phishing-detection',
+    '--disable-component-update',
+    '--disable-domain-reliability',
+    '--disable-breakpad',
+    '--disable-ipc-flooding-protection'
+  ];
+
+  // Wait for concurrent requests limit
+  while (activeRequests.size >= MAX_CONCURRENT_PAGES) {
+    await sleep(1000);
+  }
+
+  const browser = await puppeteer.launch({
+    headless: "new",
+    args,
+    ignoreHTTPSErrors: true,
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+      deviceScaleFactor: 1,
+      isMobile: false,
+      hasTouch: false
+    },
+    timeout: 60000,
+    protocolTimeout: 60000
+  });
+
+  browser.on('disconnected', () => {
+    activeRequests.delete(browser);
+  });
+
+  activeRequests.add(browser);
+  return browser;
+}
+
 async function executeScraper(scraper) {
   logger.info(`Starting scraper: ${scraper.name} (${scraper.id})`);
   
+  let browser;
+  let scrapedData = [];
+  
   try {
-    // Launch browser
-    const browser = await puppeteer.launch({
-      headless: "new",
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    
-    let scrapedData = [];
-    
-    try {
-      // Determine which scraper implementation to use
-      // You can expand this with different scraper types
-      if (scraper.type === 'news') {
-        scrapedData = await newsPortalScraper(browser, scraper);
-      } else {
-        // Default to generic scraper
-        scrapedData = await genericScraper(browser, scraper);
-      }
+    await withRetry(async () => {
+      browser = await createBrowserInstance();
       
-      // Store results in Supabase
-      if (scrapedData.length > 0) {
-        // Prepare data for insertion
-        const dataToInsert = scrapedData.map(item => ({
-          scraper_id: scraper.id,
-          title: item.title || null,
-          content: item.content || null,
-          url: item.url || scraper.url || null,
-          metadata: item.metadata || {},
-          scraped_at: new Date().toISOString()
-        }));
-        
-        // Insert data
+      const scrapeOperation = async () => {
+        if (scraper.type === 'news') {
+          return await newsPortalScraper(browser, scraper);
+        } else {
+          return await genericScraper(browser, scraper);
+        }
+      };
+
+      scrapedData = await scrapeOperation();
+    });
+
+    if (scrapedData.length > 0) {
+      const dataToInsert = scrapedData.map(item => ({
+        scraper_id: scraper.id,
+        title: item.title || null,
+        content: item.content || null,
+        url: item.url || scraper.source || null,
+        metadata: item.metadata || {},
+        scraped_at: new Date().toISOString()
+      }));
+
+      await withRetry(async () => {
         const { error: insertError } = await supabase
           .from('scraped_data')
           .insert(dataToInsert);
-        
+
         if (insertError) {
           throw new Error(`Failed to store scraped data: ${insertError.message}`);
         }
-        
-        logger.info(`Stored ${dataToInsert.length} items for scraper ${scraper.id}`);
-      } else {
-        logger.warn(`No data scraped for ${scraper.id}`);
+      });
+
+      const { data: currentData, error: countError } = await supabase
+        .from('scraped_data')
+        .select('id')
+        .eq('scraper_id', scraper.id);
+
+      if (countError) {
+        logger.error(`Error getting data count: ${countError.message}`);
       }
+
+      const dataCount = currentData?.length || 0;
+
+      await withRetry(async () => {
+        await supabase
+          .from('scrapers')
+          .update({ 
+            status: 'completed',
+            last_run: new Date().toISOString(),
+            data_count: dataCount
+          })
+          .eq('id', scraper.id);
+      });
+
+      logger.info(`Stored ${dataToInsert.length} items for scraper ${scraper.id}. Total items: ${dataCount}`);
+    } else {
+      logger.warn(`No data scraped for ${scraper.id}`);
       
-      // Update scraper status to success
-      await supabase
-        .from('scrapers')
-        .update({ 
-          status: 'active', 
-          last_run: new Date().toISOString() 
-        })
-        .eq('id', scraper.id);
-      
-    } finally {
-      // Always close the browser
-      await browser.close();
+      await withRetry(async () => {
+        await supabase
+          .from('scrapers')
+          .update({ 
+            status: 'completed',
+            last_run: new Date().toISOString()
+          })
+          .eq('id', scraper.id);
+      });
     }
-    
+
     return scrapedData;
+    
   } catch (error) {
     logger.error(`Error executing scraper ${scraper.id}: ${error.message}`);
     
-    // Update scraper status to error
-    await supabase
-      .from('scrapers')
-      .update({ 
-        status: 'error', 
-        last_run: new Date().toISOString() 
-      })
-      .eq('id', scraper.id);
+    await withRetry(async () => {
+      await supabase
+        .from('scrapers')
+        .update({ 
+          status: 'error', 
+          last_run: new Date().toISOString() 
+        })
+        .eq('id', scraper.id);
+    });
     
     throw error;
+  } finally {
+    if (browser) {
+      try {
+        activeRequests.delete(browser);
+        await browser.close();
+      } catch (error) {
+        logger.error(`Error closing browser: ${error.message}`);
+      }
+    }
   }
 }
 
