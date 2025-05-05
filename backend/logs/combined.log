@@ -521,3 +521,8 @@ Call log:
 2025-05-05T21:50:55.587Z info: Starting scraper: CharWithPagination (bcdaabb9-a95e-4bda-9894-58ec6a493161)
 2025-05-05T21:51:50.217Z info: Stored 201 items for scraper bcdaabb9-a95e-4bda-9894-58ec6a493161. Total items: 201
 2025-05-05T21:51:50.218Z info: Scraper bcdaabb9-a95e-4bda-9894-58ec6a493161 completed successfully
+2025-05-05T22:24:17.312Z info: Server running on port 4000
+2025-05-05T23:15:42.082Z info: Server running on port 4000
+2025-05-05T23:16:10.856Z info: Starting scraper: CI (bcb789a0-40e9-4201-a034-622a1c584816)
+2025-05-05T23:16:21.808Z info: Stored 11 items for scraper bcb789a0-40e9-4201-a034-622a1c584816. Total items: 22
+2025-05-05T23:16:21.810Z info: Scraper bcb789a0-40e9-4201-a034-622a1c584816 completed successfully
