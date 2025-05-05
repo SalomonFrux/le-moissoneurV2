@@ -133,7 +133,8 @@ async function createScraper(req, res, next) {
         selectors,
         frequency: frequency || 'manual',
         status: 'idle',
-        data_count: 0
+        data_count: 0,
+        type: 'playwright' // Default to Playwright
       }])
       .select()
       .single();

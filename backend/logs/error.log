@@ -83,3 +83,187 @@ For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides
 2025-05-04T16:53:23.149Z error: Error running scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
 2025-05-04T16:57:11.111Z error: Error executing scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
 2025-05-04T16:57:13.905Z error: Error running scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
+2025-05-04T17:53:59.744Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T17:54:02.414Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T17:59:43.813Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T17:59:46.312Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T19:12:33.327Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T19:12:36.120Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T20:38:25.400Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T20:38:35.454Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T20:47:11.898Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: read ECONNRESET
+2025-05-04T20:47:11.912Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: Failed to launch the browser process!
+[39592:259:0504/224711.582305:ERROR:policy_logger.cc(156)] :components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc(161) Cloud management controller initialization aborted as CBCM is not enabled. Please use the `--enable-chrome-browser-cloud-management` command line flag to enable it if you are not using the official Google Chrome build.
+[0504/224711.905085:WARNING:crash_report_exception_handler.cc(235)] UniversalExceptionRaise: (os/kern) failure (5)
+
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+2025-05-04T20:47:16.173Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: read ECONNRESET
+2025-05-04T20:47:16.249Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: Failed to launch the browser process!
+[39592:259:0504/224711.582305:ERROR:policy_logger.cc(156)] :components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc(161) Cloud management controller initialization aborted as CBCM is not enabled. Please use the `--enable-chrome-browser-cloud-management` command line flag to enable it if you are not using the official Google Chrome build.
+[0504/224711.905085:WARNING:crash_report_exception_handler.cc(235)] UniversalExceptionRaise: (os/kern) failure (5)
+
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+2025-05-04T20:47:17.779Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: read ECONNRESET
+2025-05-04T20:47:22.815Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: read ECONNRESET
+2025-05-04T20:47:23.912Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T20:47:26.774Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T20:47:26.929Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T20:47:30.050Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-05T09:25:52.771Z error: Error executing scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T09:25:55.548Z error: Error running scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T09:31:12.295Z error: Error executing scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T09:31:15.070Z error: Error running scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T10:05:44.469Z error: Error executing scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T10:05:47.283Z error: Error running scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T10:07:14.885Z error: Error creating scraper: Could not find the 'type' column of 'scrapers' in the schema cache
+2025-05-05T10:08:07.726Z error: Error creating scraper: Could not find the 'type' column of 'scrapers' in the schema cache
+2025-05-05T10:08:48.034Z error: Error creating scraper: Could not find the 'type' column of 'scrapers' in the schema cache
+2025-05-05T10:41:12.601Z error: Error executing scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T10:41:15.192Z error: Error running scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T11:17:50.746Z error: Error executing scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T11:17:53.581Z error: Error running scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T11:48:51.399Z error: Error executing scraper 6fd562be-9d9d-4131-802e-eb9d4c021ee5: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.table-detail') to be visible[22m
+[2m    34 × locator resolved to 30 elements. Proceeding with the first one: <div class="table-detail">…</div>[22m
+
+2025-05-05T11:48:51.642Z error: Error running scraper 6fd562be-9d9d-4131-802e-eb9d4c021ee5: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.table-detail') to be visible[22m
+[2m    34 × locator resolved to 30 elements. Proceeding with the first one: <div class="table-detail">…</div>[22m
+
+2025-05-05T13:39:42.049Z error: Error executing scraper df24f7bf-49fc-4fbb-8e7f-4db3e51ab062: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('span.palmares-phone, a[href^="mailto:"], a[href^="http"]') to be visible[22m
+[2m    34 × locator resolved to 40 elements. Proceeding with the first one: <a class="bg-hover-color" href="https://www.charika.ma/cgv">…</a>[22m
+
+2025-05-05T13:39:42.278Z error: Error running scraper df24f7bf-49fc-4fbb-8e7f-4db3e51ab062: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('span.palmares-phone, a[href^="mailto:"], a[href^="http"]') to be visible[22m
+[2m    34 × locator resolved to 40 elements. Proceeding with the first one: <a class="bg-hover-color" href="https://www.charika.ma/cgv">…</a>[22m
+
+2025-05-05T13:45:58.020Z error: Error executing scraper fa0cb95a-157c-4e52-aec7-79afeb28e078: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('a[href^="mailto:"]') to be visible[22m
+[2m    34 × locator resolved to 12 elements. Proceeding with the first one: <a href="mailto:younese.eddahni@seoer.co.ma">younese.eddahni@seoer.co.ma</a>[22m
+
+2025-05-05T13:45:58.245Z error: Error running scraper fa0cb95a-157c-4e52-aec7-79afeb28e078: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('a[href^="mailto:"]') to be visible[22m
+[2m    34 × locator resolved to 12 elements. Proceeding with the first one: <a href="mailto:younese.eddahni@seoer.co.ma">younese.eddahni@seoer.co.ma</a>[22m
+
+2025-05-05T13:50:02.783Z error: Error executing scraper 4816d87d-c9fa-43a8-bfe3-08a62070e076: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ligne-tfmw') to be visible[22m
+[2m    34 × locator resolved to 76 elements. Proceeding with the first one: <div class=" ligne-tfmw">…</div>[22m
+
+2025-05-05T13:50:03.038Z error: Error running scraper 4816d87d-c9fa-43a8-bfe3-08a62070e076: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ligne-tfmw') to be visible[22m
+[2m    34 × locator resolved to 76 elements. Proceeding with the first one: <div class=" ligne-tfmw">…</div>[22m
+
+2025-05-05T13:51:32.293Z error: Error executing scraper e77701c3-f844-494f-907c-88db900bdd38: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ligne-tfmw') to be visible[22m
+[2m    34 × locator resolved to 76 elements. Proceeding with the first one: <div class=" ligne-tfmw">…</div>[22m
+
+2025-05-05T13:51:32.637Z error: Error running scraper e77701c3-f844-494f-907c-88db900bdd38: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ligne-tfmw') to be visible[22m
+[2m    34 × locator resolved to 76 elements. Proceeding with the first one: <div class=" ligne-tfmw">…</div>[22m
+
+2025-05-05T13:53:24.067Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ListElement_listElement__XNKIP ListElement_listElementActive__yjJ0t') to be visible[22m
+
+2025-05-05T13:53:24.735Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ListElement_listElement__XNKIP ListElement_listElementActive__yjJ0t') to be visible[22m
+
+2025-05-05T15:23:11.673Z error: Error executing scraper 5ce37456-d1e2-45f1-9cde-0cabf4368d75: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('a[href^="mailto:"]') to be visible[22m
+[2m    34 × locator resolved to 12 elements. Proceeding with the first one: <a href="mailto:younese.eddahni@seoer.co.ma">younese.eddahni@seoer.co.ma</a>[22m
+
+2025-05-05T15:23:11.973Z error: Error running scraper 5ce37456-d1e2-45f1-9cde-0cabf4368d75: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('a[href^="mailto:"]') to be visible[22m
+[2m    34 × locator resolved to 12 elements. Proceeding with the first one: <a href="mailto:younese.eddahni@seoer.co.ma">younese.eddahni@seoer.co.ma</a>[22m
+
+2025-05-05T15:57:05.486Z error: Error executing scraper 42b1e25e-3a2c-4857-b760-a7af2bf06110: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T15:57:05.695Z error: Error running scraper 42b1e25e-3a2c-4857-b760-a7af2bf06110: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T15:59:17.558Z error: Error executing scraper fa454ff6-9283-4da0-96dc-416c616b752b: page.waitForSelector: Unexpected token "" while parsing css selector "". Did you mean to CSS.escape it?
+Call log:
+[2m  - waiting for  to be visible[22m
+
+2025-05-05T15:59:17.786Z error: Error running scraper fa454ff6-9283-4da0-96dc-416c616b752b: page.waitForSelector: Unexpected token "" while parsing css selector "". Did you mean to CSS.escape it?
+Call log:
+[2m  - waiting for  to be visible[22m
+
+2025-05-05T16:00:25.502Z error: Error executing scraper 42b1e25e-3a2c-4857-b760-a7af2bf06110: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T16:00:25.727Z error: Error running scraper 42b1e25e-3a2c-4857-b760-a7af2bf06110: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T16:20:31.483Z error: Error fetching scrapers: TypeError: fetch failed
+2025-05-05T16:41:46.383Z error: Error executing scraper 10fe84da-757e-4eed-9f71-fea032281046: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T16:41:46.747Z error: Error running scraper 10fe84da-757e-4eed-9f71-fea032281046: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T18:45:33.874Z error: Error executing scraper 12c150c9-61ab-4cc9-b29d-c5be4121819c: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T18:45:34.310Z error: Error running scraper 12c150c9-61ab-4cc9-b29d-c5be4121819c: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T18:50:32.423Z error: Error executing scraper c32b8252-ce05-4520-8c0c-f71bb93c40f4: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.row') to be visible[22m
+[2m    25 × locator resolved to 51 elements. Proceeding with the first one: <div class="row">…</div>[22m
+
+2025-05-05T18:50:32.805Z error: Error running scraper c32b8252-ce05-4520-8c0c-f71bb93c40f4: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.row') to be visible[22m
+[2m    25 × locator resolved to 51 elements. Proceeding with the first one: <div class="row">…</div>[22m
+
+2025-05-05T20:38:44.764Z error: Error executing scraper 548232d3-5980-465e-8ca0-2e3f8498c8e6: page.evaluate: Target page, context or browser has been closed
+2025-05-05T20:38:45.291Z error: Error running scraper 548232d3-5980-465e-8ca0-2e3f8498c8e6: page.evaluate: Target page, context or browser has been closed

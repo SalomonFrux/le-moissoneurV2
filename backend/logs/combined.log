@@ -172,3 +172,352 @@ For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides
 2025-05-04T16:57:03.722Z warn: Attempt 2 failed, retrying in 6787.356260041448ms: socket hang up
 2025-05-04T16:57:11.111Z error: Error executing scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
 2025-05-04T16:57:13.905Z error: Error running scraper f0bf16ef-9821-49ee-bcf1-172846311bfa: socket hang up
+2025-05-04T17:51:30.074Z info: Server running on port 4000
+2025-05-04T17:53:47.412Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-04T17:53:48.426Z warn: Attempt 1 failed, retrying in 3825.21766432575ms: socket hang up
+2025-05-04T17:53:52.687Z warn: Attempt 2 failed, retrying in 6515.992715840422ms: socket hang up
+2025-05-04T17:53:59.744Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T17:54:02.414Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T17:59:31.210Z info: Starting scraper: neuchatel (0a02ef63-a471-4af4-a926-b9aef4c85ae3)
+2025-05-04T17:59:32.110Z warn: Attempt 1 failed, retrying in 3956.510739176614ms: socket hang up
+2025-05-04T17:59:36.616Z warn: Attempt 2 failed, retrying in 6496.645934825112ms: socket hang up
+2025-05-04T17:59:43.813Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T17:59:46.312Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T19:11:00.768Z info: Server running on port 4000
+2025-05-04T19:11:01.541Z info: Server running on port 4000
+2025-05-04T19:12:00.329Z info: Server running on port 4000
+2025-05-04T19:12:21.410Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-04T19:12:22.526Z warn: Attempt 1 failed, retrying in 3473.180864326494ms: socket hang up
+2025-05-04T19:12:26.596Z warn: Attempt 2 failed, retrying in 6172.555068082751ms: socket hang up
+2025-05-04T19:12:33.327Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T19:12:36.120Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T19:57:09.870Z info: Server running on port 4000
+2025-05-04T20:36:46.627Z info: Server running on port 4000
+2025-05-04T20:38:13.506Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-04T20:38:14.319Z warn: Attempt 1 failed, retrying in 3440.4189383046864ms: socket hang up
+2025-05-04T20:38:18.329Z warn: Attempt 2 failed, retrying in 6530.491508012014ms: socket hang up
+2025-05-04T20:38:25.400Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T20:38:35.454Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: socket hang up
+2025-05-04T20:45:41.777Z info: Server running on port 4000
+2025-05-04T20:46:11.544Z info: Server running on port 4000
+2025-05-04T20:46:13.351Z info: Server running on port 4000
+2025-05-04T20:46:18.300Z info: Server running on port 4000
+2025-05-04T20:46:21.536Z info: Server running on port 4000
+2025-05-04T20:47:08.346Z info: Starting scraper: neuchatel (0a02ef63-a471-4af4-a926-b9aef4c85ae3)
+2025-05-04T20:47:08.354Z info: Starting scraper: neuchatel (0a02ef63-a471-4af4-a926-b9aef4c85ae3)
+2025-05-04T20:47:08.397Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-04T20:47:08.424Z info: Starting scraper: neuchatel (0a02ef63-a471-4af4-a926-b9aef4c85ae3)
+2025-05-04T20:47:08.541Z info: Starting scraper: neuchatel (0a02ef63-a471-4af4-a926-b9aef4c85ae3)
+2025-05-04T20:47:09.026Z warn: Attempt 1 failed, retrying in 3855.5898569444216ms: socket hang up
+2025-05-04T20:47:11.898Z error: Error executing scraper 200375a4-eec5-4254-97f6-03914bbef13e: read ECONNRESET
+2025-05-04T20:47:11.912Z warn: Attempt 1 failed, retrying in 3243.626277374687ms: socket hang up
+2025-05-04T20:47:11.912Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: Failed to launch the browser process!
+[39592:259:0504/224711.582305:ERROR:policy_logger.cc(156)] :components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc(161) Cloud management controller initialization aborted as CBCM is not enabled. Please use the `--enable-chrome-browser-cloud-management` command line flag to enable it if you are not using the official Google Chrome build.
+[0504/224711.905085:WARNING:crash_report_exception_handler.cc(235)] UniversalExceptionRaise: (os/kern) failure (5)
+
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+2025-05-04T20:47:11.928Z warn: Attempt 1 failed, retrying in 3411.0409675052774ms: socket hang up
+2025-05-04T20:47:14.899Z warn: Attempt 2 failed, retrying in 6931.759920844878ms: socket hang up
+2025-05-04T20:47:16.173Z error: Error running scraper 200375a4-eec5-4254-97f6-03914bbef13e: read ECONNRESET
+2025-05-04T20:47:16.249Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: Failed to launch the browser process!
+[39592:259:0504/224711.582305:ERROR:policy_logger.cc(156)] :components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc(161) Cloud management controller initialization aborted as CBCM is not enabled. Please use the `--enable-chrome-browser-cloud-management` command line flag to enable it if you are not using the official Google Chrome build.
+[0504/224711.905085:WARNING:crash_report_exception_handler.cc(235)] UniversalExceptionRaise: (os/kern) failure (5)
+
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+2025-05-04T20:47:17.779Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: read ECONNRESET
+2025-05-04T20:47:17.792Z warn: Attempt 2 failed, retrying in 6446.3820410755825ms: socket hang up
+2025-05-04T20:47:22.815Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: read ECONNRESET
+2025-05-04T20:47:23.912Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T20:47:26.774Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T20:47:26.929Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T20:47:30.050Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: socket hang up
+2025-05-04T20:47:48.632Z info: Server running on port 4000
+2025-05-05T08:48:38.173Z info: Server running on port 4000
+2025-05-05T09:25:41.216Z info: Starting scraper: Ecom-Abidjan (2ae7920a-81bd-4284-8bb8-932b0cf9d1db)
+2025-05-05T09:25:42.045Z warn: Attempt 1 failed, retrying in 3245.276535249771ms: socket hang up
+2025-05-05T09:25:45.868Z warn: Attempt 2 failed, retrying in 6348.886308049548ms: socket hang up
+2025-05-05T09:25:52.771Z error: Error executing scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T09:25:55.548Z error: Error running scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T09:30:13.439Z info: Server running on port 4000
+2025-05-05T09:31:00.169Z info: Starting scraper: Ecom-Abidjan (2ae7920a-81bd-4284-8bb8-932b0cf9d1db)
+2025-05-05T09:31:00.820Z warn: Attempt 1 failed, retrying in 3836.6845060770456ms: socket hang up
+2025-05-05T09:31:05.213Z warn: Attempt 2 failed, retrying in 6529.587541870752ms: socket hang up
+2025-05-05T09:31:12.295Z error: Error executing scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T09:31:15.070Z error: Error running scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T09:31:31.378Z info: Server running on port 4000
+2025-05-05T10:02:33.584Z info: Server running on port 4000
+2025-05-05T10:03:20.706Z info: Server running on port 4000
+2025-05-05T10:04:15.265Z info: Server running on port 4000
+2025-05-05T10:05:08.423Z info: Server running on port 4000
+2025-05-05T10:05:33.100Z info: Starting scraper: Ecom-Abidjan (2ae7920a-81bd-4284-8bb8-932b0cf9d1db)
+2025-05-05T10:05:33.969Z warn: Attempt 1 failed, retrying in 3325.2238262836336ms: socket hang up
+2025-05-05T10:05:37.847Z warn: Attempt 2 failed, retrying in 6062.626667164404ms: socket hang up
+2025-05-05T10:05:44.469Z error: Error executing scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T10:05:47.283Z error: Error running scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db: socket hang up
+2025-05-05T10:07:14.885Z error: Error creating scraper: Could not find the 'type' column of 'scrapers' in the schema cache
+2025-05-05T10:08:07.726Z error: Error creating scraper: Could not find the 'type' column of 'scrapers' in the schema cache
+2025-05-05T10:08:48.034Z error: Error creating scraper: Could not find the 'type' column of 'scrapers' in the schema cache
+2025-05-05T10:18:16.267Z info: Starting scraper: Abidjan-Ecom (49a49128-5f4d-4c77-9fc5-090021e9a4cf)
+2025-05-05T10:18:28.554Z info: Stored 10 items for scraper 49a49128-5f4d-4c77-9fc5-090021e9a4cf. Total items: 10
+2025-05-05T10:18:28.555Z info: Scraper 49a49128-5f4d-4c77-9fc5-090021e9a4cf completed successfully
+2025-05-05T10:40:58.366Z info: Starting scraper: The-Knot-photographers (51e07961-3037-4fe0-8acd-d4be228fa1aa)
+2025-05-05T10:40:59.498Z warn: Attempt 1 failed, retrying in 3561.7270229939013ms: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T10:41:05.109Z warn: Attempt 2 failed, retrying in 6694.893143201292ms: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T10:41:12.601Z error: Error executing scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T10:41:15.192Z error: Error running scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T11:17:39.530Z info: Starting scraper: The-Knot-photographers (51e07961-3037-4fe0-8acd-d4be228fa1aa)
+2025-05-05T11:17:40.101Z warn: Attempt 1 failed, retrying in 3568.89864035949ms: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T11:17:44.142Z warn: Attempt 2 failed, retrying in 6065.961979629957ms: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T11:17:50.746Z error: Error executing scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T11:17:53.581Z error: Error running scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured
+Call log:
+[2m  - navigating to "https://www.theknot.com/marketplace/wedding-photographers-atlanta-ga?page=2&sort=featured", waiting until "load"[22m
+
+2025-05-05T11:29:28.949Z info: Server running on port 4000
+2025-05-05T11:29:29.685Z info: Server running on port 4000
+2025-05-05T11:34:21.035Z info: Server running on port 4000
+2025-05-05T11:34:32.845Z info: Starting scraper: The-Knot-photographers (51e07961-3037-4fe0-8acd-d4be228fa1aa)
+2025-05-05T11:34:42.677Z info: Stored 30 items for scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa. Total items: 30
+2025-05-05T11:34:42.677Z info: Scraper 51e07961-3037-4fe0-8acd-d4be228fa1aa completed successfully
+2025-05-05T11:48:33.509Z info: Starting scraper: Maroc (6fd562be-9d9d-4131-802e-eb9d4c021ee5)
+2025-05-05T11:48:51.399Z error: Error executing scraper 6fd562be-9d9d-4131-802e-eb9d4c021ee5: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.table-detail') to be visible[22m
+[2m    34 × locator resolved to 30 elements. Proceeding with the first one: <div class="table-detail">…</div>[22m
+
+2025-05-05T11:48:51.642Z error: Error running scraper 6fd562be-9d9d-4131-802e-eb9d4c021ee5: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.table-detail') to be visible[22m
+[2m    34 × locator resolved to 30 elements. Proceeding with the first one: <div class="table-detail">…</div>[22m
+
+2025-05-05T12:10:16.383Z info: Server running on port 4000
+2025-05-05T12:10:37.966Z info: Server running on port 4000
+2025-05-05T12:18:32.140Z info: Starting scraper: Phot Knot (8b48f7af-e987-41d8-9ccc-209c89c32ac2)
+2025-05-05T12:18:46.683Z info: Stored 30 items for scraper 8b48f7af-e987-41d8-9ccc-209c89c32ac2. Total items: 30
+2025-05-05T12:18:46.683Z info: Scraper 8b48f7af-e987-41d8-9ccc-209c89c32ac2 completed successfully
+2025-05-05T13:04:28.029Z info: Starting scraper: Charika (ff29a0a7-801e-4fce-8c5e-9338fb6d02c9)
+2025-05-05T13:04:34.369Z info: Stored 91 items for scraper ff29a0a7-801e-4fce-8c5e-9338fb6d02c9. Total items: 91
+2025-05-05T13:04:34.369Z info: Scraper ff29a0a7-801e-4fce-8c5e-9338fb6d02c9 completed successfully
+2025-05-05T13:19:53.299Z info: Server running on port 4000
+2025-05-05T13:19:57.855Z info: Server running on port 4000
+2025-05-05T13:39:23.757Z info: Starting scraper: Charika-email-phone-site (df24f7bf-49fc-4fbb-8e7f-4db3e51ab062)
+2025-05-05T13:39:42.049Z error: Error executing scraper df24f7bf-49fc-4fbb-8e7f-4db3e51ab062: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('span.palmares-phone, a[href^="mailto:"], a[href^="http"]') to be visible[22m
+[2m    34 × locator resolved to 40 elements. Proceeding with the first one: <a class="bg-hover-color" href="https://www.charika.ma/cgv">…</a>[22m
+
+2025-05-05T13:39:42.278Z error: Error running scraper df24f7bf-49fc-4fbb-8e7f-4db3e51ab062: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('span.palmares-phone, a[href^="mailto:"], a[href^="http"]') to be visible[22m
+[2m    34 × locator resolved to 40 elements. Proceeding with the first one: <a class="bg-hover-color" href="https://www.charika.ma/cgv">…</a>[22m
+
+2025-05-05T13:45:39.455Z info: Starting scraper: Charika-Email (fa0cb95a-157c-4e52-aec7-79afeb28e078)
+2025-05-05T13:45:58.020Z error: Error executing scraper fa0cb95a-157c-4e52-aec7-79afeb28e078: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('a[href^="mailto:"]') to be visible[22m
+[2m    34 × locator resolved to 12 elements. Proceeding with the first one: <a href="mailto:younese.eddahni@seoer.co.ma">younese.eddahni@seoer.co.ma</a>[22m
+
+2025-05-05T13:45:58.245Z error: Error running scraper fa0cb95a-157c-4e52-aec7-79afeb28e078: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('a[href^="mailto:"]') to be visible[22m
+[2m    34 × locator resolved to 12 elements. Proceeding with the first one: <a href="mailto:younese.eddahni@seoer.co.ma">younese.eddahni@seoer.co.ma</a>[22m
+
+2025-05-05T13:49:43.893Z info: Starting scraper: Charika-CCSSElectorOnly (4816d87d-c9fa-43a8-bfe3-08a62070e076)
+2025-05-05T13:50:02.783Z error: Error executing scraper 4816d87d-c9fa-43a8-bfe3-08a62070e076: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ligne-tfmw') to be visible[22m
+[2m    34 × locator resolved to 76 elements. Proceeding with the first one: <div class=" ligne-tfmw">…</div>[22m
+
+2025-05-05T13:50:03.038Z error: Error running scraper 4816d87d-c9fa-43a8-bfe3-08a62070e076: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ligne-tfmw') to be visible[22m
+[2m    34 × locator resolved to 76 elements. Proceeding with the first one: <div class=" ligne-tfmw">…</div>[22m
+
+2025-05-05T13:51:14.103Z info: Starting scraper: WithPuppeter (e77701c3-f844-494f-907c-88db900bdd38)
+2025-05-05T13:51:32.293Z error: Error executing scraper e77701c3-f844-494f-907c-88db900bdd38: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ligne-tfmw') to be visible[22m
+[2m    34 × locator resolved to 76 elements. Proceeding with the first one: <div class=" ligne-tfmw">…</div>[22m
+
+2025-05-05T13:51:32.637Z error: Error running scraper e77701c3-f844-494f-907c-88db900bdd38: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ligne-tfmw') to be visible[22m
+[2m    34 × locator resolved to 76 elements. Proceeding with the first one: <div class=" ligne-tfmw">…</div>[22m
+
+2025-05-05T13:52:34.640Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-05T13:52:43.241Z info: Stored 10 items for scraper 200375a4-eec5-4254-97f6-03914bbef13e. Total items: 10
+2025-05-05T13:52:43.242Z info: Scraper 200375a4-eec5-4254-97f6-03914bbef13e completed successfully
+2025-05-05T13:53:06.385Z info: Starting scraper: neuchatel (0a02ef63-a471-4af4-a926-b9aef4c85ae3)
+2025-05-05T13:53:24.067Z error: Error executing scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ListElement_listElement__XNKIP ListElement_listElementActive__yjJ0t') to be visible[22m
+
+2025-05-05T13:53:24.735Z error: Error running scraper 0a02ef63-a471-4af4-a926-b9aef4c85ae3: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('.ListElement_listElement__XNKIP ListElement_listElementActive__yjJ0t') to be visible[22m
+
+2025-05-05T15:22:52.035Z info: Starting scraper: Char-email (5ce37456-d1e2-45f1-9cde-0cabf4368d75)
+2025-05-05T15:23:11.673Z error: Error executing scraper 5ce37456-d1e2-45f1-9cde-0cabf4368d75: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('a[href^="mailto:"]') to be visible[22m
+[2m    34 × locator resolved to 12 elements. Proceeding with the first one: <a href="mailto:younese.eddahni@seoer.co.ma">younese.eddahni@seoer.co.ma</a>[22m
+
+2025-05-05T15:23:11.973Z error: Error running scraper 5ce37456-d1e2-45f1-9cde-0cabf4368d75: page.waitForSelector: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('a[href^="mailto:"]') to be visible[22m
+[2m    34 × locator resolved to 12 elements. Proceeding with the first one: <a href="mailto:younese.eddahni@seoer.co.ma">younese.eddahni@seoer.co.ma</a>[22m
+
+2025-05-05T15:26:26.362Z info: Starting scraper: Test2-annuaireCI (9040804d-d5ba-486e-9252-1d6ae6dd9566)
+2025-05-05T15:26:35.422Z info: Stored 10 items for scraper 9040804d-d5ba-486e-9252-1d6ae6dd9566. Total items: 10
+2025-05-05T15:26:35.422Z info: Scraper 9040804d-d5ba-486e-9252-1d6ae6dd9566 completed successfully
+2025-05-05T15:28:09.340Z info: Server running on port 4000
+2025-05-05T15:34:47.312Z info: Server running on port 4000
+2025-05-05T15:37:51.973Z info: Server running on port 4000
+2025-05-05T15:39:42.222Z info: Starting scraper: Test-Char2 (6148f54d-41fd-4926-8afa-7f5996b9706b)
+2025-05-05T15:40:02.706Z info: Stored 40 items for scraper 6148f54d-41fd-4926-8afa-7f5996b9706b. Total items: 40
+2025-05-05T15:40:02.707Z info: Scraper 6148f54d-41fd-4926-8afa-7f5996b9706b completed successfully
+2025-05-05T15:45:18.864Z info: Starting scraper: Ecom-Abidjan (2ae7920a-81bd-4284-8bb8-932b0cf9d1db)
+2025-05-05T15:45:27.573Z info: Stored 10 items for scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db. Total items: 10
+2025-05-05T15:45:27.574Z info: Scraper 2ae7920a-81bd-4284-8bb8-932b0cf9d1db completed successfully
+2025-05-05T15:53:22.169Z info: Server running on port 4000
+2025-05-05T15:56:43.620Z info: Starting scraper: Testing-Selector (42b1e25e-3a2c-4857-b760-a7af2bf06110)
+2025-05-05T15:57:05.486Z error: Error executing scraper 42b1e25e-3a2c-4857-b760-a7af2bf06110: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T15:57:05.695Z error: Error running scraper 42b1e25e-3a2c-4857-b760-a7af2bf06110: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T15:59:06.472Z info: Starting scraper: TestingSelector3 (fa454ff6-9283-4da0-96dc-416c616b752b)
+2025-05-05T15:59:17.558Z error: Error executing scraper fa454ff6-9283-4da0-96dc-416c616b752b: page.waitForSelector: Unexpected token "" while parsing css selector "". Did you mean to CSS.escape it?
+Call log:
+[2m  - waiting for  to be visible[22m
+
+2025-05-05T15:59:17.786Z error: Error running scraper fa454ff6-9283-4da0-96dc-416c616b752b: page.waitForSelector: Unexpected token "" while parsing css selector "". Did you mean to CSS.escape it?
+Call log:
+[2m  - waiting for  to be visible[22m
+
+2025-05-05T16:00:04.428Z info: Starting scraper: Testing-Selector (42b1e25e-3a2c-4857-b760-a7af2bf06110)
+2025-05-05T16:00:25.502Z error: Error executing scraper 42b1e25e-3a2c-4857-b760-a7af2bf06110: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T16:00:25.727Z error: Error running scraper 42b1e25e-3a2c-4857-b760-a7af2bf06110: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T16:07:09.495Z info: Starting scraper: Abidjan (200375a4-eec5-4254-97f6-03914bbef13e)
+2025-05-05T16:07:19.646Z info: Stored 10 items for scraper 200375a4-eec5-4254-97f6-03914bbef13e. Total items: 20
+2025-05-05T16:07:19.647Z info: Scraper 200375a4-eec5-4254-97f6-03914bbef13e completed successfully
+2025-05-05T16:10:18.311Z info: Server running on port 4000
+2025-05-05T16:12:14.021Z info: Server running on port 4000
+2025-05-05T16:12:15.005Z info: Server running on port 4000
+2025-05-05T16:14:44.781Z info: Server running on port 4000
+2025-05-05T16:20:31.483Z error: Error fetching scrapers: TypeError: fetch failed
+2025-05-05T16:22:10.291Z info: Server running on port 4000
+2025-05-05T16:41:24.547Z info: Starting scraper: Char33 (10fe84da-757e-4eed-9f71-fea032281046)
+2025-05-05T16:41:46.383Z error: Error executing scraper 10fe84da-757e-4eed-9f71-fea032281046: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T16:41:46.747Z error: Error running scraper 10fe84da-757e-4eed-9f71-fea032281046: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T18:39:30.981Z info: Server running on port 4000
+2025-05-05T18:42:53.849Z info: Server running on port 4000
+2025-05-05T18:43:07.315Z info: Server running on port 4000
+2025-05-05T18:43:08.847Z info: Server running on port 4000
+2025-05-05T18:43:21.057Z info: Server running on port 4000
+2025-05-05T18:45:11.118Z info: Starting scraper: Charki-test4 (12c150c9-61ab-4cc9-b29d-c5be4121819c)
+2025-05-05T18:45:33.874Z error: Error executing scraper 12c150c9-61ab-4cc9-b29d-c5be4121819c: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T18:45:34.310Z error: Error running scraper 12c150c9-61ab-4cc9-b29d-c5be4121819c: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.col-md-6') to be visible[22m
+[2m    25 × locator resolved to 74 elements. Proceeding with the first one: <div title="Se connecter" class="col-md-6 nopadding">…</div>[22m
+
+2025-05-05T18:50:10.098Z info: Starting scraper: Char-testing5 (c32b8252-ce05-4520-8c0c-f71bb93c40f4)
+2025-05-05T18:50:32.423Z error: Error executing scraper c32b8252-ce05-4520-8c0c-f71bb93c40f4: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.row') to be visible[22m
+[2m    25 × locator resolved to 51 elements. Proceeding with the first one: <div class="row">…</div>[22m
+
+2025-05-05T18:50:32.805Z error: Error running scraper c32b8252-ce05-4520-8c0c-f71bb93c40f4: page.waitForSelector: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.row') to be visible[22m
+[2m    25 × locator resolved to 51 elements. Proceeding with the first one: <div class="row">…</div>[22m
+
+2025-05-05T19:37:06.475Z info: Server running on port 4000
+2025-05-05T19:38:01.794Z info: Server running on port 4000
+2025-05-05T19:39:47.062Z info: Starting scraper: charika-multipleSelectors (db6d9b3e-ebe4-4ba3-a06c-d7708aceca94)
+2025-05-05T19:40:04.537Z info: Stored 11 items for scraper db6d9b3e-ebe4-4ba3-a06c-d7708aceca94. Total items: 11
+2025-05-05T19:40:04.538Z info: Scraper db6d9b3e-ebe4-4ba3-a06c-d7708aceca94 completed successfully
+2025-05-05T19:56:23.385Z info: Server running on port 4000
+2025-05-05T20:06:25.887Z info: Starting scraper: Charika (78292909-3af8-4433-a624-c49f5210fcdc)
+2025-05-05T20:06:40.631Z info: Stored 1 items for scraper 78292909-3af8-4433-a624-c49f5210fcdc. Total items: 1
+2025-05-05T20:06:40.632Z info: Scraper 78292909-3af8-4433-a624-c49f5210fcdc completed successfully
+2025-05-05T20:16:43.350Z info: Server running on port 4000
+2025-05-05T20:20:04.261Z info: Server running on port 4000
+2025-05-05T20:38:34.814Z info: Starting scraper: charika (548232d3-5980-465e-8ca0-2e3f8498c8e6)
+2025-05-05T20:38:44.764Z error: Error executing scraper 548232d3-5980-465e-8ca0-2e3f8498c8e6: page.evaluate: Target page, context or browser has been closed
+2025-05-05T20:38:45.291Z error: Error running scraper 548232d3-5980-465e-8ca0-2e3f8498c8e6: page.evaluate: Target page, context or browser has been closed
+2025-05-05T20:41:01.282Z info: Starting scraper: Test2 (37550ad5-f78b-4b41-96f3-f585415008ba)
+2025-05-05T20:41:18.434Z info: Stored 11 items for scraper 37550ad5-f78b-4b41-96f3-f585415008ba. Total items: 11
+2025-05-05T20:41:18.434Z info: Scraper 37550ad5-f78b-4b41-96f3-f585415008ba completed successfully
+2025-05-05T20:46:29.983Z info: Starting scraper: test4 (f9918eb3-28b5-4ee6-9c12-465ecb461625)
+2025-05-05T20:46:40.937Z info: Stored 1 items for scraper f9918eb3-28b5-4ee6-9c12-465ecb461625. Total items: 1
+2025-05-05T20:46:40.938Z info: Scraper f9918eb3-28b5-4ee6-9c12-465ecb461625 completed successfully
+2025-05-05T20:47:30.572Z info: Server running on port 4000
+2025-05-05T20:47:56.938Z info: Server running on port 4000
+2025-05-05T20:48:03.747Z info: Server running on port 4000
+2025-05-05T20:48:11.275Z info: Server running on port 4000
+2025-05-05T20:50:35.639Z info: Starting scraper: Char (13f8d85c-686a-42c6-a330-e6016f8a41b0)
+2025-05-05T20:50:49.787Z info: Stored 17 items for scraper 13f8d85c-686a-42c6-a330-e6016f8a41b0. Total items: 17
+2025-05-05T20:50:49.788Z info: Scraper 13f8d85c-686a-42c6-a330-e6016f8a41b0 completed successfully
+2025-05-05T21:01:35.592Z info: Server running on port 4000
+2025-05-05T21:01:42.786Z info: Server running on port 4000
+2025-05-05T21:10:19.336Z info: Starting scraper: Charika-Maroc (56a90401-0768-46c7-bd91-96313d5dfdad)
+2025-05-05T21:10:35.208Z info: Stored 48 items for scraper 56a90401-0768-46c7-bd91-96313d5dfdad. Total items: 48
+2025-05-05T21:10:35.209Z info: Scraper 56a90401-0768-46c7-bd91-96313d5dfdad completed successfully
+2025-05-05T21:26:38.942Z info: Starting scraper: CI (bcb789a0-40e9-4201-a034-622a1c584816)
+2025-05-05T21:26:49.198Z info: Stored 11 items for scraper bcb789a0-40e9-4201-a034-622a1c584816. Total items: 11
+2025-05-05T21:26:49.198Z info: Scraper bcb789a0-40e9-4201-a034-622a1c584816 completed successfully
+2025-05-05T21:50:55.587Z info: Starting scraper: CharWithPagination (bcdaabb9-a95e-4bda-9894-58ec6a493161)
+2025-05-05T21:51:50.217Z info: Stored 201 items for scraper bcdaabb9-a95e-4bda-9894-58ec6a493161. Total items: 201
+2025-05-05T21:51:50.218Z info: Scraper bcdaabb9-a95e-4bda-9894-58ec6a493161 completed successfully

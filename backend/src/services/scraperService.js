@@ -3,6 +3,7 @@ const { logger } = require('../utils/logger');
 const { supabase } = require('../db/supabase');
 const { genericScraper } = require('../scrapers/genericScraper');
 const { newsPortalScraper } = require('../scrapers/newsPortalScraper');
+const { playwrightScraper } = require('../scrapers/playwrightScraper');
 
 // Configuration
 const MAX_RETRIES = 3;
@@ -134,8 +135,23 @@ async function executeScraper(scraper) {
   
   try {
     await withRetry(async () => {
+      // Use Playwright if type is 'playwright'
+      if (scraper.type === 'playwright') {
+        scrapedData = await playwrightScraper(
+          scraper.source || scraper.url,
+          scraper.selectors?.main,
+          scraper.selectors?.pagination // Pass pagination selector from config
+        );
+        // Map Playwright results to expected format
+        scrapedData = scrapedData.map(text => ({
+          title: scraper.name,
+          content: text,
+          url: scraper.source || scraper.url,
+          metadata: {}
+        }));
+        return;
+      }
       browser = await createBrowserInstance();
-      
       const scrapeOperation = async () => {
         if (scraper.type === 'news') {
           return await newsPortalScraper(browser, scraper);
@@ -143,7 +159,6 @@ async function executeScraper(scraper) {
           return await genericScraper(browser, scraper);
         }
       };
-
       scrapedData = await scrapeOperation();
     });
 
