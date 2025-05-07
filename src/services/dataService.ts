@@ -1,3 +1,4 @@
+import { Company } from '@/components/dashboard/DataTable';
 import { supabase } from '../lib/supabase';
 
 export interface ScrapedData {
@@ -100,3 +101,27 @@ export async function deleteScrapedData(id: string): Promise<void> {
     throw error;
   }
 }
+
+async function fetchScrapers(): Promise<any[]> {
+  const { data, error } = await supabase.from('scrapers').select('*');
+
+  if (error) {
+    console.error('Error fetching scrapers:', error);
+    throw new Error('Failed to fetch scrapers');
+  }
+
+  return data || [];
+}
+
+async function fetchCompanies(): Promise<Company[]> {
+  const { data, error } = await supabase.from('companies').select('*');
+
+  if (error) {
+    console.error('Error fetching companies:', error);
+    throw new Error('Failed to fetch companies');
+  }
+
+  return data || [];
+}
+
+export { fetchScrapers, fetchCompanies };

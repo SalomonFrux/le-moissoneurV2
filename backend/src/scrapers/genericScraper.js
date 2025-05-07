@@ -241,167 +241,69 @@ async function handleBlockingScenarios(page) {
 
 async function genericScraper(browser, scraperConfig) {
   const url = scraperConfig.source || scraperConfig.url;
-  const selector = scraperConfig.selectors?.main;
-  
-  if (!url) {
-    throw new Error('URL is required for scraping');
+  const mainSelector = scraperConfig.selectors?.main;
+
+  if (!url || !mainSelector) {
+    throw new Error('URL and main selector are required for scraping');
   }
-  
+
   logger.info(`Generic scraper running for URL: ${url}`);
-  
-  let retries = 0;
-  const maxRetries = 3;
 
-  while (retries < maxRetries) {
-    const page = await browser.newPage();
-    
-    try {
-      await setupPage(page, url);
+  const page = await browser.newPage();
 
-      // Add slight randomization to navigation timing
-      await randomDelay(1000, 2000);
-      
-      const navigationPromise = page.goto(url, {
-        waitUntil: ['domcontentloaded', 'networkidle2'],
-        timeout: 60000 // Increased from 30000
-      });
+  try {
+    await setupPage(page, url);
+    await page.goto(url, { waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 60000 });
 
-      // Detect and handle navigation timeouts
-      const navigationTimeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Navigation timeout')), 35000)
-      );
-
-      await Promise.race([navigationPromise, navigationTimeout]);
-      
-      // Check for blocking scenarios
-      await handleBlockingScenarios(page);
-
-      // Random scroll behavior
-      await page.evaluate(async () => {
-        const scrollHeight = document.documentElement.scrollHeight;
-        let currentPosition = 0;
-        const scrollStep = Math.floor(Math.random() * (100 - 50) + 50);
-        
-        while (currentPosition < scrollHeight) {
-          window.scrollTo(0, currentPosition);
-          currentPosition += scrollStep;
-          await new Promise(r => setTimeout(r, Math.random() * 100));
+    // Extract data for each main element
+    const data = await page.evaluate((mainSelector, childSelectors) => {
+      function getVisibleText(element) {
+        const style = window.getComputedStyle(element);
+        if (style.display === 'none' || style.visibility === 'hidden') {
+          return '';
         }
-      });
 
-      // Wait for content with retry
-      if (selector) {
-        try {
-          await page.waitForSelector(selector, { timeout: 10000 });
-        } catch (error) {
-          logger.warn(`Selector ${selector} not found, retrying...`);
-          await randomDelay(2000, 3000);
-          await page.reload({ waitUntil: 'networkidle2' });
-          await page.waitForSelector(selector, { timeout: 10000 });
-        }
-      }
-
-      // Extract data
-      const data = await page.evaluate((selector) => {
-        function getVisibleText(element) {
-          const style = window.getComputedStyle(element);
-          if (style.display === 'none' || style.visibility === 'hidden') {
+        return Array.from(element.childNodes)
+          .map(node => {
+            if (node.nodeType === 3) return node.textContent;
+            if (node.nodeType === 1) return getVisibleText(node);
             return '';
-          }
-          
-          return Array.from(element.childNodes)
-            .map(node => {
-              if (node.nodeType === 3) return node.textContent;
-              if (node.nodeType === 1) return getVisibleText(node);
-              return '';
-            })
-            .join(' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-        }
+          })
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
 
-        const results = [];
-        
-        if (selector) {
-          document.querySelectorAll(selector).forEach(el => {
-            const text = getVisibleText(el);
-            if (text) {
-              results.push({
-                text,
-                html: el.innerHTML,
-                links: Array.from(el.querySelectorAll('a')).map(a => ({
-                  text: a.textContent.trim(),
-                  href: a.href,
-                  title: a.title || ''
-                }))
-              });
-            }
-          });
-        } else {
-          // Fallback content extraction
-          const mainContent = document.querySelector('main') || 
-                            document.querySelector('article') || 
-                            document.querySelector('.content');
-          
-          if (mainContent) {
-            results.push({
-              text: getVisibleText(mainContent),
-              html: mainContent.innerHTML,
-              links: Array.from(mainContent.querySelectorAll('a')).map(a => ({
-                text: a.textContent.trim(),
-                href: a.href,
-                title: a.title || ''
-              }))
-            });
+      const results = [];
+
+      document.querySelectorAll(mainSelector).forEach(mainElement => {
+        const row = {};
+
+        for (const [key, selector] of Object.entries(childSelectors)) {
+          const childElement = mainElement.querySelector(selector);
+          if (childElement) {
+            row[key] = {
+              text: getVisibleText(childElement),
+              html: childElement.innerHTML,
+              href: childElement.href || null,
+              value: getVisibleText(childElement)
+            };
           }
         }
 
-        return {
-          title: document.title,
-          url: window.location.href,
-          results,
-          metadata: {
-            description: document.querySelector('meta[name="description"]')?.content,
-            keywords: document.querySelector('meta[name="keywords"]')?.content,
-            language: document.documentElement.lang
-          }
-        };
-      }, selector);
+        results.push(row);
+      });
 
-      if (!data.results.length) {
-        throw new Error('NO_CONTENT_FOUND');
-      }
+      return results;
+    }, mainSelector, scraperConfig.selectors.childSelectors);
 
-      await randomDelay(1000, 2000);
-      await page.close();
-      
-      return data.results.map(item => ({
-        title: data.title,
-        content: item.text,
-        url: data.url,
-        metadata: {
-          ...data.metadata,
-          links: item.links
-        }
-      }));
+    await page.close();
 
-    } catch (error) {
-      await page.close();
-      
-      if (error.message.includes('CHALLENGE_DETECTED')) {
-        logger.error(`Anti-bot challenge detected: ${error.message}`);
-        throw error;
-      }
-
-      if (retries < maxRetries - 1) {
-        retries++;
-        logger.warn(`Attempt ${retries} failed: ${error.message}`);
-        await randomDelay(5000 * retries, 10000 * retries);
-        continue;
-      }
-      
-      throw error;
-    }
+    return data;
+  } catch (error) {
+    await page.close();
+    logger.error(`Error scraping URL ${url}: ${error.message}`);
+    throw error;
   }
 }
 

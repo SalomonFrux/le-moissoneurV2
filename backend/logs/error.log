@@ -267,3 +267,39 @@ Call log:
 
 2025-05-05T20:38:44.764Z error: Error executing scraper 548232d3-5980-465e-8ca0-2e3f8498c8e6: page.evaluate: Target page, context or browser has been closed
 2025-05-05T20:38:45.291Z error: Error running scraper 548232d3-5980-465e-8ca0-2e3f8498c8e6: page.evaluate: Target page, context or browser has been closed
+2025-05-07T19:01:20.770Z error: Error executing scraper 6a48753a-ff74-4b36-b3d8-dd9e95a80c83: page.evaluate: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': The provided selector is empty.
+    at eval (eval at evaluate (:313:29), <anonymous>:4:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-07T19:01:21.477Z error: Error running scraper 6a48753a-ff74-4b36-b3d8-dd9e95a80c83: page.evaluate: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': The provided selector is empty.
+    at eval (eval at evaluate (:313:29), <anonymous>:4:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-07T19:40:21.483Z error: Error executing scraper a7d3e16a-47ad-4959-94ba-d60dab3a7ae3: page.evaluate: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': The provided selector is empty.
+    at eval (eval at evaluate (:313:29), <anonymous>:4:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-07T19:40:21.827Z error: Error running scraper a7d3e16a-47ad-4959-94ba-d60dab3a7ae3: page.evaluate: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': The provided selector is empty.
+    at eval (eval at evaluate (:313:29), <anonymous>:4:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-07T20:32:14.203Z error: Error executing scraper 6a48753a-ff74-4b36-b3d8-dd9e95a80c83: page.evaluate: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': The provided selector is empty.
+    at eval (eval at evaluate (:313:29), <anonymous>:4:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-07T20:32:16.813Z error: Error running scraper 6a48753a-ff74-4b36-b3d8-dd9e95a80c83: page.evaluate: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': The provided selector is empty.
+    at eval (eval at evaluate (:313:29), <anonymous>:4:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)

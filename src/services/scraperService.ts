@@ -49,18 +49,19 @@ export async function getScraperById(id: string): Promise<Scraper | null> {
 /**
  * Create a new scraper
  */
+// Ensure the `selectors` field is saved as JSON in the database
 export async function createScraper(scraper: Omit<Scraper, 'id' | 'created_at'>): Promise<Scraper> {
   const { data, error } = await supabase
     .from('scrapers')
-    .insert([scraper])
+    .insert([{ ...scraper, selectors: JSON.stringify(scraper.selectors) }])
     .select()
     .single();
-  
+
   if (error) {
     console.error('Error creating scraper:', error);
     throw error;
   }
-  
+
   return data;
 }
 

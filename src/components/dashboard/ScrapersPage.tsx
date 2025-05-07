@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScraperCard } from './ScraperCard';
 import {
   Dialog,
@@ -11,16 +11,16 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '../ui/dialog';
-import { Textarea } from '../ui/textarea';
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
-import { useToast } from '../../hooks/use-toast';
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { Scraper, getScrapers, createScraper, deleteScraper } from '../../services/scraperService';
 
 export function ScrapersPage() {
@@ -31,6 +31,8 @@ export function ScrapersPage() {
     description: '',
     url: '',
     type: 'generic', // Default to generic scraper
+    frequency: 'manual', // Default frequency
+    selectors: { main: null }, // Default selectors
     status: 'inactive' as const,
   });
   const [open, setOpen] = useState(false);
@@ -84,6 +86,8 @@ export function ScrapersPage() {
         description: '',
         url: '',
         type: 'generic',
+        frequency: 'manual',
+        selectors: { main: null },
         status: 'inactive',
       });
       setOpen(false);
@@ -184,6 +188,55 @@ export function ScrapersPage() {
                   rows={3}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="frequency">Frequency</Label>
+                <Select
+                  value={newScraper.frequency}
+                  onValueChange={(value) => setNewScraper({ ...newScraper, frequency: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a frequency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="mainSelector">Main Selector</Label>
+                <Input
+                  id="mainSelector"
+                  value={newScraper.selectors.main || ''}
+                  onChange={(e) => setNewScraper({
+                    ...newScraper,
+                    selectors: { ...newScraper.selectors, main: e.target.value },
+                  })}
+                  placeholder="Enter the main container selector, e.g., div.row"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="childSelectors">Child Selectors</Label>
+                <Textarea
+                  id="childSelectors"
+                  value={JSON.stringify(newScraper.selectors.childSelectors || {}, null, 2)}
+                  onChange={(e) => {
+                    try {
+                      const parsedSelectors = JSON.parse(e.target.value);
+                      setNewScraper({
+                        ...newScraper,
+                        selectors: { ...newScraper.selectors, childSelectors: parsedSelectors },
+                      });
+                    } catch (error) {
+                      console.error('Invalid JSON for child selectors:', error);
+                    }
+                  }}
+                  placeholder='Enter child selectors as JSON, e.g., {"name": "h1.title", "address": "span.address"}'
+                  rows={5}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
@@ -214,7 +267,6 @@ export function ScrapersPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {scrapers.map((scraper) => (
                 <ScraperCard 
-                  key={scraper.id} 
                   scraper={scraper} 
                   onDelete={() => handleDeleteScraper(scraper.id)} 
                 />

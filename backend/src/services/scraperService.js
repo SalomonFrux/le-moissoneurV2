@@ -247,6 +247,68 @@ async function executeScraper(scraper) {
   }
 }
 
+/**
+ * Populate the companies table with data extracted from the scraped_data table.
+ */
+async function populateCompanies() {
+  try {
+    // Fetch all scraped data
+    const { data: scrapedData, error: fetchError } = await supabase
+      .from('scraped_data')
+      .select('*');
+
+    if (fetchError) {
+      console.error('Error fetching scraped data:', fetchError);
+      throw fetchError;
+    }
+
+    for (const record of scrapedData) {
+      const { title, metadata, url, scraper_id, scraped_at } = record;
+
+      // Extract company data from scraped_data
+      const company = {
+        name: title || 'Unknown',
+        sector: metadata?.sector || 'Unknown',
+        country: metadata?.country || 'Unknown',
+        website: url || null,
+        linkedin: metadata?.linkedin || null,
+        email: metadata?.email || null,
+        source: scraper_id,
+        last_updated: scraped_at,
+      };
+
+      // Check if the company already exists
+      const { data: existingCompany, error: checkError } = await supabase
+        .from('companies')
+        .select('id')
+        .eq('name', company.name)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') { // Ignore "No rows found" error
+        console.error('Error checking existing company:', checkError);
+        throw checkError;
+      }
+
+      if (!existingCompany) {
+        // Insert the company into the companies table
+        const { error: insertError } = await supabase
+          .from('companies')
+          .insert(company);
+
+        if (insertError) {
+          console.error('Error inserting company:', insertError);
+          throw insertError;
+        }
+      }
+    }
+
+    console.log('Companies table populated successfully.');
+  } catch (error) {
+    console.error('Error populating companies table:', error);
+  }
+}
+
 module.exports = {
-  executeScraper
+  executeScraper,
+  populateCompanies
 };

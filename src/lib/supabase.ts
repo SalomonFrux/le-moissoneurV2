@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Use process.env (Node-style) instead of import.meta.env
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+// Replace process.env with import.meta.env for Vite compatibility
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error(`

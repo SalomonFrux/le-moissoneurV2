@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useToast } from '../../hooks/use-toast';
+import { React, useState, useEffect } from 'react';
+import { useToast } from '../../hooks/useToast';
 import { ScrapedData, getAllData, deleteScrapedData } from '../../services/dataService';
 import { DataTable } from './DataTable';
 import { Button } from '../ui/button';

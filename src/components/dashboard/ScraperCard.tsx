@@ -1,7 +1,9 @@
+
+import React from 'react';
 import { useState, useEffect } from 'react';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
+import { Button } from '../../../africa-venture-harvest/src/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../africa-venture-harvest/src/components/ui/card';
+import { Badge } from '../../../africa-venture-harvest/src/components/ui/badge';
 import {
   Dialog,
   DialogTrigger,
@@ -10,14 +12,14 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '../ui/dialog';
+} from '../../../africa-venture-harvest/src/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { useToast } from '../../hooks/use-toast';
+} from '../../../africa-venture-harvest/src/components/ui/dropdown-menu';
+import { useToast } from '../../../africa-venture-harvest/src/hooks/use-toast';
 import { Scraper, updateScraper } from '../../services/scraperService';
 import { CalendarIcon, Clock, MoreVertical, Play, Trash } from 'lucide-react';
 
@@ -27,6 +29,9 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000
 interface ScraperCardProps {
   scraper: Scraper;
   onDelete: () => void;
+  onRunScraper: (id: string) => void;
+  onStopScraper: (id: string) => void;
+  onViewData: (id: string) => void;
 }
 
 export function ScraperCard({ scraper, onDelete }: ScraperCardProps) {
