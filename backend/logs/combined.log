@@ -605,3 +605,10 @@ Call log:
 2025-05-07T23:33:02.887Z info: Starting scraper: ANCI (6c87e5d3-5f18-490d-a6f3-29a4da3b998b)
 2025-05-07T23:33:11.243Z info: Stored 7 items for scraper 6c87e5d3-5f18-490d-a6f3-29a4da3b998b. Total items: 7
 2025-05-07T23:33:11.244Z info: Scraper 6c87e5d3-5f18-490d-a6f3-29a4da3b998b completed successfully
+2025-05-08T00:12:33.662Z info: Server running on port 4000
+2025-05-08T00:27:33.057Z info: Server running on port 4000
+2025-05-08T00:35:59.165Z info: Server running on port 4000
+2025-05-08T01:32:25.165Z info: Server running on port 4000
+2025-05-08T01:48:34.492Z info: Starting scraper: ANCI (6c87e5d3-5f18-490d-a6f3-29a4da3b998b)
+2025-05-08T01:48:44.322Z info: Stored 7 items for scraper 6c87e5d3-5f18-490d-a6f3-29a4da3b998b. Total items: 14
+2025-05-08T01:48:44.322Z info: Scraper 6c87e5d3-5f18-490d-a6f3-29a4da3b998b completed successfully

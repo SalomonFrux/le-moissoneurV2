@@ -3,13 +3,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { Auth } from './components/Auth';
-import { Sidebar } from './components/Sidebar';
-import { Header } from './components/Header';
-import { MobileSidebar } from './components/MobileSidebar';
+import { Sidebar } from '../frontend/src/components/Sidebar';
+import { Header } from '../frontend/src/components/Header';
+import { MobileSidebar } from '../frontend/src/components/MobileSidebar';
 import { ScrapersPage } from './components/dashboard/ScrapersPage';
 import { DataPage } from './components/dashboard/DataPage';
 import { Dashboard } from './components/dashboard/Dashboard';
-import { Toaster } from './components/ui/toaster';
+import { Toaster } from '../frontend/src/components/ui/toaster';
 import './App.css';
 
 function App() {

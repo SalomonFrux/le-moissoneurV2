@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Button } from '../../../africa-venture-harvest/src/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../africa-venture-harvest/src/components/ui/card';
-import { Badge } from '../../../africa-venture-harvest/src/components/ui/badge';
+import { Button } from '../../../frontend/src/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../frontend/src/components/ui/card';
+import { Badge } from '../../../frontend/src/components/ui/badge';
 import {
   Dialog,
   DialogTrigger,
@@ -12,14 +12,14 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '../../../africa-venture-harvest/src/components/ui/dialog';
+} from '../../../frontend/src/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../../africa-venture-harvest/src/components/ui/dropdown-menu';
-import { useToast } from '../../../africa-venture-harvest/src/hooks/use-toast';
+} from '../../../frontend/src/components/ui/dropdown-menu';
+import { useToast } from '../../../frontend/src/hooks/use-toast';
 import { Scraper, updateScraper } from '../../services/scraperService';
 import { CalendarIcon, Clock, MoreVertical, Play, Trash } from 'lucide-react';
 
@@ -31,7 +31,7 @@ interface ScraperCardProps {
   onDelete: () => void;
   onRunScraper: (id: string) => void;
   onStopScraper: (id: string) => void;
-  onViewData: (id: string) => void;
+  onViewData: (id: string) => void
 }
 
 export function ScraperCard({ scraper, onDelete }: ScraperCardProps) {
