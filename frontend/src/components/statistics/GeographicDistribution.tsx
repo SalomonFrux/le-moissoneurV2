@@ -1,27 +1,40 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-
-const data = [
-  { pays: 'Nigeria', entreprises: 68, investments: 120 },
-  { pays: 'Kenya', entreprises: 45, investments: 85 },
-  { pays: 'Afrique du Sud', entreprises: 42, investments: 95 },
-  { pays: "Côte d'Ivoire", entreprises: 28, investments: 45 },
-  { pays: 'Ghana', entreprises: 26, investments: 40 },
-  { pays: 'Egypte', entreprises: 24, investments: 55 },
-  { pays: 'Rwanda', entreprises: 15, investments: 25 },
-];
-
-// Modern color palette for the charts
-const barColors = {
-  entreprises: "#2D8B61", // Green from africa.green in tailwind config
-  investments: "#9C6B22" // Earth from africa.earth in tailwind config
-};
-
-const pieColors = ["#2D8B61", "#56BC82", "#8ED6AF", "#BDECD3", "#DCF1E7"];
+import { fetchGeographicDistribution, fetchRegionalDistribution } from '../../../../src/services/dataService';
 
 export function GeographicDistribution() {
+  const [data, setData] = useState([]);
+  const [regionData, setRegionData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const [geo, region] = await Promise.all([
+          fetchGeographicDistribution(),
+          fetchRegionalDistribution()
+        ]);
+        setData(geo);
+        setRegionData(region);
+      } catch {
+        setData([]);
+        setRegionData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const barColors = {
+    entreprises: "#2D8B61",
+    investments: "#9C6B22"
+  };
+
+  const pieColors = ["#2D8B61", "#56BC82", "#8ED6AF", "#BDECD3", "#DCF1E7"];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="lg:col-span-2">
@@ -33,7 +46,7 @@ export function GeographicDistribution() {
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={data}
+                data={loading ? [] : data}
                 margin={{
                   top: 20,
                   right: 30,
@@ -60,7 +73,6 @@ export function GeographicDistribution() {
           </div>
         </CardContent>
       </Card>
-      
       <Card>
         <CardHeader>
           <CardTitle>Répartition régionale</CardTitle>
@@ -71,13 +83,7 @@ export function GeographicDistribution() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart width={400} height={400}>
                 <Pie
-                  data={[
-                    { name: 'Ouest', value: 125 },
-                    { name: 'Est', value: 80 },
-                    { name: 'Sud', value: 60 },
-                    { name: 'Nord', value: 50 },
-                    { name: 'Centre', value: 25 },
-                  ]}
+                  data={loading ? [] : regionData}
                   cx="50%"
                   cy="50%"
                   outerRadius={80}

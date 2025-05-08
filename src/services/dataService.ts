@@ -1,5 +1,5 @@
 import { Company } from '@/components/dashboard/DataTable';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase'; 
 
 export interface ScrapedData {
   id: string;
@@ -29,7 +29,7 @@ export async function getAllData(limit = 100): Promise<ScrapedData[]> {
   
   return data || [];
 }
-
+ 
 /**
  * Fetch data for a specific scraper
  */
@@ -124,4 +124,71 @@ async function fetchCompanies(): Promise<Company[]> {
   return data || [];
 }
 
-export { fetchScrapers, fetchCompanies };
+//To be well implemented:
+async function fetchEnrichmentTasks(): Promise<Company[]> {
+  const { data, error } = await supabase.from('enrichment_tasks').select('*');
+
+  if (error) {
+    console.error('Error fetching enrichment tasks:', error);
+    throw new Error('Failed to fetch enrichment tasks');
+  }
+
+  return data || [];
+}
+
+// Fetch collection trends (monthly company count, new companies)
+export async function fetchCollectionTrends() {
+  const { data, error } = await supabase.rpc('get_collection_trends');
+  if (error) throw error;
+  return data;
+}
+
+// Fetch enrichment rates (monthly enrichment %)
+export async function fetchEnrichmentRates() {
+  const { data, error } = await supabase.rpc('get_enrichment_rates');
+  if (error) throw error;
+  return data;
+}
+
+// Fetch sector distribution (sector, count, color)
+export async function fetchSectorDistribution() {
+  const { data, error } = await supabase.rpc('get_sector_distribution');
+  if (error) throw error;
+  return data;
+}
+
+// Fetch top fintech subsectors
+export async function fetchFintechSubsectors() {
+  const { data, error } = await supabase.rpc('get_fintech_subsectors');
+  if (error) throw error;
+  return data;
+}
+
+// Fetch source comparison (source, company count, completeness, etc.)
+export async function fetchSourceComparison() {
+  const { data, error } = await supabase.rpc('get_source_comparison');
+  if (error) throw error;
+  return data;
+}
+
+// Fetch geographic distribution (country, company count, investments)
+export async function fetchGeographicDistribution() {
+  const { data, error } = await supabase.rpc('get_geographic_distribution');
+  if (error) throw error;
+  return data;
+}
+
+// Fetch regional distribution (region, company count)
+export async function fetchRegionalDistribution() {
+  const { data, error } = await supabase.rpc('get_regional_distribution');
+  if (error) throw error;
+  return data;
+}
+
+// This function needs to be implemented. 
+// It should fetch statistics summary from a database or API.
+export function fetchStatisticsSummary() {
+  // Function implementation
+}
+
+export { fetchScrapers, fetchCompanies, fetchEnrichmentTasks };

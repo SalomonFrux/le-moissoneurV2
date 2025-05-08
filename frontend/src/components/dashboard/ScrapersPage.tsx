@@ -27,6 +27,7 @@ export function ScrapersPage() {
     selector: string;
     paginationSelector: string;
     dropdownClickSelector?: string;
+    childSelectors?: string;
     engine: 'playwright' | 'puppeteer';
     frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
   }>({
@@ -35,6 +36,7 @@ export function ScrapersPage() {
     selector: '',
     paginationSelector: '',
     dropdownClickSelector: '',
+    childSelectors: '',
     engine: 'playwright',
     frequency: 'manual'
   });
@@ -61,12 +63,12 @@ export function ScrapersPage() {
 
   const handleNewScraper = () => {
     setShowForm(true);
-    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', engine: 'playwright', frequency: 'manual' });
+    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual' });
   };
 
   const handleCancel = () => {
     setShowForm(false);
-    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', engine: 'playwright', frequency: 'manual' });
+    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual' });
   };
 
   const handleCreateScraper = async (e: React.FormEvent) => {
@@ -81,10 +83,11 @@ export function ScrapersPage() {
       const newScraper = await createScraper({
         name: formData.name,
         source: formData.source,
-        selectors: formData.selector || formData.paginationSelector || formData.dropdownClickSelector ? {
+        selectors: formData.selector || formData.paginationSelector || formData.dropdownClickSelector || formData.childSelectors ? {
           main: formData.selector,
           pagination: formData.paginationSelector,
-          dropdownClick: formData.dropdownClickSelector
+          dropdownClick: formData.dropdownClickSelector,
+          child: formData.childSelectors ? JSON.parse(formData.childSelectors) : undefined
         } : undefined,
         frequency: formData.frequency,
         status: 'idle',
@@ -93,7 +96,7 @@ export function ScrapersPage() {
       });
       
       setScrapers(prev => [...prev, newScraper]);
-      setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', engine: 'playwright', frequency: 'manual' });
+      setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual' });
       setShowForm(false);
       toast.success('Scraper created successfully');
     } catch (error) {
@@ -290,6 +293,16 @@ export function ScrapersPage() {
                   placeholder="Ex: .accordion-toggle, .dropdown-arrow"
                   value={formData.dropdownClickSelector || ''}
                   onChange={(e) => handleInputChange('dropdownClickSelector', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="childSelectors" className="text-sm font-medium">Sélecteurs enfants (JSON)</label>
+                <Textarea
+                  id="childSelectors"
+                  placeholder={`Exemple: {"name": "h1.title", "address": "span.address", "phone": "span.palmares-phone", "email": "a[href^='mailto:']", "website": "a[href^='http']"}`}
+                  value={formData.childSelectors || ''}
+                  onChange={(e) => handleInputChange('childSelectors', e.target.value)}
+                  rows={4}
                 />
               </div>
               <div className="space-y-2">

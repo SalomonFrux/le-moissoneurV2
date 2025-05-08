@@ -1,16 +1,27 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-
-const sourceData = [
-  { source: 'FADEV', entreprises: 78, complete: 85, secteurs: ['Fintech', 'E-commerce', 'Edtech'], fill: '#000000' },
-  { source: 'I&P', entreprises: 45, complete: 92, secteurs: ['Agritech', 'Santé', 'Énergie'], fill: '#333333' },
-  { source: 'Orange Ventures', entreprises: 32, complete: 78, secteurs: ['Fintech', 'Mobile', 'IoT'], fill: '#555555' },
-  { source: 'Jeune Afrique', entreprises: 103, complete: 65, secteurs: ['Diverse'], fill: '#777777' },
-];
+import { fetchSourceComparison } from '../../../../src/services/dataService';
 
 export function SourceComparison() {
+  const [sourceData, setSourceData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const data = await fetchSourceComparison();
+        setSourceData(data);
+      } catch {
+        setSourceData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
@@ -22,7 +33,7 @@ export function SourceComparison() {
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={sourceData}
+                data={loading ? [] : sourceData}
                 margin={{
                   top: 20,
                   right: 30,
@@ -43,7 +54,6 @@ export function SourceComparison() {
           </div>
         </CardContent>
       </Card>
-      
       <Card>
         <CardHeader>
           <CardTitle>Répartition des données par source</CardTitle>
@@ -54,7 +64,7 @@ export function SourceComparison() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={sourceData}
+                  data={loading ? [] : sourceData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -75,7 +85,6 @@ export function SourceComparison() {
           </div>
         </CardContent>
       </Card>
-
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>Qualité des données par source</CardTitle>
@@ -83,7 +92,9 @@ export function SourceComparison() {
         </CardHeader>
         <CardContent>
           <div className="space-y-8">
-            {sourceData.map((source, i) => (
+            {loading ? (
+              <div>Chargement...</div>
+            ) : sourceData.map((source, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">

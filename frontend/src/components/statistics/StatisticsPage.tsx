@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   BarChart3, 
   Globe, 
@@ -13,8 +12,45 @@ import { SectorDistribution } from './SectorDistribution';
 import { GeographicDistribution } from './GeographicDistribution';
 import { CollectionTrends } from './CollectionTrends';
 import { SourceComparison } from './SourceComparison';
+//import { fetchStatisticsSummary } from '../../../../src/services/dataService';
 
 export function StatisticsPage() {
+  const [summary, setSummary] = useState({
+    companies: 0,
+    companiesChange: 0,
+    countries: 0,
+    sectors: 0,
+    growth: 0,
+    countriesLabel: '',
+    sectorsLabel: '',
+    growthLabel: '',
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSummary() {
+      setLoading(true);
+      try {
+        const data = await fetchStatisticsSummary();
+        setSummary(data);
+      } catch {
+        setSummary({
+          companies: 0,
+          companiesChange: 0,
+          countries: 0,
+          sectors: 0,
+          growth: 0,
+          countriesLabel: '',
+          sectorsLabel: '',
+          growthLabel: '',
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSummary();
+  }, []);
+
   return (
     <div className="space-y-8 p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -41,10 +77,10 @@ export function StatisticsPage() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">258</div>
+            <div className="text-2xl font-bold">{loading ? '...' : summary.companies}</div>
             <p className="mt-2 text-xs text-muted-foreground flex items-center">
               <span className="mr-1 inline-flex items-center rounded-md px-1 py-0.5 text-xs font-medium bg-green-50 text-green-700">
-                +12%
+                {loading ? '...' : `${summary.companiesChange > 0 ? '+' : ''}${summary.companiesChange}%`}
               </span>
               depuis le mois dernier
             </p>
@@ -58,9 +94,9 @@ export function StatisticsPage() {
             <Globe className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">14</div>
+            <div className="text-2xl font-bold">{loading ? '...' : summary.countries}</div>
             <p className="mt-2 text-xs text-muted-foreground flex items-center">
-              Afrique de l'Ouest principalement
+              {loading ? '...' : summary.countriesLabel || "Afrique de l'Ouest principalement"}
             </p>
           </CardContent>
         </Card>
@@ -72,9 +108,9 @@ export function StatisticsPage() {
             <PieChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">18</div>
+            <div className="text-2xl font-bold">{loading ? '...' : summary.sectors}</div>
             <p className="mt-2 text-xs text-muted-foreground flex items-center">
-              Tech et Fintech dominants
+              {loading ? '...' : summary.sectorsLabel || 'Tech et Fintech dominants'}
             </p>
           </CardContent>
         </Card>
@@ -86,9 +122,9 @@ export function StatisticsPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+23%</div>
+            <div className="text-2xl font-bold">{loading ? '...' : `${summary.growth > 0 ? '+' : ''}${summary.growth}%`}</div>
             <p className="mt-2 text-xs text-muted-foreground flex items-center">
-              Taux de croissance trimestriel
+              {loading ? '...' : summary.growthLabel || 'Taux de croissance trimestriel'}
             </p>
           </CardContent>
         </Card>

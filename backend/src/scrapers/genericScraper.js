@@ -241,7 +241,9 @@ async function handleBlockingScenarios(page) {
 
 async function genericScraper(browser, scraperConfig) {
   const url = scraperConfig.source || scraperConfig.url;
-  const mainSelector = scraperConfig.selectors?.main;
+  const selectors = scraperConfig.selectors || {};
+  const mainSelector = selectors.main;
+  const childSelectors = selectors.child || selectors.childSelectors || {};
 
   if (!url || !mainSelector) {
     throw new Error('URL and main selector are required for scraping');
@@ -255,14 +257,12 @@ async function genericScraper(browser, scraperConfig) {
     await setupPage(page, url);
     await page.goto(url, { waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 60000 });
 
-    // Extract data for each main element
     const data = await page.evaluate((mainSelector, childSelectors) => {
       function getVisibleText(element) {
         const style = window.getComputedStyle(element);
         if (style.display === 'none' || style.visibility === 'hidden') {
           return '';
         }
-
         return Array.from(element.childNodes)
           .map(node => {
             if (node.nodeType === 3) return node.textContent;
@@ -273,12 +273,9 @@ async function genericScraper(browser, scraperConfig) {
           .replace(/\s+/g, ' ')
           .trim();
       }
-
       const results = [];
-
       document.querySelectorAll(mainSelector).forEach(mainElement => {
         const row = {};
-
         for (const [key, selector] of Object.entries(childSelectors)) {
           const childElement = mainElement.querySelector(selector);
           if (childElement) {
@@ -290,15 +287,12 @@ async function genericScraper(browser, scraperConfig) {
             };
           }
         }
-
         results.push(row);
       });
-
       return results;
-    }, mainSelector, scraperConfig.selectors.childSelectors);
+    }, mainSelector, childSelectors);
 
     await page.close();
-
     return data;
   } catch (error) {
     await page.close();

@@ -1,30 +1,45 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-
-const data = [
-  { mois: 'Jan', entreprises: 180, nouveaux: 15 },
-  { mois: 'Fév', entreprises: 195, nouveaux: 20 },
-  { mois: 'Mars', entreprises: 215, nouveaux: 25 },
-  { mois: 'Avril', entreprises: 240, nouveaux: 18 },
-  { mois: 'Mai', entreprises: 258, nouveaux: 22 },
-];
-
-// Configuration pour les graphiques personnalisés
-const chartConfig = {
-  total: {
-    label: 'Total',
-    theme: { light: '#000000', dark: '#000000' },
-  },
-  nouveaux: {
-    label: 'Nouveaux',
-    theme: { light: '#555555', dark: '#555555' },
-  }
-};
+import { fetchCollectionTrends, fetchEnrichmentRates } from '../../../../src/services/dataService';
 
 export function CollectionTrends() {
+  const [trendData, setTrendData] = useState([]);
+  const [enrichmentData, setEnrichmentData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const [trends, enrichment] = await Promise.all([
+          fetchCollectionTrends(),
+          fetchEnrichmentRates()
+        ]);
+        setTrendData(trends);
+        setEnrichmentData(enrichment);
+      } catch (e) {
+        setTrendData([]);
+        setEnrichmentData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const chartConfig = {
+    total: {
+      label: 'Total',
+      theme: { light: '#000000', dark: '#000000' },
+    },
+    nouveaux: {
+      label: 'Nouveaux',
+      theme: { light: '#555555', dark: '#555555' },
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6">
       <Card>
@@ -37,7 +52,7 @@ export function CollectionTrends() {
             <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={data}
+                  data={loading ? [] : trendData}
                   margin={{
                     top: 20,
                     right: 30,
@@ -82,13 +97,7 @@ export function CollectionTrends() {
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={[
-                  { mois: 'Jan', taux: 45 },
-                  { mois: 'Fév', taux: 52 },
-                  { mois: 'Mars', taux: 58 },
-                  { mois: 'Avril', taux: 64 },
-                  { mois: 'Mai', taux: 68 },
-                ]}
+                data={loading ? [] : enrichmentData}
                 margin={{
                   top: 20,
                   right: 30,

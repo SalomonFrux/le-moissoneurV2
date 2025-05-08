@@ -612,3 +612,16 @@ Call log:
 2025-05-08T01:48:34.492Z info: Starting scraper: ANCI (6c87e5d3-5f18-490d-a6f3-29a4da3b998b)
 2025-05-08T01:48:44.322Z info: Stored 7 items for scraper 6c87e5d3-5f18-490d-a6f3-29a4da3b998b. Total items: 14
 2025-05-08T01:48:44.322Z info: Scraper 6c87e5d3-5f18-490d-a6f3-29a4da3b998b completed successfully
+2025-05-08T02:25:22.785Z info: Server running on port 4000
+2025-05-08T02:26:12.892Z info: Server running on port 4000
+2025-05-08T11:07:52.094Z info: Starting scraper: Test-SelecteurEnfant (250d4ee3-93e0-444e-885b-e487c763684a)
+2025-05-08T11:08:02.764Z info: Stored 30 items for scraper 250d4ee3-93e0-444e-885b-e487c763684a. Total items: 30
+2025-05-08T11:08:02.764Z info: Scraper 250d4ee3-93e0-444e-885b-e487c763684a completed successfully
+2025-05-08T12:03:19.161Z info: Server running on port 4000
+2025-05-08T12:07:46.991Z info: Server running on port 4000
+2025-05-08T12:08:23.036Z info: Starting scraper: Test-SelecteurEnfant (250d4ee3-93e0-444e-885b-e487c763684a)
+2025-05-08T12:08:38.395Z info: Stored 30 items for scraper 250d4ee3-93e0-444e-885b-e487c763684a. Total items: 60
+2025-05-08T12:08:38.396Z info: Scraper 250d4ee3-93e0-444e-885b-e487c763684a completed successfully
+2025-05-08T12:19:29.268Z info: Starting scraper: Test-SelecteurEnfant (250d4ee3-93e0-444e-885b-e487c763684a)
+2025-05-08T12:19:40.178Z info: Stored 30 items for scraper 250d4ee3-93e0-444e-885b-e487c763684a. Total items: 30
+2025-05-08T12:19:40.178Z info: Scraper 250d4ee3-93e0-444e-885b-e487c763684a completed successfully

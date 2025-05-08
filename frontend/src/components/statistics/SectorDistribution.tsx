@@ -1,27 +1,33 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-
-const data = [
-  { name: 'Fintech', value: 45, color: '#15616D' },  // Caribbean Current
-  { name: 'E-commerce', value: 35, color: '#FF7D00' }, // Orange Wheel
-  { name: 'Edtech', value: 28, color: '#78290F' },  // Sienna
-  { name: 'Agritech', value: 25, color: '#001524' }, // Rich Black
-  { name: 'Santé', value: 18, color: '#FFECD1' },   // Papaya Whip
-  { name: 'Autres', value: 29, color: '#A83E32' },  // Mix of Sienna and Orange
-];
-
-// Custom colors for the Fintech subsectors
-const fintechColors = {
-  primary: '#15616D',
-  lighter1: '#1D7D8C',
-  lighter2: '#2596A6',
-  lighter3: '#2DAFC1',
-  lighter4: '#4CBECF',
-};
+import { fetchSectorDistribution, fetchFintechSubsectors } from '../../../../src/services/dataService';
 
 export function SectorDistribution() {
+  const [data, setData] = useState([]);
+  const [fintechData, setFintechData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const [sector, fintech] = await Promise.all([
+          fetchSectorDistribution(),
+          fetchFintechSubsectors()
+        ]);
+        setData(sector);
+        setFintechData(fintech);
+      } catch {
+        setData([]);
+        setFintechData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card className="lg:col-span-1">
@@ -33,7 +39,7 @@ export function SectorDistribution() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data}
+                  data={loading ? [] : data}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -53,72 +59,29 @@ export function SectorDistribution() {
           </div>
         </CardContent>
       </Card>
-      
       <Card className="lg:col-span-1">
         <CardHeader>
           <CardTitle>Top 5 sous-secteurs Fintech</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  Paiements mobiles
-                </p>
+            {loading ? (
+              <div>Chargement...</div>
+            ) : fintechData.map((item, idx) => (
+              <div key={item.name}>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {item.name}
+                    </p>
+                  </div>
+                  <div className="font-medium">{item.value} entreprises</div>
+                </div>
+                <div className="h-2 w-full bg-muted overflow-hidden rounded-full">
+                  <div className="h-full" style={{ width: `${item.percent}%`, backgroundColor: item.color }}></div>
+                </div>
               </div>
-              <div className="font-medium">18 entreprises</div>
-            </div>
-            <div className="h-2 w-full bg-muted overflow-hidden rounded-full">
-              <div className="h-full" style={{ width: '75%', backgroundColor: fintechColors.primary }}></div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  Transfert d'argent
-                </p>
-              </div>
-              <div className="font-medium">12 entreprises</div>
-            </div>
-            <div className="h-2 w-full bg-muted overflow-hidden rounded-full">
-              <div className="h-full" style={{ width: '50%', backgroundColor: fintechColors.lighter1 }}></div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  Crédit digital
-                </p>
-              </div>
-              <div className="font-medium">9 entreprises</div>
-            </div>
-            <div className="h-2 w-full bg-muted overflow-hidden rounded-full">
-              <div className="h-full" style={{ width: '35%', backgroundColor: fintechColors.lighter2 }}></div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  Assurtech
-                </p>
-              </div>
-              <div className="font-medium">6 entreprises</div>
-            </div>
-            <div className="h-2 w-full bg-muted overflow-hidden rounded-full">
-              <div className="h-full" style={{ width: '25%', backgroundColor: fintechColors.lighter3 }}></div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  Crypto-monnaie
-                </p>
-              </div>
-              <div className="font-medium">4 entreprises</div>
-            </div>
-            <div className="h-2 w-full bg-muted overflow-hidden rounded-full">
-              <div className="h-full" style={{ width: '15%', backgroundColor: fintechColors.lighter4 }}></div>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>

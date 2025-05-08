@@ -251,64 +251,36 @@ async function executeScraper(scraper) {
  * Populate the companies table with data extracted from the scraped_data table.
  */
 async function populateCompanies() {
-  try {
-    // Fetch all scraped data
-    const { data: scrapedData, error: fetchError } = await supabase
-      .from('scraped_data')
-      .select('*');
-
-    if (fetchError) {
-      console.error('Error fetching scraped data:', fetchError);
-      throw fetchError;
+  const { data: scrapedData, error } = await supabase.from('scraped_data').select('*');
+  if (error) return logger.error('Error fetching scraped_data:', error);
+  for (const record of scrapedData) {
+    const meta = record.content || record.metadata || {};
+    const company = {
+      name: meta.name || record.title || 'Unknown',
+      sector: meta.sector || 'Unknown',
+      country: meta.country || 'Unknown',
+      website: meta.website || null,
+      linkedin: meta.linkedin || null,
+      email: meta.email || null,
+      source: record.scraper_id,
+      last_updated: record.scraped_at,
+    };
+    const { data: exists } = await supabase.from('companies').select('id').eq('name', company.name).single();
+    if (!exists) {
+      await supabase.from('companies').insert(company);
     }
-
-    for (const record of scrapedData) {
-      const { title, metadata, url, scraper_id, scraped_at } = record;
-
-      // Extract company data from scraped_data
-      const company = {
-        name: title || 'Unknown',
-        sector: metadata?.sector || 'Unknown',
-        country: metadata?.country || 'Unknown',
-        website: url || null,
-        linkedin: metadata?.linkedin || null,
-        email: metadata?.email || null,
-        source: scraper_id,
-        last_updated: scraped_at,
-      };
-
-      // Check if the company already exists
-      const { data: existingCompany, error: checkError } = await supabase
-        .from('companies')
-        .select('id')
-        .eq('name', company.name)
-        .single();
-
-      if (checkError && checkError.code !== 'PGRST116') { // Ignore "No rows found" error
-        console.error('Error checking existing company:', checkError);
-        throw checkError;
-      }
-
-      if (!existingCompany) {
-        // Insert the company into the companies table
-        const { error: insertError } = await supabase
-          .from('companies')
-          .insert(company);
-
-        if (insertError) {
-          console.error('Error inserting company:', insertError);
-          throw insertError;
-        }
-      }
-    }
-
-    console.log('Companies table populated successfully.');
-  } catch (error) {
-    console.error('Error populating companies table:', error);
   }
+  logger.info('Companies enrichment done.');
+}
+
+// Call after scraping
+async function runScraperAndEnrich(scraper) {
+  await executeScraper(scraper);
+  await populateCompanies();
 }
 
 module.exports = {
   executeScraper,
-  populateCompanies
+  populateCompanies,
+  runScraperAndEnrich
 };

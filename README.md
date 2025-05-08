@@ -62,31 +62,64 @@ Create the following tables in your Supabase database:
 ### Scrapers Table
 
 ```sql
+    -- Create scrapers table
 CREATE TABLE scrapers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name TEXT NOT NULL,
-  description TEXT,
-  url TEXT,
-  type TEXT DEFAULT 'generic',
-  status TEXT DEFAULT 'inactive',
-  last_run TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL,
+    source TEXT NOT NULL,
+    status TEXT DEFAULT 'idle',
+    last_run TIMESTAMP WITH TIME ZONE,
+    data_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
-```
 
-### Scraped Data Table
-
-```sql
+-- Create scraped_data table
 CREATE TABLE scraped_data (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  scraper_id UUID REFERENCES scrapers(id) ON DELETE CASCADE,
-  title TEXT,
-  content TEXT,
-  url TEXT,
-  metadata JSONB,
-  scraped_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    scraper_id UUID REFERENCES scrapers(id) ON DELETE CASCADE,
+    title TEXT,
+    content TEXT,
+    url TEXT,
+    metadata JSONB,
+    scraped_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
+
+-- Create companies table
+CREATE TABLE companies (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL,
+    sector TEXT NOT NULL,
+    country TEXT NOT NULL,
+    website TEXT,
+    linkedin TEXT,
+    email TEXT,
+    source TEXT NOT NULL,
+    last_updated TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Add comments to explain the columns in companies table
+COMMENT ON COLUMN companies.name IS 'Name of the company';
+COMMENT ON COLUMN companies.sector IS 'Sector the company operates in';
+COMMENT ON COLUMN companies.country IS 'Country where the company is based';
+COMMENT ON COLUMN companies.website IS 'Website URL of the company';
+COMMENT ON COLUMN companies.linkedin IS 'LinkedIn profile URL of the company';
+COMMENT ON COLUMN companies.email IS 'Contact email of the company';
+COMMENT ON COLUMN companies.source IS 'Source of the company data';
+COMMENT ON COLUMN companies.last_updated IS 'Timestamp of the last update to the company data';
+
+-- Alter scrapers table
+ALTER TABLE scrapers 
+ADD COLUMN IF NOT EXISTS frequency text DEFAULT 'manual' NOT NULL,
+ADD COLUMN IF NOT EXISTS selectors jsonb DEFAULT '{"main": null}'::jsonb,
+ADD COLUMN IF NOT EXISTS last_run timestamp with time zone,
+ADD CONSTRAINT valid_frequency CHECK (frequency IN ('manual', 'daily', 'weekly', 'monthly'));
+
+-- Add comments to explain the columns in scrapers table
+COMMENT ON COLUMN scrapers.frequency IS 'Scraping frequency: manual, daily, weekly, or monthly';
+COMMENT ON COLUMN scrapers.selectors IS 'JSON object containing CSS selectors for scraping';
+COMMENT ON COLUMN scrapers.last_run IS 'Timestamp of the last successful scrape';
+
+ALTER TABLE scrapers ADD COLUMN type text DEFAULT 'playwright';
 ```
 
 ## Features
