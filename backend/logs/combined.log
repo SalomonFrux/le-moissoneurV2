@@ -651,3 +651,296 @@ Call log:
 2025-05-09T12:24:44.175Z info: Starting scraper: Centre-Commerciaux-CI (4086a7cc-8cd5-4990-94c8-792bc1e62e34)
 2025-05-09T12:24:54.516Z info: Stored 10 items for scraper 4086a7cc-8cd5-4990-94c8-792bc1e62e34. Total items: 10
 2025-05-09T12:24:54.516Z info: Scraper 4086a7cc-8cd5-4990-94c8-792bc1e62e34 completed successfully
+2025-05-09T13:29:57.857Z info: Server running on port 4000
+2025-05-09T13:30:12.290Z info: Server running on port 4000
+2025-05-09T13:30:21.626Z info: Server running on port 4000
+2025-05-09T13:30:49.493Z info: Server running on port 4000
+2025-05-09T13:32:40.735Z info: Starting scraper: Test3 (ef76f5e5-cc5d-41a3-9475-54801fc9e74b)
+2025-05-09T13:32:50.669Z info: Stored 7 items for scraper ef76f5e5-cc5d-41a3-9475-54801fc9e74b. Total items: 7
+2025-05-09T13:32:50.669Z info: Scraper ef76f5e5-cc5d-41a3-9475-54801fc9e74b completed successfully
+2025-05-09T13:34:54.370Z info: Starting scraper: Scrape-Charika-page 9 (32ec0f86-d878-4037-988d-f5ba8fa5c3b1)
+2025-05-09T13:35:07.735Z info: Stored 30 items for scraper 32ec0f86-d878-4037-988d-f5ba8fa5c3b1. Total items: 30
+2025-05-09T13:35:07.735Z info: Scraper 32ec0f86-d878-4037-988d-f5ba8fa5c3b1 completed successfully
+2025-05-09T13:42:01.766Z info: Server running on port 4000
+2025-05-09T13:46:59.472Z info: Server running on port 4000
+2025-05-09T13:53:24.099Z info: Server running on port 4000
+2025-05-09T13:53:36.663Z info: Server running on port 4000
+2025-05-09T13:53:37.712Z info: Server running on port 4000
+2025-05-09T13:56:41.260Z info: Starting scraper: Test-SelecteurEnfant (250d4ee3-93e0-444e-885b-e487c763684a)
+2025-05-09T13:56:57.019Z info: Stored 30 items for scraper 250d4ee3-93e0-444e-885b-e487c763684a. Total items: 31
+2025-05-09T13:56:57.019Z info: Scraper 250d4ee3-93e0-444e-885b-e487c763684a completed successfully
+2025-05-09T14:05:59.591Z info: Starting scraper: Annuaire-CI (9a11e6bb-beca-42f7-bba3-e496f99f8bd3)
+2025-05-09T14:06:10.084Z info: Stored 10 items for scraper 9a11e6bb-beca-42f7-bba3-e496f99f8bd3. Total items: 10
+2025-05-09T14:06:10.084Z info: Scraper 9a11e6bb-beca-42f7-bba3-e496f99f8bd3 completed successfully
+2025-05-09T14:16:26.988Z info: Server running on port 4000
+2025-05-09T14:17:42.733Z info: Server running on port 4000
+2025-05-09T14:18:36.670Z info: Starting scraper: Charika-Maroc (5fd7ba8c-1b5d-46eb-84bc-6b8ddfd44d87)
+2025-05-09T14:18:48.893Z info: Stored 30 items for scraper 5fd7ba8c-1b5d-46eb-84bc-6b8ddfd44d87. Total items: 60
+2025-05-09T14:18:48.895Z info: Scraper 5fd7ba8c-1b5d-46eb-84bc-6b8ddfd44d87 completed successfully
+2025-05-09T14:47:34.039Z info: Starting scraper: Charika-page-10 (6d31c00c-de9c-44c2-b343-73fabd62d08b)
+2025-05-09T14:47:46.224Z info: Stored 30 items for scraper 6d31c00c-de9c-44c2-b343-73fabd62d08b. Total items: 30
+2025-05-09T14:47:46.225Z info: Scraper 6d31c00c-de9c-44c2-b343-73fabd62d08b completed successfully
+2025-05-09T14:52:03.674Z info: Server running on port 4000
+2025-05-09T14:58:51.224Z info: Starting scraper: Charika-Maroc (c935cbfc-5d12-45f9-b068-d51f339c95cb)
+2025-05-09T14:59:09.346Z info: Stored 30 items for scraper c935cbfc-5d12-45f9-b068-d51f339c95cb. Total items: 30
+2025-05-09T14:59:09.347Z info: Scraper c935cbfc-5d12-45f9-b068-d51f339c95cb completed successfully
+2025-05-09T15:01:11.254Z info: Starting scraper: Charika-Maroc-2 (fa98ee57-e058-4172-9811-8697053957ba)
+2025-05-09T15:01:25.591Z info: Stored 30 items for scraper fa98ee57-e058-4172-9811-8697053957ba. Total items: 30
+2025-05-09T15:01:25.591Z info: Scraper fa98ee57-e058-4172-9811-8697053957ba completed successfully
+2025-05-09T15:03:51.338Z info: Server running on port 4000
+2025-05-09T15:04:10.047Z info: Server running on port 4000
+2025-05-09T15:04:11.932Z info: Server running on port 4000
+2025-05-09T15:04:12.937Z info: Server running on port 4000
+2025-05-09T15:04:22.954Z info: Starting scraper: Charika-Maroc-2 (fa98ee57-e058-4172-9811-8697053957ba)
+2025-05-09T15:04:36.728Z info: Stored 30 items for scraper fa98ee57-e058-4172-9811-8697053957ba. Total items: 60
+2025-05-09T15:04:36.729Z info: Scraper fa98ee57-e058-4172-9811-8697053957ba completed successfully
+2025-05-09T15:07:50.157Z info: Server running on port 4000
+2025-05-09T15:08:19.975Z info: Server running on port 4000
+2025-05-09T15:08:21.379Z info: Server running on port 4000
+2025-05-09T15:08:33.255Z info: Server running on port 4000
+2025-05-09T15:08:43.803Z info: Server running on port 4000
+2025-05-09T15:08:45.362Z info: Server running on port 4000
+2025-05-09T15:11:40.683Z info: Server running on port 4000
+2025-05-09T15:11:45.502Z info: Server running on port 4000
+2025-05-09T15:11:50.605Z info: Server running on port 4000
+2025-05-09T15:11:59.261Z info: Server running on port 4000
+2025-05-09T15:12:03.116Z info: Server running on port 4000
+2025-05-09T15:12:07.387Z info: Server running on port 4000
+2025-05-09T15:12:13.848Z info: Server running on port 4000
+2025-05-09T15:12:18.957Z info: Server running on port 4000
+2025-05-09T15:12:25.039Z info: Server running on port 4000
+2025-05-09T15:12:44.360Z info: Server running on port 4000
+2025-05-09T15:12:47.297Z info: Server running on port 4000
+2025-05-09T15:12:53.746Z info: Server running on port 4000
+2025-05-09T15:13:10.354Z info: Server running on port 4000
+2025-05-09T15:13:53.519Z info: Starting scraper: Charika-Maroc-2 (fa98ee57-e058-4172-9811-8697053957ba)
+2025-05-09T15:14:02.320Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:02.567Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:02.568Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:02.720Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:02.720Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:02.925Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:02.926Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.040Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.040Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.131Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.131Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.239Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.239Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.334Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.334Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.439Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.440Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.540Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.540Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.641Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.641Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.744Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.744Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.846Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.846Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.909Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.909Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:03.969Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.969Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.051Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.051Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.119Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.119Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.256Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.256Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.316Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.316Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.410Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.410Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.479Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.479Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.563Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.563Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.729Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.729Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.820Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.820Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.872Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.872Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.929Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.929Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:04.999Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.999Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:05.075Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:05.075Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:05.139Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:05.139Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:05.199Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:05.199Z info: Extracted data for Charika-Maroc-2:
+2025-05-09T15:14:05.280Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:05.484Z info: Stored 30 items for scraper fa98ee57-e058-4172-9811-8697053957ba. Total items: 30
+2025-05-09T15:14:05.484Z info: Scraper fa98ee57-e058-4172-9811-8697053957ba completed successfully
+2025-05-09T15:15:54.138Z info: Starting scraper: Charika-P2 (7faa1618-48ca-4303-a796-ba217b74e818)
+2025-05-09T15:16:02.941Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:03.061Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.062Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:03.208Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.209Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:03.413Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.413Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:03.553Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.553Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:03.711Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.711Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:03.861Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.862Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:04.020Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.020Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:04.140Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.140Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:04.341Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.341Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:04.474Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.475Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:04.579Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.580Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:04.699Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.699Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:04.886Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.886Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:05.060Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.060Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:05.244Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.245Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:05.396Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.396Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:05.509Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.510Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:05.619Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.620Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:05.871Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.872Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:06.114Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.114Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:06.338Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.339Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:06.521Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.522Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:06.677Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.677Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:06.820Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.820Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:06.985Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.985Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:07.139Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.139Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:07.299Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.299Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:07.407Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.407Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:07.546Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.546Z info: Extracted data for Charika-P2:
+2025-05-09T15:16:07.706Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:08.020Z info: Stored 30 items for scraper 7faa1618-48ca-4303-a796-ba217b74e818. Total items: 30
+2025-05-09T15:16:08.021Z info: Scraper 7faa1618-48ca-4303-a796-ba217b74e818 completed successfully
+2025-05-09T15:20:16.710Z info: Server running on port 4000
+2025-05-09T15:20:32.586Z info: Server running on port 4000
+2025-05-09T15:20:50.719Z info: Server running on port 4000
+2025-05-09T15:23:02.998Z info: Starting scraper: Charika-P2 (7faa1618-48ca-4303-a796-ba217b74e818)
+2025-05-09T15:23:10.214Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: page.evaluate: ReferenceError: currentUrl is not defined
+    at eval (eval at evaluate (:313:29), <anonymous>:41:20)
+    at NodeList.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:4:42)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-09T15:23:10.667Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: page.evaluate: ReferenceError: currentUrl is not defined
+    at eval (eval at evaluate (:313:29), <anonymous>:41:20)
+    at NodeList.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:4:42)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-09T15:24:32.248Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:28:17.782Z info: Server running on port 4000
+2025-05-09T15:28:22.832Z info: Server running on port 4000
+2025-05-09T15:31:37.105Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:33:02.036Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:34:48.184Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:35:00.008Z info: Server running on port 4000
+2025-05-09T15:35:42.256Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:38:59.053Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:39:33.994Z info: Server running on port 4000
+2025-05-09T15:40:21.890Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:41:58.971Z info: Server running on port 4000
+2025-05-09T15:44:57.236Z info: Server running on port 4000
+2025-05-09T15:44:58.945Z info: Server running on port 4000
+2025-05-09T15:45:55.232Z info: Server running on port 4000
+2025-05-09T15:47:14.712Z info: Starting scraper: test3 (6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6)
+2025-05-09T15:47:22.173Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:47:22.547Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:48:17.874Z info: Server running on port 4000
+2025-05-09T15:48:54.813Z info: Server running on port 4000
+2025-05-09T15:50:30.875Z info: Starting scraper: test3 (6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6)
+2025-05-09T15:50:37.178Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:50:37.776Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:51:09.467Z info: Server running on port 4000
+2025-05-09T15:51:24.621Z info: Starting scraper: test3 (6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6)
+2025-05-09T15:51:31.315Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:51:31.531Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:55:18.966Z info: Server running on port 4000
+2025-05-09T15:55:31.015Z info: Starting scraper: test3 (6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6)
+2025-05-09T15:55:32.478Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Cannot read properties of undefined (reading 'split')
+2025-05-09T15:55:34.117Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Cannot read properties of undefined (reading 'split')
+2025-05-09T15:55:36.916Z info: Server running on port 4000
+2025-05-09T15:56:19.843Z info: Starting scraper: Charika-P2 (7faa1618-48ca-4303-a796-ba217b74e818)
+2025-05-09T15:56:26.160Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:56:26.651Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:56:56.501Z info: Server running on port 4000
+2025-05-09T15:57:03.935Z info: Starting scraper: test3 (6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6)
+2025-05-09T15:57:10.248Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:57:10.804Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:57:29.350Z info: Server running on port 4000
+2025-05-09T15:57:52.014Z info: Starting scraper: test3 (6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6)
+2025-05-09T15:58:01.098Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:58:01.320Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:59:12.042Z info: Server running on port 4000
+2025-05-09T15:59:20.338Z info: Server running on port 4000
+2025-05-09T16:00:18.590Z info: Server running on port 4000
+2025-05-09T16:00:25.178Z info: Server running on port 4000
+2025-05-09T16:00:37.275Z info: Starting scraper: test3 (6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6)
+2025-05-09T16:00:44.092Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:00:44.373Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:01:37.536Z info: Starting scraper: test4 (497415ed-96bd-4923-9a4b-cc459bb31d96)
+2025-05-09T16:01:44.339Z error: Error executing scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:01:44.653Z error: Error running scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:04:20.228Z info: Server running on port 4000
+2025-05-09T16:05:29.662Z info: Starting scraper: Test5 (da19e89d-2236-476a-b808-8f1493e8e368)
+2025-05-09T16:05:36.395Z error: Error executing scraper da19e89d-2236-476a-b808-8f1493e8e368: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:05:36.621Z error: Error running scraper da19e89d-2236-476a-b808-8f1493e8e368: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:05:46.146Z info: Server running on port 4000
+2025-05-09T16:06:00.073Z info: Starting scraper: Charika-P2 (7faa1618-48ca-4303-a796-ba217b74e818)
+2025-05-09T16:06:06.079Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:06:06.439Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:08:10.627Z info: Server running on port 4000
+2025-05-09T16:09:22.096Z info: Server running on port 4000
+2025-05-09T16:09:23.530Z info: Server running on port 4000
+2025-05-09T16:09:30.213Z info: Server running on port 4000
+2025-05-09T16:09:44.435Z info: Starting scraper: test4 (497415ed-96bd-4923-9a4b-cc459bb31d96)
+2025-05-09T16:09:52.825Z error: Error executing scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:09:53.043Z error: Error running scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:10:19.921Z info: Server running on port 4000
+2025-05-09T16:10:33.233Z info: Starting scraper: Charika-P2 (7faa1618-48ca-4303-a796-ba217b74e818)
+2025-05-09T16:10:40.380Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:10:40.653Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:12:01.910Z info: Server running on port 4000
+2025-05-09T16:12:29.188Z info: Starting scraper: Charika-P2 (7faa1618-48ca-4303-a796-ba217b74e818)
+2025-05-09T16:12:40.449Z info: Stored 30 items for scraper 7faa1618-48ca-4303-a796-ba217b74e818. Total items: 30
+2025-05-09T16:12:40.450Z info: Scraper 7faa1618-48ca-4303-a796-ba217b74e818 completed successfully
+2025-05-09T16:17:02.232Z info: Starting scraper: test4 (497415ed-96bd-4923-9a4b-cc459bb31d96)
+2025-05-09T16:17:15.749Z info: Stored 30 items for scraper 497415ed-96bd-4923-9a4b-cc459bb31d96. Total items: 30
+2025-05-09T16:17:15.749Z info: Scraper 497415ed-96bd-4923-9a4b-cc459bb31d96 completed successfully
+2025-05-09T16:17:39.096Z info: Starting scraper: test3 (6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6)
+2025-05-09T16:17:52.526Z info: Stored 30 items for scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6. Total items: 30
+2025-05-09T16:17:52.527Z info: Scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6 completed successfully
+2025-05-09T16:18:23.641Z info: Starting scraper: Test5 (da19e89d-2236-476a-b808-8f1493e8e368)
+2025-05-09T16:18:38.713Z info: Stored 30 items for scraper da19e89d-2236-476a-b808-8f1493e8e368. Total items: 30
+2025-05-09T16:18:38.713Z info: Scraper da19e89d-2236-476a-b808-8f1493e8e368 completed successfully

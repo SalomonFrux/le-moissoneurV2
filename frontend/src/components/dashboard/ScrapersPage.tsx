@@ -99,11 +99,21 @@ export function ScrapersPage() {
         status: 'idle',
         dataCount: 0,
         type: formData.engine,
-        country: formData.country
+        country: formData.country || 'Unknown'
       });
       
       setScrapers(prev => [...prev, newScraper]);
-      setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '' });
+      setFormData({ 
+        name: '', 
+        source: '', 
+        selector: '', 
+        paginationSelector: '', 
+        dropdownClickSelector: '', 
+        childSelectors: '', 
+        engine: 'playwright', 
+        frequency: 'manual', 
+        country: '' 
+      });
       setShowForm(false);
       toast.success('Scraper created successfully');
     } catch (error) {

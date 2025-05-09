@@ -25,18 +25,19 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2 } from 'lucide-react';
+import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { fetchCompanies, updateCompany } from '../../../../src/services/dataService';
 
 export function DataPage() {
   const [page, setPage] = useState(1);
-  const [companies, setCompanies] = useState([]);
+  const [companies, setCompanies] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
+  const [expandedScrapers, setExpandedScrapers] = useState<Set<string>>(new Set());
   const pageSize = 5;
 
   useEffect(() => {
@@ -60,10 +61,15 @@ export function DataPage() {
     company.country.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const paginatedCompanies = filteredCompanies.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  // Group companies by scraper
+  const groupedCompanies = filteredCompanies.reduce((acc, company) => {
+    const scraperName = company.source;
+    if (!acc[scraperName]) {
+      acc[scraperName] = [];
+    }
+    acc[scraperName].push(company);
+    return acc;
+  }, {} as Record<string, any[]>);
 
   const totalPages = Math.ceil(filteredCompanies.length / pageSize);
 
@@ -94,6 +100,18 @@ export function DataPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleScraper = (scraperName: string) => {
+    setExpandedScrapers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(scraperName)) {
+        newSet.delete(scraperName);
+      } else {
+        newSet.add(scraperName);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -129,7 +147,6 @@ export function DataPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous les secteurs</SelectItem>
-                  {/* Dynamically generate sector options if needed */}
                 </SelectContent>
               </Select>
               <Select disabled={loading}>
@@ -138,7 +155,6 @@ export function DataPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous les pays</SelectItem>
-                  {/* Dynamically generate country options if needed */}
                 </SelectContent>
               </Select>
               <Button variant="outline" size="icon" disabled={loading}>
@@ -152,70 +168,127 @@ export function DataPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[50px]"></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Secteur</TableHead>
               <TableHead>Pays</TableHead>
               <TableHead>Source</TableHead>
               <TableHead>Site web</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Téléphone</TableHead>
+              <TableHead>Adresse</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
+                <TableCell colSpan={10} className="text-center py-4 text-muted-foreground">
                   Chargement des données...
                 </TableCell>
               </TableRow>
-            ) : paginatedCompanies.length > 0 ? (
-              paginatedCompanies.map((company) => (
-                <TableRow key={company.id}>
-                  {editId === company.id ? (
-                    <>
-                      <TableCell>
-                        <Input value={editForm.name} onChange={e => handleEditChange('name', e.target.value)} />
-                      </TableCell>
-                      <TableCell>
-                        <Input value={editForm.sector} onChange={e => handleEditChange('sector', e.target.value)} />
-                      </TableCell>
-                      <TableCell>
-                        <Input value={editForm.country} onChange={e => handleEditChange('country', e.target.value)} />
-                      </TableCell>
-                      <TableCell>
-                        <Input value={editForm.source} onChange={e => handleEditChange('source', e.target.value)} />
-                      </TableCell>
-                      <TableCell>
-                        <Input value={editForm.website} onChange={e => handleEditChange('website', e.target.value)} />
-                      </TableCell>
-                      <TableCell>
-                        <Input value={editForm.email} onChange={e => handleEditChange('email', e.target.value)} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" onClick={handleEditSave} disabled={loading}>Enregistrer</Button>
-                        <Button size="sm" variant="outline" onClick={() => setEditId(null)} disabled={loading}>Annuler</Button>
-                      </TableCell>
-                    </>
-                  ) : (
-                    <>
-                      <TableCell className="font-medium">{company.name}</TableCell>
-                      <TableCell>{company.sector}</TableCell>
-                      <TableCell>{company.country}</TableCell>
-                      <TableCell>{company.source}</TableCell>
-                      <TableCell>{company.website}</TableCell>
-                      <TableCell>{company.email}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" title="Modifier" onClick={() => handleEdit(company)}>
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </>
-                  )}
-                </TableRow>
+            ) : Object.entries(groupedCompanies).length > 0 ? (
+              (Object.entries(groupedCompanies) as [string, any[]][]).map(([scraperName, scraperCompanies]) => (
+                <React.Fragment key={scraperName}>
+                  <TableRow className="bg-muted/50">
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => toggleScraper(scraperName)}
+                        className="h-8 w-8"
+                      >
+                        {expandedScrapers.has(scraperName) ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TableCell>
+                    <TableCell colSpan={9} className="font-medium">
+                      {scraperName} ({scraperCompanies.length} entrées)
+                    </TableCell>
+                  </TableRow>
+                  {expandedScrapers.has(scraperName) && scraperCompanies.map((company) => (
+                    <TableRow key={company.id}>
+                      <TableCell></TableCell>
+                      {editId === company.id ? (
+                        <>
+                          <TableCell>
+                            <Input value={editForm.name} onChange={e => handleEditChange('name', e.target.value)} />
+                          </TableCell>
+                          <TableCell>
+                            <Input value={editForm.sector} onChange={e => handleEditChange('sector', e.target.value)} />
+                          </TableCell>
+                          <TableCell>
+                            <Input value={editForm.country} onChange={e => handleEditChange('country', e.target.value)} />
+                          </TableCell>
+                          <TableCell>
+                            <Input value={editForm.source} onChange={e => handleEditChange('source', e.target.value)} />
+                          </TableCell>
+                          <TableCell>
+                            <Input value={editForm.website} onChange={e => handleEditChange('website', e.target.value)} />
+                          </TableCell>
+                          <TableCell>
+                            <Input value={editForm.email} onChange={e => handleEditChange('email', e.target.value)} />
+                          </TableCell>
+                          <TableCell>
+                            <Input value={editForm.phone} onChange={e => handleEditChange('phone', e.target.value)} />
+                          </TableCell>
+                          <TableCell>
+                            <Input value={editForm.address} onChange={e => handleEditChange('address', e.target.value)} />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" onClick={handleEditSave} disabled={loading}>Enregistrer</Button>
+                            <Button size="sm" variant="outline" onClick={() => setEditId(null)} disabled={loading}>Annuler</Button>
+                          </TableCell>
+                        </>
+                      ) : (
+                        <>
+                          <TableCell className="font-medium">{company.name}</TableCell>
+                          <TableCell>{company.sector}</TableCell>
+                          <TableCell>{company.country}</TableCell>
+                          <TableCell>{company.source}</TableCell>
+                          <TableCell>
+                            {company.website && (
+                              <a 
+                                href={company.website.startsWith('http') ? company.website : `http://${company.website}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline flex items-center gap-1"
+                              >
+                                <LinkIcon className="h-4 w-4" />
+                                {company.website}
+                              </a>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {company.email && (
+                              <a 
+                                href={`mailto:${company.email}`}
+                                className="text-blue-600 hover:underline flex items-center gap-1"
+                              >
+                                <Mail className="h-4 w-4" />
+                                {company.email}
+                              </a>
+                            )}
+                          </TableCell>
+                          <TableCell>{company.phone}</TableCell>
+                          <TableCell>{company.address}</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" title="Modifier" onClick={() => handleEdit(company)}>
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </>
+                      )}
+                    </TableRow>
+                  ))}
+                </React.Fragment>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
+                <TableCell colSpan={10} className="text-center py-4 text-muted-foreground">
                   Aucun résultat trouvé
                 </TableCell>
               </TableRow>
@@ -226,7 +299,7 @@ export function DataPage() {
       {filteredCompanies.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Affichage de {Math.min(pageSize, filteredCompanies.length)} sur {filteredCompanies.length} entreprises
+            Affichage de {filteredCompanies.length} entreprises
           </p>
           <Pagination>
             <PaginationContent>

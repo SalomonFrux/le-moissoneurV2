@@ -303,3 +303,112 @@ Call log:
     at eval (eval at evaluate (:313:29), <anonymous>:3:19)
     at UtilityScript.evaluate (<anonymous>:315:16)
     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-09T15:14:02.567Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:02.720Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:02.925Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.040Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.131Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.239Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.334Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.439Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.540Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.641Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.744Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.846Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.909Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:03.969Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.051Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.119Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.256Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.316Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.410Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.479Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.563Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.729Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.820Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.872Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.929Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:04.999Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:05.075Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:05.139Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:05.199Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:14:05.280Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.061Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.208Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.413Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.553Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.711Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:03.861Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.020Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.140Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.341Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.474Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.579Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.699Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:04.886Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.060Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.244Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.396Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.509Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.619Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:05.871Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.114Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.338Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.521Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.677Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.820Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:06.985Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.139Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.299Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.407Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.546Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:16:07.706Z error: Error upserting company data: Could not find the 'scraper_name' column of 'companies' in the schema cache
+2025-05-09T15:23:10.214Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: page.evaluate: ReferenceError: currentUrl is not defined
+    at eval (eval at evaluate (:313:29), <anonymous>:41:20)
+    at NodeList.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:4:42)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-09T15:23:10.667Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: page.evaluate: ReferenceError: currentUrl is not defined
+    at eval (eval at evaluate (:313:29), <anonymous>:41:20)
+    at NodeList.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:4:42)
+    at Array.forEach (<anonymous>)
+    at eval (eval at evaluate (:313:29), <anonymous>:3:19)
+    at UtilityScript.evaluate (<anonymous>:315:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-05-09T15:24:32.248Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:31:37.105Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:33:02.036Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:34:48.184Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:35:42.256Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:38:59.053Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:40:21.890Z error: Error creating scraper: Could not find the 'country' column of 'scrapers' in the schema cache
+2025-05-09T15:47:22.173Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:47:22.547Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:50:37.178Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:50:37.776Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:51:31.315Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:51:31.531Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:55:32.478Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Cannot read properties of undefined (reading 'split')
+2025-05-09T15:55:34.117Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Cannot read properties of undefined (reading 'split')
+2025-05-09T15:56:26.160Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:56:26.651Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:57:10.248Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:57:10.804Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:58:01.098Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T15:58:01.320Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:00:44.092Z error: Error executing scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:00:44.373Z error: Error running scraper 6e036e0a-9630-41b5-a1fb-b1fb3b5c14d6: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:01:44.339Z error: Error executing scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:01:44.653Z error: Error running scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:05:36.395Z error: Error executing scraper da19e89d-2236-476a-b808-8f1493e8e368: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:05:36.621Z error: Error running scraper da19e89d-2236-476a-b808-8f1493e8e368: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:06:06.079Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:06:06.439Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:09:52.825Z error: Error executing scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:09:53.043Z error: Error running scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:10:40.380Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-09T16:10:40.653Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.

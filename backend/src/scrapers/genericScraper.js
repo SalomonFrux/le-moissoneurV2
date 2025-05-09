@@ -240,64 +240,87 @@ async function handleBlockingScenarios(page) {
 }
 
 async function genericScraper(browser, scraperConfig) {
-  const url = scraperConfig.source || scraperConfig.url;
-  const selectors = scraperConfig.selectors || {};
-  const mainSelector = selectors.main;
-  const childSelectors = selectors.child || selectors.childSelectors || {};
-
-  if (!url || !mainSelector) {
-    throw new Error('URL and main selector are required for scraping');
-  }
-
-  logger.info(`Generic scraper running for URL: ${url}`);
-
   const page = await browser.newPage();
-
+  await setupPage(page, scraperConfig.source);
+  
   try {
-    await setupPage(page, url);
-    await page.goto(url, { waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 60000 });
+    await page.goto(scraperConfig.source, { waitUntil: 'networkidle0', timeout: 30000 });
+    await handleBlockingScenarios(page);
+    await randomDelay();
 
-    const data = await page.evaluate((mainSelector, childSelectors) => {
+    // Extract content using the provided selector or default to body
+    const selector = scraperConfig.selectors?.main || 'body';
+    const content = await page.evaluate((sel) => {
       function getVisibleText(element) {
-        const style = window.getComputedStyle(element);
-        if (style.display === 'none' || style.visibility === 'hidden') {
-          return '';
-        }
-        return Array.from(element.childNodes)
-          .map(node => {
-            if (node.nodeType === 3) return node.textContent;
-            if (node.nodeType === 1) return getVisibleText(node);
-            return '';
-          })
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-      }
-      const results = [];
-      document.querySelectorAll(mainSelector).forEach(mainElement => {
-        const row = {};
-        for (const [key, selector] of Object.entries(childSelectors)) {
-          const childElement = mainElement.querySelector(selector);
-          if (childElement) {
-            row[key] = {
-              text: getVisibleText(childElement),
-              html: childElement.innerHTML,
-              href: childElement.href || null,
-              value: getVisibleText(childElement)
-            };
+        if (!element) return '';
+        
+        // Get all text nodes
+        const walker = document.createTreeWalker(
+          element,
+          NodeFilter.SHOW_TEXT,
+          null,
+          false
+        );
+        
+        let text = '';
+        let node;
+        while (node = walker.nextNode()) {
+          // Only include text that is visible
+          const style = window.getComputedStyle(element);
+          if (style.display !== 'none' && style.visibility !== 'hidden') {
+            text += node.textContent.trim() + ' ';
           }
         }
-        results.push(row);
-      });
-      return results;
-    }, mainSelector, childSelectors);
+        
+        return text.trim();
+      }
 
-    await page.close();
-    return data;
+      const element = document.querySelector(sel);
+      if (!element) return null;
+
+      // Extract structured data
+      const data = {
+        text: getVisibleText(element),
+        html: element.innerHTML,
+        metadata: {}
+      };
+
+      // Extract company information
+      const extractInfo = (text, pattern) => {
+        const match = text.match(new RegExp(pattern, 'i'));
+        return match ? match[1].trim() : null;
+      };
+
+      // Extract common company information patterns
+      data.metadata = {
+        name: extractInfo(data.text, /(?:company|société|entreprise|name|nom)\s*:?\s*([^\n]+)/i),
+        address: extractInfo(data.text, /(?:address|adresse)\s*:?\s*([^\n]+)/i),
+        phone: extractInfo(data.text, /(?:tel|phone|téléphone)\s*:?\s*([^\n]+)/i),
+        email: extractInfo(data.text, /(?:email|e-mail|mail)\s*:?\s*([^\n]+)/i),
+        website: extractInfo(data.text, /(?:website|site web|site)\s*:?\s*([^\n]+)/i),
+        sector: extractInfo(data.text, /(?:sector|secteur)\s*:?\s*([^\n]+)/i),
+        country: extractInfo(data.text, /(?:country|pays)\s*:?\s*([^\n]+)/i)
+      };
+
+      return data;
+    }, selector);
+
+    if (!content) {
+      throw new Error('No content found with the provided selector');
+    }
+
+    return [{
+      title: scraperConfig.name,
+      content: JSON.stringify(content),
+      url: scraperConfig.source,
+      metadata: content.metadata
+    }];
+
   } catch (error) {
-    await page.close();
-    logger.error(`Error scraping URL ${url}: ${error.message}`);
+    logger.error(`Error in genericScraper: ${error.message}`);
     throw error;
+  } finally {
+    await page.close();
   }
 }
 

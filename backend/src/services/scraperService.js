@@ -1,4 +1,6 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 const { logger } = require('../utils/logger');
 const { supabase } = require('../db/supabase');
 const { genericScraper } = require('../scrapers/genericScraper');
@@ -87,10 +89,8 @@ async function createBrowserInstance() {
     '--mute-audio',
     '--no-default-browser-check',
     '--disable-blink-features=AutomationControlled',
-    // HTTP/2 specific flags
-    '--disable-http2',  // Force HTTP/1.1
-    '--host-resolver-rules="MAP * ~NOTFOUND, EXCLUDE localhost"',  // Prevent DNS caching
-    // Additional performance flags
+    '--disable-http2',
+    '--host-resolver-rules="MAP * ~NOTFOUND, EXCLUDE localhost"',
     '--disable-features=site-per-process,TranslateUI',
     '--disable-client-side-phishing-detection',
     '--disable-component-update',
@@ -104,27 +104,32 @@ async function createBrowserInstance() {
     await sleep(1000);
   }
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args,
-    ignoreHTTPSErrors: true,
-    defaultViewport: {
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 1,
-      isMobile: false,
-      hasTouch: false
-    },
-    timeout: 60000,
-    protocolTimeout: 60000
-  });
+  try {
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args,
+      ignoreHTTPSErrors: true,
+      defaultViewport: {
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 1,
+        isMobile: false,
+        hasTouch: false
+      },
+      timeout: 60000,
+      protocolTimeout: 60000
+    });
 
-  browser.on('disconnected', () => {
-    activeRequests.delete(browser);
-  });
+    browser.on('disconnected', () => {
+      activeRequests.delete(browser);
+    });
 
-  activeRequests.add(browser);
-  return browser;
+    activeRequests.add(browser);
+    return browser;
+  } catch (error) {
+    logger.error(`Failed to create browser instance: ${error.message}`);
+    throw error;
+  }
 }
 
 async function executeScraper(scraper) {
@@ -140,7 +145,7 @@ async function executeScraper(scraper) {
         scrapedData = await playwrightScraper(
           scraper.source || scraper.url,
           scraper.selectors?.main,
-          scraper.selectors?.pagination // Pass pagination selector from config
+          scraper.selectors?.pagination
         );
         // Map Playwright results to expected format
         scrapedData = scrapedData.map(text => ({
@@ -182,20 +187,60 @@ async function executeScraper(scraper) {
         }
       });
 
-      // Insert or upsert company data immediately after scraping
+      // Extract and insert company data
       for (const item of scrapedData) {
-        const meta = item.content || item.metadata || {};
-        const company = {
-          name: meta.name || item.title || 'Aucune info',
-          sector: meta.sector || 'Aucune info',
-          country: meta.country || 'Aucune info',
-          website: meta.website || null,
-          linkedin: meta.linkedin || null,
-          email: meta.email || null,
-          source: scraper.id || 'Aucune info',
-          last_updated: new Date().toISOString(),
+        let content = item.content;
+        let metadata = item.metadata;
+
+        // Parse content if it's a string
+        if (typeof content === 'string') {
+          try {
+            const parsedContent = JSON.parse(content);
+            content = parsedContent;
+            metadata = parsedContent.metadata || metadata;
+          } catch (e) {
+            // If parsing fails, use the string content
+            content = { text: content };
+          }
+        }
+
+        // Extract information from content
+        const text = content.text || '';
+        
+        // Extract data using regex patterns
+        const extractInfo = (text, pattern) => {
+          const match = text.match(new RegExp(pattern, 'i'));
+          return match ? match[1].trim() : null;
         };
-        await supabase.from('companies').upsert(company, { onConflict: ['name', 'country', 'source'] });
+
+        const extractedData = {
+          name: item.title || 'Unknown',
+          sector: 'Unknown',
+          country: scraper.country || 'Unknown', // Use the country from scraper config
+          website: extractInfo(text, /Site web\s*:\s*([^\n]+)/i),
+          email: extractInfo(text, /E-mail\s*:\s*([^\n]+)/i),
+          phone: extractInfo(text, /Tel\s*:\s*([^\n]+)/i),
+          address: extractInfo(text, /Address\s*:\s*([^\n]+)/i),
+          source: scraper.source, // Use the source URL instead of scraper name
+          last_updated: new Date().toISOString()
+        };
+
+        // Clean up the data
+        if (extractedData.website && !extractedData.website.startsWith('http')) {
+          extractedData.website = `http://${extractedData.website}`;
+        }
+
+        // Remove any HTML tags from the extracted data
+        Object.keys(extractedData).forEach(key => {
+          if (typeof extractedData[key] === 'string') {
+            extractedData[key] = extractedData[key].replace(/<[^>]*>/g, '');
+          }
+        });
+
+        await supabase.from('companies').upsert(extractedData, { 
+          onConflict: ['name', 'country', 'source'],
+          ignoreDuplicates: false
+        });
       }
 
       const { data: currentData, error: countError } = await supabase
