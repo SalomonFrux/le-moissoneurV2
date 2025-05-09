@@ -61,14 +61,13 @@ export function DataPage() {
     company.country.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Group companies by scraper
+  // Group companies by name
   const groupedCompanies = filteredCompanies.reduce((acc, company) => {
-    // Use the company name for grouping
-    const scraperName = company.name;
-    if (!acc[scraperName]) {
-      acc[scraperName] = [];
+    const companyName = company.name;
+    if (!acc[companyName]) {
+      acc[companyName] = [];
     }
-    acc[scraperName].push(company);
+    acc[companyName].push(company);
     return acc;
   }, {} as Record<string, any[]>);
 
@@ -189,17 +188,17 @@ export function DataPage() {
                 </TableCell>
               </TableRow>
             ) : Object.entries(groupedCompanies).length > 0 ? (
-              (Object.entries(groupedCompanies) as [string, any[]][]).map(([scraperName, scraperCompanies]) => (
-                <React.Fragment key={scraperName}>
+              (Object.entries(groupedCompanies) as [string, any[]][]).map(([companyName, companies]) => (
+                <React.Fragment key={companyName}>
                   <TableRow className="bg-muted/50">
                     <TableCell>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => toggleScraper(scraperName)}
+                        onClick={() => toggleScraper(companyName)}
                         className="h-8 w-8"
                       >
-                        {expandedScrapers.has(scraperName) ? (
+                        {expandedScrapers.has(companyName) ? (
                           <ChevronDown className="h-4 w-4" />
                         ) : (
                           <ChevronRight className="h-4 w-4" />
@@ -207,82 +206,47 @@ export function DataPage() {
                       </Button>
                     </TableCell>
                     <TableCell colSpan={9} className="font-medium">
-                      {scraperName} ({scraperCompanies.length} entrées)
+                      {companyName} ({companies[0].scraped_entries?.length || 0} entrées)
                     </TableCell>
                   </TableRow>
-                  {expandedScrapers.has(scraperName) && scraperCompanies.map((company) => (
-                    <TableRow key={company.id}>
+                  {expandedScrapers.has(companyName) && companies[0].scraped_entries?.map((entry) => (
+                    <TableRow key={entry.id}>
                       <TableCell></TableCell>
-                      {editId === company.id ? (
-                        <>
-                          <TableCell>
-                            <Input value={editForm.name} onChange={e => handleEditChange('name', e.target.value)} />
-                          </TableCell>
-                          <TableCell>
-                            <Input value={editForm.sector} onChange={e => handleEditChange('sector', e.target.value)} />
-                          </TableCell>
-                          <TableCell>
-                            <Input value={editForm.country} onChange={e => handleEditChange('country', e.target.value)} />
-                          </TableCell>
-                          <TableCell>
-                            <Input value={editForm.source} onChange={e => handleEditChange('source', e.target.value)} />
-                          </TableCell>
-                          <TableCell>
-                            <Input value={editForm.website} onChange={e => handleEditChange('website', e.target.value)} />
-                          </TableCell>
-                          <TableCell>
-                            <Input value={editForm.email} onChange={e => handleEditChange('email', e.target.value)} />
-                          </TableCell>
-                          <TableCell>
-                            <Input value={editForm.phone} onChange={e => handleEditChange('phone', e.target.value)} />
-                          </TableCell>
-                          <TableCell>
-                            <Input value={editForm.address} onChange={e => handleEditChange('address', e.target.value)} />
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button size="sm" onClick={handleEditSave} disabled={loading}>Enregistrer</Button>
-                            <Button size="sm" variant="outline" onClick={() => setEditId(null)} disabled={loading}>Annuler</Button>
-                          </TableCell>
-                        </>
-                      ) : (
-                        <>
-                          <TableCell className="font-medium">{company.name}</TableCell>
-                          <TableCell>{company.sector}</TableCell>
-                          <TableCell>{company.country}</TableCell>
-                          <TableCell>{company.source}</TableCell>
-                          <TableCell>
-                            {company.website && (
-                              <a 
-                                href={company.website.startsWith('http') ? company.website : `http://${company.website}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline flex items-center gap-1"
-                              >
-                                <LinkIcon className="h-4 w-4" />
-                                {company.website}
-                              </a>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {company.email && (
-                              <a 
-                                href={`mailto:${company.email}`}
-                                className="text-blue-600 hover:underline flex items-center gap-1"
-                              >
-                                <Mail className="h-4 w-4" />
-                                {company.email}
-                              </a>
-                            )}
-                          </TableCell>
-                          <TableCell>{company.phone}</TableCell>
-                          <TableCell>{company.address}</TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" title="Modifier" onClick={() => handleEdit(company)}>
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </>
-                      )}
+                      <TableCell className="font-medium">{companyName}</TableCell>
+                      <TableCell>{companies[0].sector}</TableCell>
+                      <TableCell>{companies[0].country}</TableCell>
+                      <TableCell>{entry.url}</TableCell>
+                      <TableCell>
+                        {entry.metadata?.website && (
+                          <a 
+                            href={entry.metadata.website.startsWith('http') ? entry.metadata.website : `http://${entry.metadata.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <LinkIcon className="h-4 w-4" />
+                            {entry.metadata.website}
+                          </a>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {entry.metadata?.email && (
+                          <a 
+                            href={`mailto:${entry.metadata.email}`}
+                            className="text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <Mail className="h-4 w-4" />
+                            {entry.metadata.email}
+                          </a>
+                        )}
+                      </TableCell>
+                      <TableCell>{entry.metadata?.phone}</TableCell>
+                      <TableCell>{entry.metadata?.address}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" title="Modifier" onClick={() => handleEdit(companies[0])}>
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </React.Fragment>

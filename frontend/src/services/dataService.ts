@@ -2,6 +2,20 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+export interface ScrapedEntry {
+  id: number;
+  title: string;
+  content: string;
+  url: string;
+  metadata: {
+    website?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  scraped_at: string;
+}
+
 export interface Company {
   id: number;
   name: string;
@@ -11,10 +25,7 @@ export interface Company {
   address: string;
   country: string;
   source: string;
-  title: string;
-  scraper?: {
-    name: string;
-  };
+  scraped_entries: ScrapedEntry[];
   created_at: string;
   updated_at: string;
 }

@@ -970,3 +970,24 @@ Call log:
 2025-05-09T18:35:40.383Z info: Starting scraper: test7 (b20eadc3-bd2e-4af4-8096-832caaaf7b28)
 2025-05-09T18:35:54.533Z info: Stored 30 items for scraper b20eadc3-bd2e-4af4-8096-832caaaf7b28. Total items: 60
 2025-05-09T18:35:54.534Z info: Scraper b20eadc3-bd2e-4af4-8096-832caaaf7b28 completed successfully
+2025-05-09T18:40:49.216Z info: Server running on port 4000
+2025-05-09T18:51:35.593Z info: Server running on port 4000
+2025-05-09T18:59:01.475Z info: Starting scraper: Charika-P1-Maroc (4fba7d53-b8d1-415c-bee7-88ba0dd22995)
+2025-05-09T18:59:16.945Z info: Stored 30 items for scraper 4fba7d53-b8d1-415c-bee7-88ba0dd22995. Total items: 30
+2025-05-09T18:59:16.946Z info: Scraper 4fba7d53-b8d1-415c-bee7-88ba0dd22995 completed successfully
+2025-05-09T19:05:07.397Z info: Server running on port 4000
+2025-05-09T19:12:12.831Z info: Server running on port 4000
+2025-05-09T19:12:13.178Z info: Server running on port 4000
+2025-05-09T19:14:43.720Z info: Server running on port 4000
+2025-05-09T19:15:59.531Z info: Server running on port 4000
+2025-05-09T19:19:05.340Z info: Starting scraper: Ivoire-Com (c1d582a9-d396-4440-b3c2-b4e44bb22d6f)
+2025-05-09T19:19:13.839Z info: Stored 5 items for scraper c1d582a9-d396-4440-b3c2-b4e44bb22d6f. Total items: 5
+2025-05-09T19:19:13.840Z info: Scraper c1d582a9-d396-4440-b3c2-b4e44bb22d6f completed successfully
+2025-05-09T19:20:27.800Z info: Server running on port 4000
+2025-05-09T19:27:28.723Z info: Server running on port 4000
+2025-05-09T19:27:29.238Z info: Server running on port 4000
+2025-05-09T19:41:43.308Z info: Server running on port 4000
+2025-05-09T19:44:25.676Z info: Server running on port 4000
+2025-05-09T19:45:12.927Z info: Starting scraper: Charika-Maroc-P1 (df55974e-1b81-4d96-ab24-8d00020b9ffd)
+2025-05-09T19:45:30.520Z info: Stored 30 items for scraper df55974e-1b81-4d96-ab24-8d00020b9ffd. Total items: 30
+2025-05-09T19:45:30.521Z info: Scraper df55974e-1b81-4d96-ab24-8d00020b9ffd completed successfully
