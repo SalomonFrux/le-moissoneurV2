@@ -90,6 +90,46 @@ export function DataPage() {
         </div>
       </div>
 
+      {/* Company Info Table */}
+      <div className="overflow-x-auto border rounded-lg">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sector</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Website</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Source</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Content</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">URL</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredData.map((item) => (
+              <tr key={item.id}>
+                <td className="px-4 py-2">{item.metadata?.name || item.name || ''}</td>
+                <td className="px-4 py-2">{item.metadata?.sector || item.sector || ''}</td>
+                <td className="px-4 py-2">{item.metadata?.country || item.country || ''}</td>
+                <td className="px-4 py-2">{item.metadata?.website || item.website || ''}</td>
+                <td className="px-4 py-2">{item.metadata?.email || item.email || ''}</td>
+                <td className="px-4 py-2">{item.metadata?.source || item.source || ''}</td>
+                <td className="px-4 py-2">{item.title}</td>
+                <td className="px-4 py-2 max-w-xs truncate">{item.content}</td>
+                <td className="px-4 py-2">{item.url}</td>
+                <td className="px-4 py-2">
+                  <Button size="sm" variant="outline" onClick={() => handleDelete(item.id)}>
+                    Delete
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <DataTable 
         data={filteredData} 
         loading={loading} 

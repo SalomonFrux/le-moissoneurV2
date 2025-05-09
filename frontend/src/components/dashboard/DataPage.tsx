@@ -25,16 +25,18 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Download, Filter, Link as LinkIcon, Mail, Search } from 'lucide-react';
+import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { fetchCompanies } from '../../../../src/services/dataService';
+import { fetchCompanies, updateCompany } from '../../../../src/services/dataService';
 
 export function DataPage() {
   const [page, setPage] = useState(1);
   const [companies, setCompanies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<any>({});
   const pageSize = 5;
 
   useEffect(() => {
@@ -69,6 +71,29 @@ export function DataPage() {
     toast.success("Export lancé", {
       description: "Les données sont en cours d'exportation au format CSV."
     });
+  };
+
+  const handleEdit = (company: any) => {
+    setEditId(company.id);
+    setEditForm({ ...company });
+  };
+
+  const handleEditChange = (field: string, value: string) => {
+    setEditForm((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const handleEditSave = async () => {
+    try {
+      setLoading(true);
+      await updateCompany(editForm);
+      setCompanies((prev) => prev.map((c) => (c.id === editForm.id ? { ...editForm } : c)));
+      setEditId(null);
+      toast.success('Entreprise mise à jour');
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -131,48 +156,66 @@ export function DataPage() {
               <TableHead>Secteur</TableHead>
               <TableHead>Pays</TableHead>
               <TableHead>Source</TableHead>
-              <TableHead>Dernière MàJ</TableHead>
+              <TableHead>Site web</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
                   Chargement des données...
                 </TableCell>
               </TableRow>
             ) : paginatedCompanies.length > 0 ? (
               paginatedCompanies.map((company) => (
                 <TableRow key={company.id}>
-                  <TableCell className="font-medium">{company.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="bg-africa-sand-200">
-                      {company.sector}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{company.country}</TableCell>
-                  <TableCell>{company.source}</TableCell>
-                  <TableCell>{company.last_updated || company.lastUpdated}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      {company.website && (
-                        <Button variant="ghost" size="icon" title="Site web">
-                          <LinkIcon className="h-4 w-4" />
+                  {editId === company.id ? (
+                    <>
+                      <TableCell>
+                        <Input value={editForm.name} onChange={e => handleEditChange('name', e.target.value)} />
+                      </TableCell>
+                      <TableCell>
+                        <Input value={editForm.sector} onChange={e => handleEditChange('sector', e.target.value)} />
+                      </TableCell>
+                      <TableCell>
+                        <Input value={editForm.country} onChange={e => handleEditChange('country', e.target.value)} />
+                      </TableCell>
+                      <TableCell>
+                        <Input value={editForm.source} onChange={e => handleEditChange('source', e.target.value)} />
+                      </TableCell>
+                      <TableCell>
+                        <Input value={editForm.website} onChange={e => handleEditChange('website', e.target.value)} />
+                      </TableCell>
+                      <TableCell>
+                        <Input value={editForm.email} onChange={e => handleEditChange('email', e.target.value)} />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" onClick={handleEditSave} disabled={loading}>Enregistrer</Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditId(null)} disabled={loading}>Annuler</Button>
+                      </TableCell>
+                    </>
+                  ) : (
+                    <>
+                      <TableCell className="font-medium">{company.name}</TableCell>
+                      <TableCell>{company.sector}</TableCell>
+                      <TableCell>{company.country}</TableCell>
+                      <TableCell>{company.source}</TableCell>
+                      <TableCell>{company.website}</TableCell>
+                      <TableCell>{company.email}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" title="Modifier" onClick={() => handleEdit(company)}>
+                          <Edit2 className="h-4 w-4" />
                         </Button>
-                      )}
-                      {company.email && (
-                        <Button variant="ghost" size="icon" title="Email">
-                          <Mail className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
+                      </TableCell>
+                    </>
+                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
                   Aucun résultat trouvé
                 </TableCell>
               </TableRow>

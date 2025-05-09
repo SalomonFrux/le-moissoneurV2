@@ -625,3 +625,29 @@ Call log:
 2025-05-08T12:19:29.268Z info: Starting scraper: Test-SelecteurEnfant (250d4ee3-93e0-444e-885b-e487c763684a)
 2025-05-08T12:19:40.178Z info: Stored 30 items for scraper 250d4ee3-93e0-444e-885b-e487c763684a. Total items: 30
 2025-05-08T12:19:40.178Z info: Scraper 250d4ee3-93e0-444e-885b-e487c763684a completed successfully
+2025-05-08T15:15:46.512Z info: Server running on port 4000
+2025-05-08T15:39:06.345Z info: Server running on port 4000
+2025-05-08T15:41:22.086Z info: Starting scraper: Test-SelecteurEnfant (250d4ee3-93e0-444e-885b-e487c763684a)
+2025-05-08T15:41:40.117Z info: Stored 30 items for scraper 250d4ee3-93e0-444e-885b-e487c763684a. Total items: 60
+2025-05-08T15:41:40.118Z info: Scraper 250d4ee3-93e0-444e-885b-e487c763684a completed successfully
+2025-05-08T15:45:02.427Z info: Server running on port 4000
+2025-05-08T16:10:39.655Z info: Starting scraper: Tes88 (6a293dab-24cf-4157-bbd3-5d7ca3f564fe)
+2025-05-08T16:11:00.409Z info: Stored 30 items for scraper 6a293dab-24cf-4157-bbd3-5d7ca3f564fe. Total items: 30
+2025-05-08T16:11:00.410Z info: Scraper 6a293dab-24cf-4157-bbd3-5d7ca3f564fe completed successfully
+2025-05-09T11:05:26.814Z info: Server running on port 4000
+2025-05-09T11:06:27.948Z info: Starting scraper: Tes88 (6a293dab-24cf-4157-bbd3-5d7ca3f564fe)
+2025-05-09T11:06:41.601Z info: Stored 30 items for scraper 6a293dab-24cf-4157-bbd3-5d7ca3f564fe. Total items: 60
+2025-05-09T11:06:41.601Z info: Scraper 6a293dab-24cf-4157-bbd3-5d7ca3f564fe completed successfully
+2025-05-09T11:12:42.087Z info: Starting scraper: charika-page8 (e8358ef9-0828-444e-8344-e37e73a43ea5)
+2025-05-09T11:13:00.089Z info: Stored 60 items for scraper e8358ef9-0828-444e-8344-e37e73a43ea5. Total items: 60
+2025-05-09T11:13:00.089Z info: Scraper e8358ef9-0828-444e-8344-e37e73a43ea5 completed successfully
+2025-05-09T11:57:37.941Z info: Starting scraper: Charika-Maroc (5fd7ba8c-1b5d-46eb-84bc-6b8ddfd44d87)
+2025-05-09T11:57:50.803Z info: Stored 30 items for scraper 5fd7ba8c-1b5d-46eb-84bc-6b8ddfd44d87. Total items: 30
+2025-05-09T11:57:50.804Z info: Scraper 5fd7ba8c-1b5d-46eb-84bc-6b8ddfd44d87 completed successfully
+2025-05-09T12:05:13.549Z info: Server running on port 4000
+2025-05-09T12:05:42.178Z info: Starting scraper: charika-page8 (e8358ef9-0828-444e-8344-e37e73a43ea5)
+2025-05-09T12:06:06.077Z info: Stored 60 items for scraper e8358ef9-0828-444e-8344-e37e73a43ea5. Total items: 120
+2025-05-09T12:06:06.077Z info: Scraper e8358ef9-0828-444e-8344-e37e73a43ea5 completed successfully
+2025-05-09T12:24:44.175Z info: Starting scraper: Centre-Commerciaux-CI (4086a7cc-8cd5-4990-94c8-792bc1e62e34)
+2025-05-09T12:24:54.516Z info: Stored 10 items for scraper 4086a7cc-8cd5-4990-94c8-792bc1e62e34. Total items: 10
+2025-05-09T12:24:54.516Z info: Scraper 4086a7cc-8cd5-4990-94c8-792bc1e62e34 completed successfully

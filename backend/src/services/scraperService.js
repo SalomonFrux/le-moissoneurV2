@@ -182,6 +182,22 @@ async function executeScraper(scraper) {
         }
       });
 
+      // Insert or upsert company data immediately after scraping
+      for (const item of scrapedData) {
+        const meta = item.content || item.metadata || {};
+        const company = {
+          name: meta.name || item.title || 'Aucune info',
+          sector: meta.sector || 'Aucune info',
+          country: meta.country || 'Aucune info',
+          website: meta.website || null,
+          linkedin: meta.linkedin || null,
+          email: meta.email || null,
+          source: scraper.id || 'Aucune info',
+          last_updated: new Date().toISOString(),
+        };
+        await supabase.from('companies').upsert(company, { onConflict: ['name', 'country', 'source'] });
+      }
+
       const { data: currentData, error: countError } = await supabase
         .from('scraped_data')
         .select('id')

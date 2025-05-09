@@ -185,6 +185,17 @@ export async function fetchRegionalDistribution() {
   return data;
 }
 
+// Fetch industry distribution (industry, company count)
+export async function updateCompany(company: any) {
+  const { id, ...fields } = company;
+  const { error } = await supabase
+    .from('companies')
+    .update(fields)
+    .eq('id', id);
+  if (error) throw error;
+}
+
+
 // This function needs to be implemented. 
 // It should fetch statistics summary from a database or API.
 export function fetchStatisticsSummary() {
