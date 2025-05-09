@@ -14,6 +14,7 @@ export interface ScraperData {
   dataCount: number;
   selectors?: { main: string };
   frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
+  country: string;
 }
 
 interface ScraperCardProps {

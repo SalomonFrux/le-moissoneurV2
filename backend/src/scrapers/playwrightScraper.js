@@ -22,18 +22,17 @@ async function playwrightScraper(url, selector, paginationSelector, dropdownClic
     while (true) {
       await page.goto(currentUrl, { timeout: 60000 });
 
-  
-// Click all dropdown arrows to expand contact info
-// Click all dropdowns/arrows if a selector is provided
-if (dropdownClickSelector && dropdownClickSelector.trim().length > 0) {
-    const dropdowns = await page.$$(dropdownClickSelector);
-    for (const dropdown of dropdowns) {
-      try {
-        await dropdown.click();
-        await page.waitForTimeout(200);
-      } catch (e) {}
-    }
-  }
+      // Click all dropdowns/arrows if a selector is provided
+      if (dropdownClickSelector && dropdownClickSelector.trim().length > 0) {
+        const dropdowns = await page.$$(dropdownClickSelector);
+        for (const dropdown of dropdowns) {
+          try {
+            await dropdown.click();
+            await page.waitForTimeout(200);
+          } catch (e) {}
+        }
+      }
+
       // Wait for at least one of the selectors to appear (ignore missing ones)
       for (const sel of selectors) {
         try {
@@ -44,6 +43,35 @@ if (dropdownClickSelector && dropdownClickSelector.trim().length > 0) {
       // Extract all elements matching any of the selectors, with their selector and text/html/attributes
       const pageResults = await page.evaluate((selectors) => {
         const allResults = [];
+        const text = document.body.innerText;
+
+        // Extract data using regex patterns
+        const extractInfo = (text, pattern) => {
+          const match = text.match(new RegExp(pattern, 'i'));
+          return match ? match[1].trim() : null;
+        };
+
+        // Extract website, email, and phone
+        const website = extractInfo(text, /Site web\s*:\s*([^\n]+)/i);
+        const email = extractInfo(text, /E-mail\s*:\s*([^\n]+)/i);
+        const phone = extractInfo(text, /Tel\s*:\s*([^\n]+)/i);
+        const address = extractInfo(text, /Address\s*:\s*([^\n]+)/i);
+
+        // Add extracted data to results
+        if (website || email || phone || address) {
+          allResults.push({
+            selector: 'metadata',
+            text: text,
+            metadata: {
+              website,
+              email,
+              phone,
+              address
+            }
+          });
+        }
+
+        // Also extract any elements matching the provided selectors
         selectors.forEach(sel => {
           document.querySelectorAll(sel).forEach(el => {
             // For mailto links, prefer the 'href' attribute value (email address)
@@ -68,6 +96,7 @@ if (dropdownClickSelector && dropdownClickSelector.trim().length > 0) {
         });
         return allResults;
       }, selectors);
+
       results = results.concat(pageResults);
 
       if (!paginationSelector) break;
@@ -94,4 +123,6 @@ if (dropdownClickSelector && dropdownClickSelector.trim().length > 0) {
   return results;
 }
 
-module.exports = { playwrightScraper };
+module.exports = {
+  playwrightScraper
+};

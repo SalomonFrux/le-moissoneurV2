@@ -944,3 +944,29 @@ Call log:
 2025-05-09T16:18:23.641Z info: Starting scraper: Test5 (da19e89d-2236-476a-b808-8f1493e8e368)
 2025-05-09T16:18:38.713Z info: Stored 30 items for scraper da19e89d-2236-476a-b808-8f1493e8e368. Total items: 30
 2025-05-09T16:18:38.713Z info: Scraper da19e89d-2236-476a-b808-8f1493e8e368 completed successfully
+2025-05-09T16:29:14.352Z info: Starting scraper: Salomon (f60a860d-2382-4e8a-ae8e-11e31e60357e)
+2025-05-09T16:29:26.950Z info: Stored 30 items for scraper f60a860d-2382-4e8a-ae8e-11e31e60357e. Total items: 30
+2025-05-09T16:29:26.950Z info: Scraper f60a860d-2382-4e8a-ae8e-11e31e60357e completed successfully
+2025-05-09T16:41:40.568Z info: Server running on port 4000
+2025-05-09T16:41:41.568Z info: Server running on port 4000
+2025-05-09T16:46:42.771Z info: Starting scraper: Annuaire Ivoire (6452f8cc-4abf-44a2-a94c-cd1c89c65db4)
+2025-05-09T16:46:53.063Z info: Stored 10 items for scraper 6452f8cc-4abf-44a2-a94c-cd1c89c65db4. Total items: 10
+2025-05-09T16:46:53.063Z info: Scraper 6452f8cc-4abf-44a2-a94c-cd1c89c65db4 completed successfully
+2025-05-09T17:21:43.030Z info: Server running on port 4000
+2025-05-09T17:27:33.754Z info: Starting scraper: Test6 (b2f10a1a-16ee-429f-bdfc-9fa029a6b81c)
+2025-05-09T17:27:42.603Z info: Stored 7 items for scraper b2f10a1a-16ee-429f-bdfc-9fa029a6b81c. Total items: 7
+2025-05-09T17:27:42.603Z info: Scraper b2f10a1a-16ee-429f-bdfc-9fa029a6b81c completed successfully
+2025-05-09T17:34:50.093Z info: Server running on port 4000
+2025-05-09T17:35:16.839Z info: Server running on port 4000
+2025-05-09T17:35:28.835Z info: Server running on port 4000
+2025-05-09T17:41:12.879Z info: Starting scraper: test7 (b20eadc3-bd2e-4af4-8096-832caaaf7b28)
+2025-05-09T17:41:27.081Z info: Stored 30 items for scraper b20eadc3-bd2e-4af4-8096-832caaaf7b28. Total items: 30
+2025-05-09T17:41:27.081Z info: Scraper b20eadc3-bd2e-4af4-8096-832caaaf7b28 completed successfully
+2025-05-09T18:24:45.632Z info: Server running on port 4000
+2025-05-09T18:30:19.835Z info: Starting scraper: Cave-CI (0b2a85be-7a3a-40bc-b03c-bbe0a0c67bfd)
+2025-05-09T18:30:29.755Z info: Stored 5 items for scraper 0b2a85be-7a3a-40bc-b03c-bbe0a0c67bfd. Total items: 5
+2025-05-09T18:30:29.756Z info: Scraper 0b2a85be-7a3a-40bc-b03c-bbe0a0c67bfd completed successfully
+2025-05-09T18:34:23.291Z info: Server running on port 4000
+2025-05-09T18:35:40.383Z info: Starting scraper: test7 (b20eadc3-bd2e-4af4-8096-832caaaf7b28)
+2025-05-09T18:35:54.533Z info: Stored 30 items for scraper b20eadc3-bd2e-4af4-8096-832caaaf7b28. Total items: 60
+2025-05-09T18:35:54.534Z info: Scraper b20eadc3-bd2e-4af4-8096-832caaaf7b28 completed successfully

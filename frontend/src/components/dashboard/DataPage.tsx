@@ -63,7 +63,8 @@ export function DataPage() {
 
   // Group companies by scraper
   const groupedCompanies = filteredCompanies.reduce((acc, company) => {
-    const scraperName = company.source;
+    // Use the company name for grouping
+    const scraperName = company.name;
     if (!acc[scraperName]) {
       acc[scraperName] = [];
     }

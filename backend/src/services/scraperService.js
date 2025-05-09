@@ -148,12 +148,24 @@ async function executeScraper(scraper) {
           scraper.selectors?.pagination
         );
         // Map Playwright results to expected format
-        scrapedData = scrapedData.map(text => ({
-          title: scraper.name,
-          content: text,
-          url: scraper.source || scraper.url,
-          metadata: {}
-        }));
+        scrapedData = scrapedData.map(result => {
+          // If the result has metadata, use it
+          if (result.metadata) {
+            return {
+              title: scraper.name,
+              content: result.text,
+              url: scraper.source || scraper.url,
+              metadata: result.metadata
+            };
+          }
+          // Otherwise, use the value/text
+          return {
+            title: scraper.name,
+            content: result.value || result.text,
+            url: scraper.source || scraper.url,
+            metadata: {}
+          };
+        });
         return;
       }
       browser = await createBrowserInstance();

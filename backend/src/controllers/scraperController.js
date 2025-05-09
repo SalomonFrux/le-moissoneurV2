@@ -117,7 +117,7 @@ async function getAllScrapers(req, res, next) {
  */
 async function createScraper(req, res, next) {
   try {
-    const { name, source, selectors, frequency } = req.body;
+    const { name, source, selectors, frequency, type, country } = req.body;
 
     if (!name || !source) {
       return res.status(400).json({ 
@@ -134,7 +134,8 @@ async function createScraper(req, res, next) {
         frequency: frequency || 'manual',
         status: 'idle',
         data_count: 0,
-        type: 'playwright' // Default to Playwright
+        type: type || 'playwright', // Default to Playwright
+        country: country || 'Unknown' // Include the country field
       }])
       .select()
       .single();
