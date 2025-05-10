@@ -46,11 +46,75 @@ export function DataPage() {
   const [page, setPage] = useState(1);
   const [entries, setEntries] = useState<ScrapedEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ScrapedEntry>>({});
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const pageSize = 10;
+
+  // Get unique countries from entries
+  const uniqueCountries = useMemo(() => {
+    const countries = new Set(entries.map(entry => entry.pays).filter(Boolean));
+    return Array.from(countries).sort();
+  }, [entries]);
+
+  // Filter entries by search term and country
+  const filteredEntries = useMemo(() => {
+    return entries.filter(entry =>
+      (entry.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       entry.secteur?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       entry.pays?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       entry.adresse?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!selectedCountry || selectedCountry === 'all' || entry.pays === selectedCountry)
+    );
+  }, [entries, searchTerm, selectedCountry]);
+
+  // Add this helper function near the top of the component
+  const escapeCSVValue = (value: string): string => {
+    if (!value) return '';
+    // Replace any double quotes with two double quotes (CSV escape sequence)
+    value = value.replace(/"/g, '""');
+    // If the value contains commas, quotes, or newlines, wrap it in quotes
+    if (/[",\n]/.test(value)) {
+      value = `"${value}"`;
+    }
+    return value;
+  };
+
+  // Handle export for a specific scraper group
+  const handleExportGroup = (scraperName: string, groupEntries: ScrapedEntry[]) => {
+    const csvData = groupEntries.map(entry => ({
+      'Nom du Scraper': entry.nom || '-',
+      Secteur: entry.secteur === 'Aucune donnée' ? '-' : (entry.secteur || '-'),
+      Pays: entry.pays === 'Aucune donnée' ? '-' : (entry.pays || '-'),
+      'Site Web': entry.site_web === 'Aucune donnée' ? '-' : (entry.site_web || '-'),
+      Email: entry.email === 'Aucune donnée' ? '-' : (entry.email || '-'),
+      Téléphone: entry.telephone === 'Aucune donnée' ? '-' : (entry.telephone || '-'),
+      Adresse: entry.adresse === 'Aucune donnée' ? '-' : (entry.adresse || '-'),
+      'Date de création': new Date(entry.created_at).toLocaleDateString()
+    }));
+
+    // Create CSV content with proper escaping
+    const headers = Object.keys(csvData[0]);
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      headers.map(header => escapeCSVValue(header)).join(",") + "\n" +
+      csvData.map(row => 
+        headers.map(header => escapeCSVValue(row[header])).join(",")
+      ).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${scraperName}_donnees.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success("Export terminé", {
+      description: `Les données de ${scraperName} ont été exportées au format CSV.`
+    });
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -67,13 +131,6 @@ export function DataPage() {
     }
     fetchData();
   }, []);
-
-  const filteredEntries = entries.filter(entry =>
-    entry.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    entry.secteur?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    entry.pays?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    entry.adresse?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const paginatedEntries = filteredEntries.slice(
     (page - 1) * pageSize,
@@ -107,12 +164,14 @@ export function DataPage() {
       'Date de création': new Date(entry.created_at).toLocaleDateString()
     }));
 
-    // Create CSV content
+    // Create CSV content with proper escaping
+    const headers = Object.keys(csvData[0]);
     const csvContent = "data:text/csv;charset=utf-8," + 
-      Object.keys(csvData[0]).join(",") + "\n" +
-      csvData.map(row => Object.values(row).join(",")).join("\n");
+      headers.map(header => escapeCSVValue(header)).join(",") + "\n" +
+      csvData.map(row => 
+        headers.map(header => escapeCSVValue(row[header])).join(",")
+      ).join("\n");
 
-    // Create download link
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -169,20 +228,20 @@ export function DataPage() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold font-heading tracking-tight">Données Extraites</h2>
-        <Button onClick={handleExport} disabled={loading || filteredEntries.length === 0}>
-          <Download className="mr-2 h-4 w-4" /> Exporter CSV
+        <Button variant="default" className="bg-primary" onClick={handleExport} disabled={loading || filteredEntries.length === 0}>
+          <Download className="mr-2 h-4 w-4" /> Exporter Tout
         </Button>
       </div>
 
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-1 items-center space-x-2">
+            <div className="flex flex-1 items-center space-x-4">
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Rechercher par nom, secteur, pays, ville..."
-                  className="pl-8 w-full"
+                  placeholder="Rechercher par nom, secteur, pays..."
+                  className="pl-8"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -191,6 +250,25 @@ export function DataPage() {
                   disabled={loading}
                 />
               </div>
+              <Select
+                value={selectedCountry}
+                onValueChange={(value) => {
+                  setSelectedCountry(value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filtrer par pays" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les pays</SelectItem>
+                  {uniqueCountries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
@@ -224,7 +302,7 @@ export function DataPage() {
                     className="bg-muted/50 cursor-pointer hover:bg-muted"
                     onClick={() => toggleGroup(scraperName)}
                   >
-                    <TableCell colSpan={8}>
+                    <TableCell colSpan={7}>
                       <div className="flex items-center">
                         {expandedGroups.has(scraperName) ? (
                           <ChevronDown className="h-4 w-4 mr-2" />
@@ -236,6 +314,22 @@ export function DataPage() {
                           {groupEntries.length}
                         </Badge>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {expandedGroups.has(scraperName) && (
+                        <Button
+                          variant="default"
+                          className="bg-primary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleExportGroup(scraperName, groupEntries);
+                          }}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Exporter
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                   {expandedGroups.has(scraperName) && groupEntries.map((entry) => (
