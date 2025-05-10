@@ -266,11 +266,77 @@ async function getAllScrapedData(req, res) {
   }
 }
 
+// Update scraped data
+const updateScrapedData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const { data, error } = await supabase
+      .from('scraped_data')
+      .update({
+        nom: updateData.nom,
+        secteur: updateData.secteur,
+        pays: updateData.pays,
+        site_web: updateData.site_web,
+        email: updateData.email,
+        telephone: updateData.telephone,
+        adresse: updateData.adresse,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('Error updating scraped data:', error);
+      return res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ message: 'Entry not found' });
+    }
+
+    res.json(data[0]);
+  } catch (error) {
+    console.error('Error updating scraped data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Delete scraped data
+const deleteScrapedData = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from('scraped_data')
+      .delete()
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('Error deleting scraped data:', error);
+      return res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ message: 'Entry not found' });
+    }
+
+    res.json({ message: 'Entry deleted successfully', data: data[0] });
+  } catch (error) {
+    console.error('Error deleting scraped data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getAllScrapers,
   createScraper,
   runScraper,
   getScraperStatus,
   getScraperData,
-  getAllScrapedData
+  getAllScrapedData,
+  updateScrapedData,
+  deleteScrapedData
 };

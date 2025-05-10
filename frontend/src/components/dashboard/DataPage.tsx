@@ -25,11 +25,31 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { dataService, type ScrapedEntry } from '@/services/dataService';
 import axios from 'axios';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Company {
   id: string;
@@ -52,6 +72,10 @@ export function DataPage() {
   const [editForm, setEditForm] = useState<Partial<ScrapedEntry>>({});
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const pageSize = 10;
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [currentEntry, setCurrentEntry] = useState<ScrapedEntry | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState<ScrapedEntry | null>(null);
 
   // Get unique countries from entries
   const uniqueCountries = useMemo(() => {
@@ -195,18 +219,31 @@ export function DataPage() {
   };
 
   const handleEditSave = async () => {
-    if (!editForm.id) return;
-    
+    if (!currentEntry) return;
+
     try {
       setLoading(true);
-      await dataService.updateScrapedEntry(editForm.id, editForm);
+      const updatedEntry = await dataService.updateScrapedEntry(currentEntry.id, {
+        nom: currentEntry.nom,
+        secteur: currentEntry.secteur,
+        pays: currentEntry.pays,
+        site_web: currentEntry.site_web,
+        email: currentEntry.email,
+        telephone: currentEntry.telephone,
+        adresse: currentEntry.adresse
+      });
+      
+      // Update the entries state with the edited entry
       setEntries(prev => prev.map(entry => 
-        entry.id === editForm.id ? { ...entry, ...editForm } : entry
+        entry.id === updatedEntry.id ? updatedEntry : entry
       ));
-      setEditId(null);
-      toast.success('Données mises à jour');
+
+      setEditDialogOpen(false);
+      setCurrentEntry(null);
+      toast.success('Données mises à jour avec succès');
     } catch (error) {
-      toast.error('Erreur lors de la mise à jour');
+      console.error('Error updating entry:', error);
+      toast.error('Erreur lors de la mise à jour des données');
     } finally {
       setLoading(false);
     }
@@ -222,6 +259,37 @@ export function DataPage() {
       }
       return newSet;
     });
+  };
+
+  const handleEditClick = (entry: ScrapedEntry) => {
+    setCurrentEntry({ ...entry });
+    setEditDialogOpen(true);
+  };
+
+  const handleDeleteClick = (entry: ScrapedEntry) => {
+    setEntryToDelete(entry);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!entryToDelete) return;
+
+    try {
+      setLoading(true);
+      await dataService.deleteScrapedEntry(entryToDelete.id);
+      
+      // Remove the deleted entry from the state
+      setEntries(prev => prev.filter(entry => entry.id !== entryToDelete.id));
+      
+      toast.success('Entrée supprimée avec succès');
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      toast.error('Erreur lors de la suppression');
+    } finally {
+      setLoading(false);
+      setDeleteConfirmOpen(false);
+      setEntryToDelete(null);
+    }
   };
 
   return (
@@ -368,9 +436,17 @@ export function DataPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleEdit(entry)}
+                            onClick={() => handleEditClick(entry)}
                           >
                             <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteClick(entry)}
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -422,6 +498,123 @@ export function DataPage() {
           </Pagination>
         </div>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Modifier l'entrée</DialogTitle>
+            <DialogDescription>
+              Modifiez les informations de l'entrée ci-dessous.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="nom" className="text-right">
+                Nom
+              </label>
+              <Input
+                id="nom"
+                value={currentEntry?.nom || ''}
+                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, nom: e.target.value} : null)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="secteur" className="text-right">
+                Secteur
+              </label>
+              <Input
+                id="secteur"
+                value={currentEntry?.secteur || ''}
+                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, secteur: e.target.value} : null)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="pays" className="text-right">
+                Pays
+              </label>
+              <Input
+                id="pays"
+                value={currentEntry?.pays || ''}
+                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, pays: e.target.value} : null)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="site_web" className="text-right">
+                Site Web
+              </label>
+              <Input
+                id="site_web"
+                value={currentEntry?.site_web || ''}
+                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, site_web: e.target.value} : null)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="email" className="text-right">
+                Email
+              </label>
+              <Input
+                id="email"
+                value={currentEntry?.email || ''}
+                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, email: e.target.value} : null)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="telephone" className="text-right">
+                Téléphone
+              </label>
+              <Input
+                id="telephone"
+                value={currentEntry?.telephone || ''}
+                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, telephone: e.target.value} : null)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="adresse" className="text-right">
+                Adresse
+              </label>
+              <Input
+                id="adresse"
+                value={currentEntry?.adresse || ''}
+                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, adresse: e.target.value} : null)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleEditSave} disabled={loading}>
+              Sauvegarder
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action ne peut pas être annulée. Cette entrée sera définitivement supprimée de la base de données.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground">
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
