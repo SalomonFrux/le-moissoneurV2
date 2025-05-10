@@ -1,5 +1,5 @@
 # Node
-node_modules/
+node_modules
 package-lock.json
 bun.lockb
 npm-debug.log*
@@ -30,7 +30,11 @@ build/
 
 
 
-
+# Coverage
+.continue
+.vscode 
+node_modules
+srco
 
 
 
