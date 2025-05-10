@@ -1,9 +1,0 @@
-name: .gitignore Ignore Folders
-version: 0.0.1
-rules:
-  - |-
-    # Ignore following folders
-    .continue
-    .vscode
-    node_modules
-    srco
