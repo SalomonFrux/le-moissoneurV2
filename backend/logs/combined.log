@@ -991,3 +991,120 @@ Call log:
 2025-05-09T19:45:12.927Z info: Starting scraper: Charika-Maroc-P1 (df55974e-1b81-4d96-ab24-8d00020b9ffd)
 2025-05-09T19:45:30.520Z info: Stored 30 items for scraper df55974e-1b81-4d96-ab24-8d00020b9ffd. Total items: 30
 2025-05-09T19:45:30.521Z info: Scraper df55974e-1b81-4d96-ab24-8d00020b9ffd completed successfully
+2025-05-10T13:24:41.241Z info: Server running on port 4000
+2025-05-10T13:30:02.808Z info: Server running on port 4000
+2025-05-10T14:11:51.879Z info: Starting scraper: Charika-Maroc-Page-1 (c6ef732f-9410-4dd5-b510-ea746cab74dd)
+2025-05-10T14:11:59.098Z error: Error executing scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'content' column of 'scraped_data' in the schema cache
+2025-05-10T14:12:02.021Z error: Error running scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'content' column of 'scraped_data' in the schema cache
+2025-05-10T14:13:02.519Z info: Server running on port 4000
+2025-05-10T14:13:13.933Z info: Server running on port 4000
+2025-05-10T14:13:29.824Z info: Server running on port 4000
+2025-05-10T14:14:01.498Z info: Server running on port 4000
+2025-05-10T14:14:11.470Z info: Starting scraper: Charika-Maroc-Page-1 (c6ef732f-9410-4dd5-b510-ea746cab74dd)
+2025-05-10T14:14:18.768Z error: Error executing scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'contenu' column of 'scraped_data' in the schema cache
+2025-05-10T14:14:21.482Z error: Error running scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'contenu' column of 'scraped_data' in the schema cache
+2025-05-10T14:14:52.587Z info: Server running on port 4000
+2025-05-10T14:15:03.705Z info: Starting scraper: Charika-Maroc-Page-1 (c6ef732f-9410-4dd5-b510-ea746cab74dd)
+2025-05-10T14:15:10.567Z error: Error executing scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'contenu' column of 'scraped_data' in the schema cache
+2025-05-10T14:15:13.380Z error: Error running scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'contenu' column of 'scraped_data' in the schema cache
+2025-05-10T14:18:50.885Z info: Starting scraper: Charika-Maroc-Page-1 (c6ef732f-9410-4dd5-b510-ea746cab74dd)
+2025-05-10T14:18:58.100Z error: Error executing scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'date_extraction' column of 'scraped_data' in the schema cache
+2025-05-10T14:19:00.811Z error: Error running scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'date_extraction' column of 'scraped_data' in the schema cache
+2025-05-10T14:19:39.122Z info: Server running on port 4000
+2025-05-10T14:20:43.598Z info: Server running on port 4000
+2025-05-10T14:21:16.480Z info: Server running on port 4000
+2025-05-10T14:21:25.094Z info: Starting scraper: Charika-Maroc-Page-1 (c6ef732f-9410-4dd5-b510-ea746cab74dd)
+2025-05-10T14:21:34.976Z info: Stored 30 items for scraper c6ef732f-9410-4dd5-b510-ea746cab74dd. Total items: 30
+2025-05-10T14:21:34.977Z info: Scraper c6ef732f-9410-4dd5-b510-ea746cab74dd completed successfully
+2025-05-10T14:24:33.625Z info: Server running on port 4000
+2025-05-10T14:24:43.807Z info: Server running on port 4000
+2025-05-10T14:26:38.429Z info: Server running on port 4000
+2025-05-10T14:34:40.699Z info: Server running on port 4000
+2025-05-10T14:34:41.316Z info: Server running on port 4000
+2025-05-10T14:38:26.230Z info: Raw scraped data:
+2025-05-10T14:38:26.385Z info: Final response:
+2025-05-10T14:38:40.313Z info: Raw scraped data:
+2025-05-10T14:38:40.414Z info: Final response:
+2025-05-10T14:38:50.141Z info: Raw scraped data:
+2025-05-10T14:38:50.207Z info: Final response:
+2025-05-10T14:39:57.025Z info: Raw scraped data:
+2025-05-10T14:39:57.265Z info: Final response:
+2025-05-10T16:01:49.853Z info: Raw scraped data:
+2025-05-10T16:01:49.949Z info: Final response:
+2025-05-10T16:05:11.842Z info: Server running on port 4000
+2025-05-10T16:05:20.679Z info: Starting scraper: Charika-Maroc-P1 (c9fa0696-e104-493e-bb0b-45283c7ba4fc)
+2025-05-10T16:05:31.890Z info: Stored 30 items for scraper c9fa0696-e104-493e-bb0b-45283c7ba4fc. Total items: 30
+2025-05-10T16:05:31.890Z info: Scraper c9fa0696-e104-493e-bb0b-45283c7ba4fc completed successfully
+2025-05-10T16:05:31.997Z info: Raw scraped data:
+2025-05-10T16:05:32.096Z info: Final response:
+2025-05-10T16:05:49.709Z info: Raw scraped data:
+2025-05-10T16:05:49.868Z info: Final response:
+2025-05-10T16:13:05.299Z info: Server running on port 4000
+2025-05-10T16:19:50.305Z info: Raw scraped data:
+2025-05-10T16:19:50.455Z info: Final response:
+2025-05-10T16:22:09.766Z info: Server running on port 4000
+2025-05-10T16:30:17.442Z info: Server running on port 4000
+2025-05-10T16:30:19.545Z info: Server running on port 4000
+2025-05-10T16:33:38.062Z info: Server running on port 4000
+2025-05-10T16:33:56.128Z info: Server running on port 4000
+2025-05-10T16:33:56.798Z info: Server running on port 4000
+2025-05-10T16:42:39.622Z info: Server running on port 4000
+2025-05-10T16:44:58.682Z info: Server running on port 4000
+2025-05-10T16:46:04.230Z info: Raw scraped data:
+2025-05-10T16:46:04.332Z info: Final response:
+2025-05-10T16:46:13.253Z info: Raw scraped data:
+2025-05-10T16:46:13.395Z info: Final response:
+2025-05-10T16:46:17.593Z info: Starting scraper: Charika-Maroc-P1 (0a001856-45c1-488d-86ea-7ab879baada6)
+2025-05-10T16:46:25.222Z error: Error executing scraper 0a001856-45c1-488d-86ea-7ab879baada6: Failed to store scraped data: Could not find the 'ville' column of 'scraped_data' in the schema cache
+2025-05-10T16:46:27.849Z error: Error running scraper 0a001856-45c1-488d-86ea-7ab879baada6: Failed to store scraped data: Could not find the 'ville' column of 'scraped_data' in the schema cache
+2025-05-10T16:48:36.724Z info: Server running on port 4000
+2025-05-10T16:49:08.797Z info: Server running on port 4000
+2025-05-10T16:49:51.175Z info: Server running on port 4000
+2025-05-10T16:49:55.246Z info: Starting scraper: Charika-Maroc-P1 (0a001856-45c1-488d-86ea-7ab879baada6)
+2025-05-10T16:50:06.531Z info: Stored 30 items for scraper 0a001856-45c1-488d-86ea-7ab879baada6. Total items: 30
+2025-05-10T16:50:06.532Z info: Scraper 0a001856-45c1-488d-86ea-7ab879baada6 completed successfully
+2025-05-10T16:50:13.532Z info: Raw scraped data:
+2025-05-10T16:50:13.629Z info: Final response:
+2025-05-10T16:54:23.395Z info: Raw scraped data:
+2025-05-10T16:54:23.504Z info: Final response:
+2025-05-10T16:55:33.583Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:55:45.664Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:55:46.433Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:56:28.398Z info: Server running on port 4000
+2025-05-10T16:56:34.128Z info: Raw scraped data:
+2025-05-10T16:56:34.228Z info: Final response:
+2025-05-10T16:56:37.481Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:56:49.823Z info: Raw scraped data:
+2025-05-10T16:56:49.978Z info: Final response:
+2025-05-10T16:56:51.995Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:57:47.575Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:58:54.970Z info: Server running on port 4000
+2025-05-10T16:59:02.099Z info: Raw scraped data:
+2025-05-10T16:59:02.283Z info: Final response:
+2025-05-10T17:00:41.241Z info: Server running on port 4000
+2025-05-10T17:00:47.077Z info: Server running on port 4000
+2025-05-10T17:00:50.358Z info: Server running on port 4000
+2025-05-10T17:00:56.252Z info: Server running on port 4000
+2025-05-10T17:00:58.742Z info: Server running on port 4000
+2025-05-10T17:02:36.995Z info: Server running on port 4000
+2025-05-10T17:03:07.800Z info: Server running on port 4000
+2025-05-10T17:03:45.935Z info: Raw scraped data:
+2025-05-10T17:03:46.086Z info: Final response:
+2025-05-10T17:06:48.396Z info: Server running on port 4000
+2025-05-10T17:07:45.831Z info: Server running on port 4000
+2025-05-10T17:10:00.373Z info: Server running on port 4000
+2025-05-10T17:10:06.868Z info: Raw scraped data:
+2025-05-10T17:10:06.973Z info: Final response:
+2025-05-10T17:11:08.676Z info: Raw scraped data:
+2025-05-10T17:11:08.771Z info: Final response:
+2025-05-10T17:13:29.980Z info: Raw scraped data:
+2025-05-10T17:13:30.105Z info: Final response:
+2025-05-10T17:17:52.444Z info: Server running on port 4000
+2025-05-10T17:20:12.310Z info: Raw scraped data:
+2025-05-10T17:20:12.394Z info: Final response:
+2025-05-10T17:21:02.421Z info: Starting scraper: Charika-Maroc-P2 (a73880ab-7f53-46b5-aa0e-d510b85601d2)
+2025-05-10T17:21:14.553Z info: Stored 30 items for scraper a73880ab-7f53-46b5-aa0e-d510b85601d2. Total items: 30
+2025-05-10T17:21:14.554Z info: Scraper a73880ab-7f53-46b5-aa0e-d510b85601d2 completed successfully
+2025-05-10T17:23:54.521Z info: Raw scraped data:
+2025-05-10T17:23:54.609Z info: Final response:
+2025-05-10T17:26:18.696Z info: Server running on port 4000

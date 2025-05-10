@@ -412,3 +412,19 @@ Call log:
 2025-05-09T16:09:53.043Z error: Error running scraper 497415ed-96bd-4923-9a4b-cc459bb31d96: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
 2025-05-09T16:10:40.380Z error: Error executing scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
 2025-05-09T16:10:40.653Z error: Error running scraper 7faa1618-48ca-4303-a796-ba217b74e818: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.
+2025-05-10T14:11:59.098Z error: Error executing scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'content' column of 'scraped_data' in the schema cache
+2025-05-10T14:12:02.021Z error: Error running scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'content' column of 'scraped_data' in the schema cache
+2025-05-10T14:14:18.768Z error: Error executing scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'contenu' column of 'scraped_data' in the schema cache
+2025-05-10T14:14:21.482Z error: Error running scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'contenu' column of 'scraped_data' in the schema cache
+2025-05-10T14:15:10.567Z error: Error executing scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'contenu' column of 'scraped_data' in the schema cache
+2025-05-10T14:15:13.380Z error: Error running scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'contenu' column of 'scraped_data' in the schema cache
+2025-05-10T14:18:58.100Z error: Error executing scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'date_extraction' column of 'scraped_data' in the schema cache
+2025-05-10T14:19:00.811Z error: Error running scraper c6ef732f-9410-4dd5-b510-ea746cab74dd: Failed to store scraped data: Could not find the 'date_extraction' column of 'scraped_data' in the schema cache
+2025-05-10T16:46:25.222Z error: Error executing scraper 0a001856-45c1-488d-86ea-7ab879baada6: Failed to store scraped data: Could not find the 'ville' column of 'scraped_data' in the schema cache
+2025-05-10T16:46:27.849Z error: Error running scraper 0a001856-45c1-488d-86ea-7ab879baada6: Failed to store scraped data: Could not find the 'ville' column of 'scraped_data' in the schema cache
+2025-05-10T16:55:33.583Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:55:45.664Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:55:46.433Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:56:37.481Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:56:51.995Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-10T16:57:47.575Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"

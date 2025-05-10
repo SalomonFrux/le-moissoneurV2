@@ -310,9 +310,9 @@ async function genericScraper(browser, scraperConfig) {
     }
 
     return [{
-      title: scraperConfig.name,
-      content: JSON.stringify(content),
-      url: scraperConfig.source,
+      nom: scraperConfig.name,
+      contenu: JSON.stringify(content),
+      lien: scraperConfig.source,
       metadata: content.metadata
     }];
 

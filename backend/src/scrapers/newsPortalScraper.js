@@ -152,9 +152,9 @@ async function newsPortalScraper(browser, scraperConfig) {
         });
         
         articles.push({
-          title: articleData.title,
-          content: articleData.content,
-          url: articleUrl,
+          nom: articleData.title,
+          contenu: articleData.content,
+          lien: articleUrl,
           metadata: articleData.metadata
         });
         

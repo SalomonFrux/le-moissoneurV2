@@ -180,14 +180,54 @@ async function executeScraper(scraper) {
     });
 
     if (scrapedData.length > 0) {
-      const dataToInsert = scrapedData.map(item => ({
-        scraper_id: scraper.id,
-        title: item.title || null,
-        content: item.content || null,
-        url: item.url || scraper.source || null,
-        metadata: item.metadata || {},
-        scraped_at: new Date().toISOString()
-      }));
+      const dataToInsert = scrapedData.map(item => {
+        // Extract data from metadata and content
+        const metadata = item.metadata || {};
+        const content = item.content || '';
+        
+        // Helper function to extract data from content if not in metadata
+        const extractFromContent = (pattern) => {
+          if (typeof content === 'string') {
+            const match = content.match(new RegExp(pattern, 'i'));
+            return match ? match[1].trim() : 'Aucune donnée';
+          }
+          return 'Aucune donnée';
+        };
+
+        // Prioritize metadata values, fallback to content extraction, then default value
+        const extractedData = {
+          name: metadata.name || extractFromContent(/Nom\s*:\s*([^\n]+)/i) || item.title || 'Aucune donnée',
+          phone: metadata.phone || extractFromContent(/(?:Téléphone|Tel)\s*:\s*([^\n]+)/i),
+          email: metadata.email || extractFromContent(/(?:E-mail|Email)\s*:\s*([^\n]+)/i),
+          website: metadata.website || extractFromContent(/(?:Site\s*Web|Website)\s*:\s*([^\n]+)/i),
+          address: metadata.address || extractFromContent(/(?:Adresse|Address)\s*:\s*([^\n]+)/i),
+          sector: metadata.sector || extractFromContent(/(?:Secteur|Sector)\s*:\s*([^\n]+)/i)
+        };
+
+        // Clean up website URL if it exists and isn't already formatted
+        if (extractedData.website && extractedData.website !== 'Aucune donnée' && !extractedData.website.toLowerCase().startsWith('http')) {
+          extractedData.website = `https://${extractedData.website}`;
+        }
+
+        return {
+          scraper_id: scraper.id,
+          nom: extractedData.name,
+          secteur: extractedData.sector || scraper.sector || 'Aucune donnée',
+          pays: scraper.country || 'Maroc',
+          site_web: extractedData.website,
+          email: extractedData.email,
+          telephone: extractedData.phone,
+          adresse: extractedData.address,
+          contenu: item.content, // Keep original content
+          lien: item.url || scraper.source || null,
+          metadata: {
+            ...metadata,
+            original_content: item.content,
+            extracted_data: extractedData
+          },
+          created_at: new Date().toISOString()
+        };
+      });
 
       await withRetry(async () => {
         const { error: insertError } = await supabase
@@ -350,6 +390,13 @@ async function populateCompanies() {
 async function runScraperAndEnrich(scraper) {
   await executeScraper(scraper);
   await populateCompanies();
+}
+
+// Helper function to extract city from address
+function extractCityFromAddress(address) {
+  if (!address) return null;
+  const cityMatch = address.match(/\s*-\s*([^-]+)$/);
+  return cityMatch ? cityMatch[1].trim() : null;
 }
 
 module.exports = {

@@ -62,64 +62,157 @@ Create the following tables in your Supabase database:
 ### Scrapers Table
 
 ```sql
-    -- Create scrapers table
+  -- Enable UUID extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Drop existing tables if they exist (comment these out if you want to keep existing data)
+DROP TABLE IF EXISTS companies CASCADE;
+DROP TABLE IF EXISTS scraped_data CASCADE;
+DROP TABLE IF EXISTS scrapers CASCADE;
+DROP FUNCTION IF EXISTS update_updated_at_column CASCADE;
+
+-- Create scrapers table
 CREATE TABLE scrapers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
     source TEXT NOT NULL,
     status TEXT DEFAULT 'idle',
+    type TEXT DEFAULT 'playwright',
+    frequency TEXT DEFAULT 'manual',
+    country TEXT DEFAULT 'Aucune info' NOT NULL,
+    selectors JSONB DEFAULT '{"main": null}'::jsonb,
     last_run TIMESTAMP WITH TIME ZONE,
     data_count INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    CONSTRAINT valid_frequency CHECK (frequency IN ('manual', 'daily', 'weekly', 'monthly'))
 );
 
--- Create scraped_data table
+-- Create scraped_data table with French column names
 CREATE TABLE scraped_data (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     scraper_id UUID REFERENCES scrapers(id) ON DELETE CASCADE,
-    title TEXT,
-    content TEXT,
-    url TEXT,
-    metadata JSONB,
-    scraped_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    nom TEXT,
+    secteur TEXT,
+    pays TEXT,
+    source TEXT,
+    site_web TEXT,
+    email TEXT,
+    telephone TEXT,
+    adresse TEXT,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    CONSTRAINT unique_entry UNIQUE (scraper_id, nom, pays, source)
 );
 
--- Create companies table
+-- Optional: Create companies table for data aggregation
 CREATE TABLE companies (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
-    sector TEXT NOT NULL,
     country TEXT NOT NULL,
-    website TEXT,
-    linkedin TEXT,
-    email TEXT,
+    sector TEXT NOT NULL,
     source TEXT NOT NULL,
-    last_updated TIMESTAMP WITH TIME ZONE DEFAULT now()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    CONSTRAINT unique_company UNIQUE (name, country, source)
 );
 
--- Add comments to explain the columns in companies table
-COMMENT ON COLUMN companies.name IS 'Name of the company';
-COMMENT ON COLUMN companies.sector IS 'Sector the company operates in';
-COMMENT ON COLUMN companies.country IS 'Country where the company is based';
-COMMENT ON COLUMN companies.website IS 'Website URL of the company';
-COMMENT ON COLUMN companies.linkedin IS 'LinkedIn profile URL of the company';
-COMMENT ON COLUMN companies.email IS 'Contact email of the company';
-COMMENT ON COLUMN companies.source IS 'Source of the company data';
-COMMENT ON COLUMN companies.last_updated IS 'Timestamp of the last update to the company data';
+-- Add comments
+COMMENT ON TABLE scrapers IS 'Configuration des scrapers';
+COMMENT ON TABLE scraped_data IS 'Données récupérées par les scrapers';
+COMMENT ON TABLE companies IS 'Table optionnelle pour l''agrégation des données';
 
--- Alter scrapers table
-ALTER TABLE scrapers 
-ADD COLUMN IF NOT EXISTS frequency text DEFAULT 'manual' NOT NULL,
-ADD COLUMN IF NOT EXISTS selectors jsonb DEFAULT '{"main": null}'::jsonb,
-ADD COLUMN IF NOT EXISTS last_run timestamp with time zone,
-ADD CONSTRAINT valid_frequency CHECK (frequency IN ('manual', 'daily', 'weekly', 'monthly'));
+-- Comments for scrapers table
+COMMENT ON COLUMN scrapers.name IS 'Nom du scraper';
+COMMENT ON COLUMN scrapers.source IS 'URL source du scraper';
+COMMENT ON COLUMN scrapers.status IS 'État du scraper (idle, running, completed, error)';
+COMMENT ON COLUMN scrapers.type IS 'Type de scraper (playwright, puppeteer)';
+COMMENT ON COLUMN scrapers.frequency IS 'Fréquence de scraping: manual, daily, weekly, monthly';
+COMMENT ON COLUMN scrapers.country IS 'Pays ciblé par le scraper';
+COMMENT ON COLUMN scrapers.selectors IS 'Sélecteurs CSS pour le scraping (format JSON)';
+COMMENT ON COLUMN scrapers.last_run IS 'Dernière exécution du scraper';
+COMMENT ON COLUMN scrapers.data_count IS 'Nombre d''entrées collectées';
+COMMENT ON COLUMN scrapers.created_at IS 'Date de création du scraper';
 
--- Add comments to explain the columns in scrapers table
-COMMENT ON COLUMN scrapers.frequency IS 'Scraping frequency: manual, daily, weekly, or monthly';
-COMMENT ON COLUMN scrapers.selectors IS 'JSON object containing CSS selectors for scraping';
-COMMENT ON COLUMN scrapers.last_run IS 'Timestamp of the last successful scrape';
+-- Comments for scraped_data table
+COMMENT ON COLUMN scraped_data.nom IS 'Nom de l''entreprise';
+COMMENT ON COLUMN scraped_data.secteur IS 'Secteur d''activité';
+COMMENT ON COLUMN scraped_data.pays IS 'Pays de l''entreprise';
+COMMENT ON COLUMN scraped_data.source IS 'Source des données';
+COMMENT ON COLUMN scraped_data.site_web IS 'Site web de l''entreprise';
+COMMENT ON COLUMN scraped_data.email IS 'Email de contact';
+COMMENT ON COLUMN scraped_data.telephone IS 'Numéro de téléphone';
+COMMENT ON COLUMN scraped_data.adresse IS 'Adresse physique';
+COMMENT ON COLUMN scraped_data.metadata IS 'Métadonnées additionnelles (format JSON)';
+COMMENT ON COLUMN scraped_data.created_at IS 'Date de création de l''entrée';
+COMMENT ON COLUMN scraped_data.updated_at IS 'Date de dernière modification';
 
-ALTER TABLE scrapers ADD COLUMN type text DEFAULT 'playwright';
+-- Comments for companies table
+COMMENT ON COLUMN companies.name IS 'Nom de l''entreprise';
+COMMENT ON COLUMN companies.country IS 'Pays de l''entreprise';
+COMMENT ON COLUMN companies.sector IS 'Secteur d''activité';
+COMMENT ON COLUMN companies.source IS 'Source des données';
+COMMENT ON COLUMN companies.created_at IS 'Date de création de l''entrée';
+COMMENT ON COLUMN companies.updated_at IS 'Date de dernière modification';
+
+-- Create function to automatically update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create triggers for automatic timestamp updates
+CREATE TRIGGER update_scraped_data_updated_at
+    BEFORE UPDATE ON scraped_data
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_companies_updated_at
+    BEFORE UPDATE ON companies
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Create indexes for better query performance
+CREATE INDEX idx_scraped_data_scraper_id ON scraped_data(scraper_id);
+CREATE INDEX idx_scraped_data_nom ON scraped_data(nom);
+CREATE INDEX idx_scraped_data_pays ON scraped_data(pays);
+CREATE INDEX idx_companies_name ON companies(name);
+CREATE INDEX idx_companies_country ON companies(country);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE scrapers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scraped_data ENABLE ROW LEVEL SECURITY;
+ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
+
+-- Create policies (adjust these according to your authentication needs)
+CREATE POLICY "Enable read access for all users" ON scrapers
+    FOR SELECT
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Enable read access for all users" ON scraped_data
+    FOR SELECT
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Enable read access for all users" ON companies
+    FOR SELECT
+    TO authenticated
+    USING (true);
+
+-- Grant necessary permissions (adjust according to your needs)
+GRANT ALL ON scrapers TO authenticated;
+GRANT ALL ON scraped_data TO authenticated;
+GRANT ALL ON companies TO authenticated; 
+
+
+ALTER TABLE scraped_data ADD COLUMN IF NOT EXISTS contenu TEXT; ALTER TABLE scraped_data ADD COLUMN IF NOT EXISTS lien TEXT; COMMENT ON COLUMN scraped_data.contenu IS 'Contenu brut extrait'; COMMENT ON COLUMN scraped_data.lien IS 'Lien vers la source'
+
+
+
 ```
 
 ## Features
