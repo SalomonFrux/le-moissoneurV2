@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const scraperRoutes = require('./routes/scraperRoutes');
+const scrapedDataRoutes = require('./routes/scrapedDataRoutes');
 const { logger } = require('./utils/logger');
 
 // Initialize Express app
@@ -16,6 +17,7 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/api/scrapers', scraperRoutes);
+app.use('/api/scraped-data', scrapedDataRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

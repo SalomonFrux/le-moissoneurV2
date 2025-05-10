@@ -152,9 +152,125 @@ async function createScraper(req, res, next) {
   }
 }
 
+/**
+ * Get scraped data for a specific scraper
+ */
+async function getScraperData(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    const { data, error } = await supabase
+      .from('scraped_data')
+      .select('*')
+      .eq('scraper_id', id)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      logger.error(`Error fetching scraped data for scraper ${id}: ${error.message}`);
+      return res.status(500).json({ error: error.message });
+    }
+
+    // Process and structure the data
+    const processedData = data.map(item => {
+      let structuredData = {
+        id: item.id,
+        scraper_id: item.scraper_id,
+        nom: item.nom,
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      };
+
+      // Extract data from contenu using regex
+      if (item.contenu) {
+        const content = item.contenu;
+        
+        // Extract address
+        const addressMatch = content.match(/Address\s*:\s*([^\n]+)/i);
+        const address = addressMatch ? addressMatch[1].trim() : '';
+        
+        // Extract phone
+        const phoneMatch = content.match(/Tel\s*:\s*([^\n]+)/i);
+        const phone = phoneMatch ? phoneMatch[1].trim() : '';
+        
+        // Extract fax
+        const faxMatch = content.match(/Fax\s*:\s*([^\n]+)/i);
+        const fax = faxMatch ? faxMatch[1].trim() : '';
+        
+        // Extract email
+        const emailMatch = content.match(/E-mail\s*:\s*([^\n]+)/i);
+        const email = emailMatch ? emailMatch[1].trim() : '';
+        
+        // Extract website if present
+        const websiteMatch = content.match(/Site web\s*:\s*([^\n]+)/i);
+        const website = websiteMatch ? websiteMatch[1].trim() : '';
+
+        // Extract city from address
+        const cityMatch = address.match(/\s*-\s*([^-]+)$/);
+        const city = cityMatch ? cityMatch[1].trim() : '';
+
+        // Update structured data with extracted information
+        structuredData = {
+          ...structuredData,
+          adresse: address,
+          telephone: phone,
+          email: email,
+          site_web: website,
+          pays: 'Maroc', // Default to Morocco since all addresses are in Morocco
+          ville: city,
+          secteur: item.secteur || 'Non spécifié',
+          metadata: {
+            ...item.metadata,
+            fax: fax
+          }
+        };
+      }
+
+      return structuredData;
+    });
+    
+    return res.status(200).json(processedData);
+  } catch (err) {
+    logger.error(`Error in getScraperData: ${err.message}`);
+    next(err);
+  }
+}
+
+// Helper function to extract information using regex
+function extractInfo(text, pattern) {
+  const match = text?.match(pattern);
+  return match ? match[1].trim() : '';
+}
+
+async function getAllScrapedData(req, res) {
+  try {
+    const { data, error } = await supabase
+      .from('scraped_data')
+      .select(`
+        *,
+        scraper:scrapers(name)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Transform the data to include scraper name
+    const transformedData = data.map(item => ({
+      ...item,
+      nom: item.scraper?.name || '-'
+    }));
+
+    res.json(transformedData);
+  } catch (error) {
+    console.error('Error fetching all scraped data:', error);
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   getAllScrapers,
   createScraper,
   runScraper,
-  getScraperStatus
+  getScraperStatus,
+  getScraperData,
+  getAllScrapedData
 };
