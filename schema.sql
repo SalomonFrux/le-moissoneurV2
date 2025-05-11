@@ -146,4 +146,74 @@ CREATE POLICY "Enable read access for all users" ON companies
 -- Grant necessary permissions (adjust according to your needs)
 GRANT ALL ON scrapers TO authenticated;
 GRANT ALL ON scraped_data TO authenticated;
-GRANT ALL ON companies TO authenticated; 
+GRANT ALL ON companies TO authenticated;
+
+-- Create statistics summary function
+CREATE OR REPLACE FUNCTION get_statistics_summary()
+RETURNS TABLE (
+    total_companies BIGINT,
+    companies_change INTEGER,
+    total_countries INTEGER,
+    total_sectors INTEGER,
+    monthly_growth INTEGER,
+    countries_label TEXT,
+    sectors_label TEXT,
+    growth_label TEXT
+) AS $$
+DECLARE
+    last_month_count INTEGER;
+    current_month_count INTEGER;
+BEGIN
+    -- Get total entries from scraped_data (all records)
+    SELECT COUNT(*) INTO total_companies FROM scraped_data;
+    
+    -- Get unique countries and sectors (including nulls and 'Aucune donnée')
+    SELECT COUNT(DISTINCT COALESCE(pays, 'Aucune donnée')) INTO total_countries 
+    FROM scraped_data;
+    
+    SELECT COUNT(DISTINCT COALESCE(secteur, 'Aucune donnée')) INTO total_sectors 
+    FROM scraped_data;
+    
+    -- Calculate monthly growth (all records)
+    SELECT COUNT(*) INTO last_month_count
+    FROM scraped_data 
+    WHERE created_at >= date_trunc('month', current_date - interval '1 month')
+    AND created_at < date_trunc('month', current_date);
+    
+    SELECT COUNT(*) INTO current_month_count
+    FROM scraped_data 
+    WHERE created_at >= date_trunc('month', current_date)
+    AND created_at < date_trunc('month', current_date + interval '1 month');
+    
+    -- Calculate percentage changes
+    companies_change := CASE 
+        WHEN last_month_count = 0 THEN 100
+        ELSE ((current_month_count - last_month_count)::FLOAT / last_month_count * 100)::INTEGER
+    END;
+    
+    monthly_growth := CASE 
+        WHEN last_month_count = 0 THEN 100
+        ELSE ((current_month_count - last_month_count)::FLOAT / last_month_count * 100)::INTEGER
+    END;
+    
+    -- Set labels
+    countries_label := CASE 
+        WHEN total_countries = 0 THEN 'Aucun pays enregistré'
+        WHEN total_countries = 1 THEN '1 pays enregistré'
+        ELSE total_countries || ' pays enregistrés'
+    END;
+    
+    sectors_label := CASE 
+        WHEN total_sectors = 0 THEN 'Aucun secteur enregistré'
+        WHEN total_sectors = 1 THEN '1 secteur enregistré'
+        ELSE total_sectors || ' secteurs enregistrés'
+    END;
+    
+    growth_label := 'Croissance mensuelle';
+    
+    RETURN NEXT;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Grant execute permission on the function
+GRANT EXECUTE ON FUNCTION get_statistics_summary() TO authenticated; 

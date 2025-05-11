@@ -12,7 +12,8 @@ import { SectorDistribution } from './SectorDistribution';
 import { GeographicDistribution } from './GeographicDistribution';
 import { CollectionTrends } from './CollectionTrends';
 import { SourceComparison } from './SourceComparison';
-//import { fetchStatisticsSummary } from '../../../../src/services/dataService';
+import { fetchStatisticsSummary } from '../../../../src/services/dataService';
+import { toast } from 'sonner';
 
 export function StatisticsPage() {
   const [summary, setSummary] = useState({
@@ -31,18 +32,31 @@ export function StatisticsPage() {
     async function fetchSummary() {
       setLoading(true);
       try {
+        console.log('Starting to fetch summary data...');
         const data = await fetchStatisticsSummary();
-        setSummary(data);
-      } catch {
+        console.log('Successfully received summary data:', data);
+        setSummary({
+          companies: data.companies,
+          companiesChange: data.companiesChange,
+          countries: data.countries,
+          sectors: data.sectors,
+          growth: data.growth,
+          countriesLabel: data.countriesLabel,
+          sectorsLabel: data.sectorsLabel,
+          growthLabel: data.growthLabel
+        });
+      } catch (error) {
+        console.error('Error in StatisticsPage:', error);
+        toast.error('Erreur lors du chargement des statistiques');
         setSummary({
           companies: 0,
           companiesChange: 0,
           countries: 0,
           sectors: 0,
           growth: 0,
-          countriesLabel: '',
-          sectorsLabel: '',
-          growthLabel: '',
+          countriesLabel: "Erreur de chargement",
+          sectorsLabel: "Erreur de chargement",
+          growthLabel: "Erreur de chargement"
         });
       } finally {
         setLoading(false);
@@ -79,7 +93,9 @@ export function StatisticsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{loading ? '...' : summary.companies}</div>
             <p className="mt-2 text-xs text-muted-foreground flex items-center">
-              <span className="mr-1 inline-flex items-center rounded-md px-1 py-0.5 text-xs font-medium bg-green-50 text-green-700">
+              <span className={`mr-1 inline-flex items-center rounded-md px-1 py-0.5 text-xs font-medium ${
+                summary.companiesChange > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'
+              }`}>
                 {loading ? '...' : `${summary.companiesChange > 0 ? '+' : ''}${summary.companiesChange}%`}
               </span>
               depuis le mois dernier
@@ -95,8 +111,8 @@ export function StatisticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{loading ? '...' : summary.countries}</div>
-            <p className="mt-2 text-xs text-muted-foreground flex items-center">
-              {loading ? '...' : summary.countriesLabel || "Afrique de l'Ouest principalement"}
+            <p className="mt-2 text-xs text-muted-foreground">
+              {loading ? '...' : summary.countriesLabel}
             </p>
           </CardContent>
         </Card>
@@ -109,8 +125,8 @@ export function StatisticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{loading ? '...' : summary.sectors}</div>
-            <p className="mt-2 text-xs text-muted-foreground flex items-center">
-              {loading ? '...' : summary.sectorsLabel || 'Tech et Fintech dominants'}
+            <p className="mt-2 text-xs text-muted-foreground">
+              {loading ? '...' : summary.sectorsLabel}
             </p>
           </CardContent>
         </Card>

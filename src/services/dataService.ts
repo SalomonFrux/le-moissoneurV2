@@ -195,11 +195,60 @@ export async function updateCompany(company: any) {
   if (error) throw error;
 }
 
+export interface StatisticsSummary {
+  companies: number;
+  companiesChange: number;
+  countries: number;
+  sectors: number;
+  growth: number;
+  countriesLabel: string;
+  sectorsLabel: string;
+  growthLabel: string;
+}
 
-// This function needs to be implemented. 
-// It should fetch statistics summary from a database or API.
-export function fetchStatisticsSummary() {
-  // Function implementation
+export async function fetchStatisticsSummary(): Promise<StatisticsSummary> {
+  try {
+    console.log('Making RPC call to get_statistics_summary...');
+    const { data, error } = await supabase.rpc('get_statistics_summary');
+    
+    console.log('Raw response from Supabase:', { data, error });
+
+    if (error) {
+      console.error('Supabase RPC error:', error);
+      throw error;
+    }
+
+    if (!data) {
+      console.error('No data received from Supabase');
+      throw new Error('No data received from Supabase');
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      console.error('Data is not in expected format:', data);
+      throw new Error('Invalid data format received');
+    }
+
+    console.log('First row of data:', data[0]);
+
+    // Map the returned data to our StatisticsSummary interface
+    const mappedData = {
+      companies: parseInt(data[0].total_companies) || 0,
+      companiesChange: parseInt(data[0].companies_change) || 0,
+      countries: parseInt(data[0].total_countries) || 0,
+      sectors: parseInt(data[0].total_sectors) || 0,
+      growth: parseInt(data[0].monthly_growth) || 0,
+      countriesLabel: data[0].countries_label || "Aucun pays enregistré",
+      sectorsLabel: data[0].sectors_label || "Aucun secteur enregistré",
+      growthLabel: data[0].growth_label || "Croissance mensuelle"
+    };
+
+    console.log('Mapped statistics data:', mappedData);
+    return mappedData;
+
+  } catch (error) {
+    console.error('Error in fetchStatisticsSummary:', error);
+    throw error; // Let the component handle the error instead of returning default values
+  }
 }
 
 export { fetchScrapers, fetchCompanies, fetchEnrichmentTasks };

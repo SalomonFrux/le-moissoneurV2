@@ -16,9 +16,25 @@ export function SectorDistribution() {
           fetchSectorDistribution(),
           fetchFintechSubsectors()
         ]);
-        setData(sector);
-        setFintechData(fintech);
-      } catch {
+        // Map to shape expected by Recharts and component
+        const colors = ['#8884d8', '#82ca9d', '#ffc658', '#d0ed57', '#a4de6c'];
+        const mappedSector = sector.map((entry, index) => ({
+          name: entry.sector,
+          value: entry.count,
+          percent: entry.percentage,
+          color: colors[index % colors.length],
+        }));
+        const totalFintechCount = fintech.reduce((sum, entry) => sum + entry.company_count, 0);
+        const mappedFintech = fintech.map((entry, index) => ({
+          name: entry.subsector,
+          value: entry.company_count,
+          percent: totalFintechCount > 0 ? (entry.company_count / totalFintechCount) * 100 : 0,
+          color: colors[index % colors.length],
+        }));
+        setData(mappedSector);
+        setFintechData(mappedFintech);
+      } catch (error) {
+        console.error('Error fetching sector distribution:', error);
         setData([]);
         setFintechData([]);
       } finally {

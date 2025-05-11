@@ -267,26 +267,39 @@ Or deploy to a service like Heroku, Railway, or DigitalOcean App Platform.
 # Africa Venture Harvest Scraper Project Tree
 A web application for managing and running web scrapers to collect data from African business and investment websites.
 
+
 ```
-afircScrapper
-├─ .DS_Store
-├─ .continue
-│  └─ models
-│     └─ new-model.yaml
-├─ .env.local
-├─ .env.local.example
+SamExtract
 ├─ README-FULLSTACK.md
 ├─ README.md
-├─ africa-venture-harvest
-│  ├─ .DS_Store
-│  ├─ .env
-│  ├─ .env.local
+├─ backend
+│  ├─ Dockerfile
 │  ├─ README.md
-│  ├─ bun.lockb
+│  ├─ package.json
+│  └─ src
+│     ├─ app.js
+│     ├─ controllers
+│     │  ├─ companyController.js
+│     │  └─ scraperController.js
+│     ├─ db
+│     │  └─ supabase.js
+│     ├─ index.js
+│     ├─ routes
+│     │  ├─ scrapedDataRoutes.js
+│     │  └─ scraperRoutes.js
+│     ├─ scrapers
+│     │  ├─ genericScraper.js
+│     │  ├─ newsPortalScraper.js
+│     │  └─ playwrightScraper.js
+│     ├─ services
+│     │  └─ scraperService.js
+│     └─ utils
+│        └─ logger.js
+├─ frontend
+│  ├─ README.md
 │  ├─ components.json
 │  ├─ eslint.config.js
 │  ├─ index.html
-│  ├─ package-lock.json
 │  ├─ package.json
 │  ├─ postcss.config.js
 │  ├─ public
@@ -307,6 +320,16 @@ afircScrapper
 │  │  │  │  ├─ ScraperCard.tsx
 │  │  │  │  ├─ ScrapersPage.tsx
 │  │  │  │  └─ StatsCard.tsx
+│  │  │  ├─ enrichment
+│  │  │  │  └─ EnrichmentPage.tsx
+│  │  │  ├─ settings
+│  │  │  │  └─ ParametersPage.tsx
+│  │  │  ├─ statistics
+│  │  │  │  ├─ CollectionTrends.tsx
+│  │  │  │  ├─ GeographicDistribution.tsx
+│  │  │  │  ├─ SectorDistribution.tsx
+│  │  │  │  ├─ SourceComparison.tsx
+│  │  │  │  └─ StatisticsPage.tsx
 │  │  │  └─ ui
 │  │  │     ├─ accordion.tsx
 │  │  │     ├─ alert-dialog.tsx
@@ -368,6 +391,7 @@ afircScrapper
 │  │  │  ├─ Index.tsx
 │  │  │  └─ NotFound.tsx
 │  │  ├─ services
+│  │  │  ├─ dataService.ts
 │  │  │  └─ scraperService.ts
 │  │  └─ vite-env.d.ts
 │  ├─ tailwind.config.ts
@@ -375,34 +399,9 @@ afircScrapper
 │  ├─ tsconfig.json
 │  ├─ tsconfig.node.json
 │  └─ vite.config.ts
-├─ backend
-│  ├─ .env
-│  ├─ .env.example
-│  ├─ Dockerfile
-│  ├─ README.md
-│  ├─ logs
-│  │  ├─ combined.log
-│  │  └─ error.log
-│  ├─ package-lock.json
-│  ├─ package.json
-│  └─ src
-│     ├─ controllers
-│     │  └─ scraperController.js
-│     ├─ db
-│     │  └─ supabase.js
-│     ├─ index.js
-│     ├─ routes
-│     │  └─ scraperRoutes.js
-│     ├─ scrapers
-│     │  ├─ genericScraper.js
-│     │  └─ newsPortalScraper.js
-│     ├─ services
-│     │  └─ scraperService.js
-│     └─ utils
-│        └─ logger.js
-├─ package-lock.json
 ├─ package.json
 ├─ package.json.updates
+├─ schema.sql
 └─ src
    ├─ App.tsx
    ├─ components
@@ -419,6 +418,219 @@ afircScrapper
    ├─ services
    │  ├─ dataService.ts
    │  └─ scraperService.ts
+   ├─ types.ts
    └─ vite-env.d.ts
 
 ```
+
+Enrichment Page is a page that allows you to enrich the data of a company.
+Implementation of the enrichment page is in the enrichment folder:
+Here's a comprehensive task list to implement the complete enrichment functionality:
+
+## 1. Database Setup (Already Done ✓)
+- ✓ Create `enrichment_tasks` table
+- ✓ Set up basic schema
+
+## 2. Backend Implementation
+
+### A. Data Models and Types
+```typescript
+- Create types/interfaces for:
+  - EnrichmentTask
+  - EnrichmentSource
+  - EnrichmentResult
+  - EnrichmentConfig
+```
+
+### B. API Endpoints
+1. Tasks Management:
+```typescript
+- POST /api/enrichment/tasks (create new task)
+- PUT /api/enrichment/tasks/:id (update task status)
+- DELETE /api/enrichment/tasks/:id (delete task)
+- GET /api/enrichment/tasks/:id/progress (get task progress)
+```
+
+2. Sources Management:
+```typescript
+- GET /api/enrichment/sources (list available sources)
+- POST /api/enrichment/sources (add new source)
+- PUT /api/enrichment/sources/:id (update source config)
+```
+
+### C. Enrichment Services
+1. Source Connectors:
+```typescript
+- LinkedIn API connector
+- FinData API connector
+- OpenCorporates connector
+- Generic API connector interface
+```
+
+2. Enrichment Engine:
+```typescript
+- Task queue management
+- Rate limiting
+- Error handling
+- Progress tracking
+- Data validation
+```
+
+3. Data Processing:
+```typescript
+- Data matching algorithms
+- Data merging logic
+- Conflict resolution
+```
+
+## 3. Frontend Implementation
+
+### A. Components
+1. Task Creation:
+```typescript
+- Create EnrichmentTaskModal component
+- Add form for task configuration
+- Implement source selection
+- Add validation
+```
+
+2. Task Management:
+```typescript
+- Create TaskList component
+- Add TaskCard component
+- Implement task controls (pause/resume/delete)
+- Add progress indicators
+```
+
+3. Source Configuration:
+```typescript
+- Create SourceConfig component
+- Add API key management
+- Add source testing functionality
+```
+
+4. Results View:
+```typescript
+- Create EnrichmentResults component
+- Add data preview
+- Implement export functionality
+```
+
+### B. State Management
+```typescript
+- Add enrichment state slice
+- Implement task tracking
+- Add source configuration state
+- Handle real-time updates
+```
+
+### C. API Integration
+```typescript
+- Create enrichment API service
+- Add WebSocket connection for real-time updates
+- Implement error handling
+```
+
+## 4. Integration Features
+
+### A. Real-time Updates
+```typescript
+- WebSocket connection setup
+- Progress updates
+- Status changes
+- Error notifications
+```
+
+### B. Background Jobs
+```typescript
+- Task scheduler
+- Queue management
+- Retry mechanism
+- Error recovery
+```
+
+### C. Monitoring
+```typescript
+- Task progress tracking
+- Error logging
+- Performance metrics
+- Usage statistics
+```
+
+## 5. Security & Performance
+
+### A. Security
+```typescript
+- API key encryption
+- Rate limiting
+- Access control
+- Input validation
+```
+
+### B. Performance
+```typescript
+- Caching strategy
+- Batch processing
+- Database optimization
+- Connection pooling
+```
+
+## 6. Testing & Documentation
+
+### A. Testing
+```typescript
+- Unit tests for services
+- Integration tests
+- API endpoint tests
+- UI component tests
+```
+
+### B. Documentation
+```typescript
+- API documentation
+- Setup guide
+- Usage examples
+- Troubleshooting guide
+```
+
+## Suggested Implementation Order:
+
+1. **Phase 1 - Basic Infrastructure**
+   - Backend API endpoints
+   - Basic frontend components
+   - Task creation/management
+
+2. **Phase 2 - Core Functionality**
+   - Source connectors
+   - Enrichment engine
+   - Data processing
+
+3. **Phase 3 - Enhanced Features**
+   - Real-time updates
+   - Background jobs
+   - Monitoring
+
+4. **Phase 4 - Polish**
+   - Security improvements
+   - Performance optimization
+   - Testing
+   - Documentation
+
+Phase 1 - Basic Infrastructure
+Backend API endpoints
+Basic frontend components
+Task creation/management
+Phase 2 - Core Functionality
+Source connectors
+Enrichment engine
+Data processing
+Phase 3 - Enhanced Features
+Real-time updates
+Background jobs
+Monitoring
+Phase 4 - Polish
+Security improvements
+Performance optimization
+Testing
+Documentation
+

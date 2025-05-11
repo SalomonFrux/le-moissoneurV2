@@ -28,14 +28,11 @@ dist/
 build/
 .cache/
 
+# Ignore specific folders
+.continue/
+.vscode/
 
-
-# Coverage
-.continue
-.vscode 
-node_modules
-srco
-
-
+# Ignore node_modules in all directories
+**/node_modules/
 
 

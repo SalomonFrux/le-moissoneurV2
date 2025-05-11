@@ -144,28 +144,21 @@ async function executeScraper(scraper) {
       if (scraper.type === 'playwright') {
         scrapedData = await playwrightScraper(
           scraper.source || scraper.url,
-          scraper.selectors?.main,
-          scraper.selectors?.pagination
-        );
-        // Map Playwright results to expected format
-        scrapedData = scrapedData.map(result => {
-          // If the result has metadata, use it
-          if (result.metadata) {
-            return {
-              title: scraper.name,
-              content: result.text,
-              url: scraper.source || scraper.url,
-              metadata: result.metadata
-            };
+          {
+            main: scraper.selectors?.main,
+            child: scraper.selectors?.child || {},
+            pagination: scraper.selectors?.pagination,
+            dropdownClick: scraper.selectors?.dropdownClick
           }
-          // Otherwise, use the value/text
-          return {
-            title: scraper.name,
-            content: result.value || result.text,
-            url: scraper.source || scraper.url,
-            metadata: {}
-          };
-        });
+        );
+        
+        // Map Playwright results to expected format
+        scrapedData = scrapedData.map(result => ({
+          title: scraper.name,
+          content: result.text,
+          url: scraper.source || scraper.url,
+          metadata: result.metadata || {}
+        }));
         return;
       }
       browser = await createBrowserInstance();
@@ -196,12 +189,49 @@ async function executeScraper(scraper) {
 
         // Prioritize metadata values, fallback to content extraction, then default value
         const extractedData = {
-          name: metadata.name || extractFromContent(/Nom\s*:\s*([^\n]+)/i) || item.title || 'Aucune donnée',
-          phone: metadata.phone || extractFromContent(/(?:Téléphone|Tel)\s*:\s*([^\n]+)/i),
-          email: metadata.email || extractFromContent(/(?:E-mail|Email)\s*:\s*([^\n]+)/i),
-          website: metadata.website || extractFromContent(/(?:Site\s*Web|Website)\s*:\s*([^\n]+)/i),
-          address: metadata.address || extractFromContent(/(?:Adresse|Address)\s*:\s*([^\n]+)/i),
-          sector: metadata.sector || extractFromContent(/(?:Secteur|Sector)\s*:\s*([^\n]+)/i)
+          name: (() => {
+            // First try to get from metadata
+            if (metadata.name && metadata.name !== 'Aucune donnée') return metadata.name;
+            // Then try to get from content's first line
+            if (typeof content === 'string') {
+              const firstLine = content.split('\n')[0].trim();
+              if (firstLine && firstLine !== 'Aucune donnée') return firstLine;
+            }
+            // Then try pattern matching
+            const nameFromPattern = extractFromContent(/Nom\s*:\s*([^\n]+)/i);
+            if (nameFromPattern && nameFromPattern !== 'Aucune donnée') return nameFromPattern;
+            // Finally use title or default
+            return item.title || 'Aucune donnée';
+          })(),
+          phone: (() => {
+            if (metadata.phone && metadata.phone !== 'Aucune donnée') return metadata.phone;
+            // Look for phone-like patterns in content
+            if (typeof content === 'string') {
+              const phoneMatch = content.match(/(?:\+?\d{1,3}[-\s]?)?\d{2}[-\s]?\d{2}[-\s]?\d{2}[-\s]?\d{2}/);
+              if (phoneMatch) return phoneMatch[0].trim();
+            }
+            return extractFromContent(/(?:Téléphone|Tel)\s*:\s*([^\n]+)/i) || 'Aucune donnée';
+          })(),
+          email: metadata.email || extractFromContent(/(?:E-mail|Email)\s*:\s*([^\n]+)/i) || 'Aucune donnée',
+          website: metadata.website || extractFromContent(/(?:Site\s*Web|Website)\s*:\s*([^\n]+)/i) || 'Aucune donnée',
+          address: (() => {
+            if (metadata.address && metadata.address !== 'Aucune donnée') return metadata.address;
+            // Look for address in content (after the first line, before phone/email)
+            if (typeof content === 'string') {
+              const lines = content.split('\n');
+              if (lines.length > 1) {
+                const addressLine = lines[1].trim();
+                if (addressLine && !addressLine.match(/^(?:Tel|Email|Site)/i)) return addressLine;
+              }
+            }
+            return extractFromContent(/(?:Adresse|Address)\s*:\s*([^\n]+)/i) || 'Aucune donnée';
+          })(),
+          sector: (() => {
+            if (metadata.sector && metadata.sector !== 'Aucune donnée') return metadata.sector;
+            // Look for "E-commerce" or similar in content
+            if (typeof content === 'string' && content.includes('E-commerce')) return 'E-commerce';
+            return extractFromContent(/(?:Secteur|Sector)\s*:\s*([^\n]+)/i) || 'Aucune donnée';
+          })()
         };
 
         // Clean up website URL if it exists and isn't already formatted
