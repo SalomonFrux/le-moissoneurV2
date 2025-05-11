@@ -12,11 +12,22 @@ import { SectorDistribution } from './SectorDistribution';
 import { GeographicDistribution } from './GeographicDistribution';
 import { CollectionTrends } from './CollectionTrends';
 import { SourceComparison } from './SourceComparison';
-import { fetchStatisticsSummary } from '../../../../src/services/dataService';
+import { dataService } from '@/services/dataService';
 import { toast } from 'sonner';
 
+interface StatisticsSummary {
+  companies: number;
+  companiesChange: number;
+  countries: number;
+  sectors: number;
+  growth: number;
+  countriesLabel: string;
+  sectorsLabel: string;
+  growthLabel: string;
+}
+
 export function StatisticsPage() {
-  const [summary, setSummary] = useState({
+  const [summary, setSummary] = useState<StatisticsSummary>({
     companies: 0,
     companiesChange: 0,
     countries: 0,
@@ -27,23 +38,58 @@ export function StatisticsPage() {
     growthLabel: '',
   });
   const [loading, setLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState('all');
 
   useEffect(() => {
     async function fetchSummary() {
       setLoading(true);
       try {
-        console.log('Starting to fetch summary data...');
-        const data = await fetchStatisticsSummary();
-        console.log('Successfully received summary data:', data);
+        // Fetch all scraped data
+        const scrapedData = await dataService.fetchAllScrapedData();
+        
+        // Calculate total unique companies (based on unique names)
+        const uniqueCompanies = new Set(scrapedData.map(entry => entry.nom)).size;
+        
+        // Calculate unique countries
+        const uniqueCountries = new Set(scrapedData.map(entry => entry.pays).filter(pays => pays && pays !== 'Aucune donnée')).size;
+        
+        // Calculate unique sectors
+        const uniqueSectors = new Set(scrapedData.map(entry => entry.secteur).filter(secteur => secteur && secteur !== 'Aucune donnée')).size;
+        
+        // Calculate growth (companies added in last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const recentEntries = scrapedData.filter(entry => 
+          new Date(entry.created_at) > thirtyDaysAgo
+        ).length;
+        
+        const growthRate = scrapedData.length > 0 
+          ? ((recentEntries / scrapedData.length) * 100).toFixed(1)
+          : 0;
+
+        // Get previous period data for comparison
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+        
+        const previousPeriodEntries = scrapedData.filter(entry =>
+          new Date(entry.created_at) > sixtyDaysAgo &&
+          new Date(entry.created_at) <= thirtyDaysAgo
+        ).length;
+
+        const companiesChangeRate = previousPeriodEntries > 0
+          ? ((recentEntries - previousPeriodEntries) / previousPeriodEntries * 100).toFixed(1)
+          : 100;
+
         setSummary({
-          companies: data.companies,
-          companiesChange: data.companiesChange,
-          countries: data.countries,
-          sectors: data.sectors,
-          growth: data.growth,
-          countriesLabel: data.countriesLabel,
-          sectorsLabel: data.sectorsLabel,
-          growthLabel: data.growthLabel
+          companies: uniqueCompanies,
+          companiesChange: Number(companiesChangeRate),
+          countries: uniqueCountries,
+          sectors: uniqueSectors,
+          growth: Number(growthRate),
+          countriesLabel: `${uniqueCountries} pays différents identifiés`,
+          sectorsLabel: `${uniqueSectors} secteurs d'activité`,
+          growthLabel: `Croissance sur 30 jours`
         });
       } catch (error) {
         console.error('Error in StatisticsPage:', error);
@@ -63,14 +109,18 @@ export function StatisticsPage() {
       }
     }
     fetchSummary();
-  }, []);
+  }, [timeframe]);
 
   return (
     <div className="space-y-8 p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-3xl font-bold font-heading tracking-tight">Statistiques</h2>
         <div className="flex items-center gap-2">
-          <select className="rounded-md border border-input px-3 py-1 text-sm bg-background">
+          <select 
+            className="rounded-md border border-input px-3 py-1 text-sm bg-background"
+            value={timeframe}
+            onChange={(e) => setTimeframe(e.target.value)}
+          >
             <option value="all">Toutes les données</option>
             <option value="month">Dernier mois</option>
             <option value="quarter">Dernier trimestre</option>
@@ -139,8 +189,8 @@ export function StatisticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{loading ? '...' : `${summary.growth > 0 ? '+' : ''}${summary.growth}%`}</div>
-            <p className="mt-2 text-xs text-muted-foreground flex items-center">
-              {loading ? '...' : summary.growthLabel || 'Taux de croissance trimestriel'}
+            <p className="mt-2 text-xs text-muted-foreground">
+              {loading ? '...' : summary.growthLabel}
             </p>
           </CardContent>
         </Card>

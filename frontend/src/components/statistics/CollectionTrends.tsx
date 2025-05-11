@@ -1,121 +1,117 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { fetchCollectionTrends, fetchEnrichmentRates } from '../../../../src/services/dataService';
+import { Card } from '@/components/ui/card';
+import { dataService } from '@/services/dataService';
+import { toast } from 'sonner';
+
+interface TrendData {
+  date: string;
+  count: number;
+  cumulative: number;
+}
 
 export function CollectionTrends() {
-  const [trendData, setTrendData] = useState([]);
-  const [enrichmentData, setEnrichmentData] = useState([]);
+  const [trends, setTrends] = useState<TrendData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
+    async function fetchTrendData() {
       try {
-        const [trends, enrichment] = await Promise.all([
-          fetchCollectionTrends(),
-          fetchEnrichmentRates()
-        ]);
-        setTrendData(trends);
-        setEnrichmentData(enrichment);
-      } catch (e) {
-        setTrendData([]);
-        setEnrichmentData([]);
+        const data = await dataService.fetchAllScrapedData();
+        
+        // Group entries by date
+        const dateGroups = data.reduce((acc, entry) => {
+          const date = new Date(entry.created_at).toISOString().split('T')[0];
+          if (!acc[date]) {
+            acc[date] = 0;
+          }
+          acc[date]++;
+          return acc;
+        }, {} as Record<string, number>);
+
+        // Convert to array and sort by date
+        let cumulative = 0;
+        const trendArray = Object.entries(dateGroups)
+          .map(([date, count]) => {
+            cumulative += count;
+            return {
+              date,
+              count,
+              cumulative
+            };
+          })
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+        setTrends(trendArray);
+      } catch (error) {
+        console.error('Error fetching trend data:', error);
+        toast.error('Erreur lors du chargement des tendances');
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
+    fetchTrendData();
   }, []);
 
-  const chartConfig = {
-    total: {
-      label: 'Total',
-      theme: { light: '#000000', dark: '#000000' },
-    },
-    nouveaux: {
-      label: 'Nouveaux',
-      theme: { light: '#555555', dark: '#555555' },
-    }
-  };
+  if (loading) {
+    return <div>Chargement des tendances...</div>;
+  }
 
   return (
-    <div className="grid grid-cols-1 gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Évolution temporelle de la collecte</CardTitle>
-          <CardDescription>Croissance mensuelle du nombre d'entreprises collectées</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px]">
-            <ChartContainer config={chartConfig}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={loading ? [] : trendData}
-                  margin={{
-                    top: 20,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mois" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="entreprises" 
-                    name="total" 
-                    stroke="var(--color-total)"
-                    strokeWidth={2} 
-                    dot={{ r: 4 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="nouveaux" 
-                    name="nouveaux" 
-                    stroke="var(--color-nouveaux)" 
-                    strokeWidth={2} 
-                    dot={{ r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Taux d'enrichissement mensuel</CardTitle>
-          <CardDescription>Pourcentage de données enrichies par mois</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={loading ? [] : enrichmentData}
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
+    <Card className="p-6">
+      <h3 className="text-lg font-semibold mb-4">Tendances de Collecte</h3>
+      <div className="space-y-6">
+        <div>
+          <h4 className="text-sm font-medium mb-2">Collecte Quotidienne</h4>
+          <div className="h-40 w-full">
+            {trends.map((point, index) => (
+              <div
+                key={point.date}
+                className="inline-block w-2 bg-primary mx-0.5"
+                style={{
+                  height: `${(point.count / Math.max(...trends.map(t => t.count))) * 100}%`,
+                  marginTop: 'auto'
                 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="mois" />
-                <YAxis unit="%" />
-                <Tooltip formatter={(value) => [`${value}%`, 'Taux d\'enrichissement']} />
-                <Legend />
-                <Bar dataKey="taux" fill="#000000" name="Taux d'enrichissement" />
-              </BarChart>
-            </ResponsiveContainer>
+                title={`${point.date}: ${point.count} entreprises`}
+              />
+            ))}
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+        
+        <div>
+          <h4 className="text-sm font-medium mb-2">Cumul Total</h4>
+          <div className="h-40 w-full">
+            <div className="relative h-full">
+              {trends.map((point, index) => {
+                const previousPoint = index > 0 ? trends[index - 1] : null;
+                const x1 = (index / trends.length) * 100;
+                const x2 = ((index + 1) / trends.length) * 100;
+                const y1 = previousPoint 
+                  ? 100 - ((previousPoint.cumulative / trends[trends.length - 1].cumulative) * 100)
+                  : 100;
+                const y2 = 100 - ((point.cumulative / trends[trends.length - 1].cumulative) * 100);
+
+                return (
+                  <svg
+                    key={point.date}
+                    className="absolute inset-0"
+                    preserveAspectRatio="none"
+                    viewBox="0 0 100 100"
+                  >
+                    <line
+                      x1={`${x1}%`}
+                      y1={`${y1}%`}
+                      x2={`${x2}%`}
+                      y2={`${y2}%`}
+                      stroke="hsl(var(--primary))"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }

@@ -1,106 +1,74 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { fetchSectorDistribution, fetchFintechSubsectors } from '../../../../src/services/dataService';
+import { Card } from '@/components/ui/card';
+import { dataService } from '@/services/dataService';
+import { toast } from 'sonner';
+
+interface SectorData {
+  name: string;
+  count: number;
+  percentage: number;
+}
 
 export function SectorDistribution() {
-  const [data, setData] = useState([]);
-  const [fintechData, setFintechData] = useState([]);
+  const [sectors, setSectors] = useState<SectorData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
+    async function fetchSectorData() {
       try {
-        const [sector, fintech] = await Promise.all([
-          fetchSectorDistribution(),
-          fetchFintechSubsectors()
-        ]);
-        // Map to shape expected by Recharts and component
-        const colors = ['#8884d8', '#82ca9d', '#ffc658', '#d0ed57', '#a4de6c'];
-        const mappedSector = sector.map((entry, index) => ({
-          name: entry.sector,
-          value: entry.count,
-          percent: entry.percentage,
-          color: colors[index % colors.length],
-        }));
-        const totalFintechCount = fintech.reduce((sum, entry) => sum + entry.company_count, 0);
-        const mappedFintech = fintech.map((entry, index) => ({
-          name: entry.subsector,
-          value: entry.company_count,
-          percent: totalFintechCount > 0 ? (entry.company_count / totalFintechCount) * 100 : 0,
-          color: colors[index % colors.length],
-        }));
-        setData(mappedSector);
-        setFintechData(mappedFintech);
+        const data = await dataService.fetchAllScrapedData();
+        
+        // Count entries by sector
+        const sectorCounts = data.reduce((acc, entry) => {
+          const sector = entry.secteur === 'Aucune donnée' ? 'Non spécifié' : (entry.secteur || 'Non spécifié');
+          acc[sector] = (acc[sector] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        // Convert to array and calculate percentages
+        const total = Object.values(sectorCounts).reduce((sum, count) => sum + count, 0);
+        const sectorArray = Object.entries(sectorCounts)
+          .map(([name, count]) => ({
+            name,
+            count,
+            percentage: (count / total) * 100
+          }))
+          .sort((a, b) => b.count - a.count);
+
+        setSectors(sectorArray);
       } catch (error) {
-        console.error('Error fetching sector distribution:', error);
-        setData([]);
-        setFintechData([]);
+        console.error('Error fetching sector data:', error);
+        toast.error('Erreur lors du chargement des données sectorielles');
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
+    fetchSectorData();
   }, []);
 
+  if (loading) {
+    return <div>Chargement des données sectorielles...</div>;
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="lg:col-span-1">
-        <CardHeader>
-          <CardTitle>Répartition par secteur d'activité</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={loading ? [] : data}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={120}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => [`${value} entreprises`, 'Nombre']} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+    <Card className="p-6">
+      <h3 className="text-lg font-semibold mb-4">Distribution par Secteur</h3>
+      <div className="space-y-4">
+        {sectors.map((sector) => (
+          <div key={sector.name} className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>{sector.name}</span>
+              <span className="font-medium">{sector.count}</span>
+            </div>
+            <div className="w-full bg-secondary rounded-full h-2">
+              <div
+                className="bg-primary rounded-full h-2"
+                style={{ width: `${sector.percentage}%` }}
+              />
+            </div>
           </div>
-        </CardContent>
-      </Card>
-      <Card className="lg:col-span-1">
-        <CardHeader>
-          <CardTitle>Top 5 sous-secteurs Fintech</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {loading ? (
-              <div>Chargement...</div>
-            ) : fintechData.map((item, idx) => (
-              <div key={item.name}>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {item.name}
-                    </p>
-                  </div>
-                  <div className="font-medium">{item.value} entreprises</div>
-                </div>
-                <div className="h-2 w-full bg-muted overflow-hidden rounded-full">
-                  <div className="h-full" style={{ width: `${item.percent}%`, backgroundColor: item.color }}></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        ))}
+      </div>
+    </Card>
   );
 }
