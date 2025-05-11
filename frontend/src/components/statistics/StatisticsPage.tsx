@@ -4,7 +4,12 @@ import {
   Globe, 
   TrendingUp, 
   PieChart,
-  Download
+  Download,
+  Database,
+  FileText,
+  BarChart2,
+  FileSpreadsheet,
+  Filter
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,202 +19,272 @@ import { CollectionTrends } from './CollectionTrends';
 import { SourceComparison } from './SourceComparison';
 import { dataService } from '@/services/dataService';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-interface StatisticsSummary {
-  companies: number;
-  companiesChange: number;
-  countries: number;
+interface StatisticsData {
+  total: number;
+  sources: number;
   sectors: number;
-  growth: number;
-  countriesLabel: string;
-  sectorsLabel: string;
-  growthLabel: string;
+  completeness: number;
 }
 
 export function StatisticsPage() {
-  const [summary, setSummary] = useState<StatisticsSummary>({
-    companies: 0,
-    companiesChange: 0,
-    countries: 0,
-    sectors: 0,
-    growth: 0,
-    countriesLabel: '',
-    sectorsLabel: '',
-    growthLabel: '',
-  });
+  const [activeTab, setActiveTab] = useState('sectors');
+  const [timeRange, setTimeRange] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [timeframe, setTimeframe] = useState('all');
+  const [stats, setStats] = useState<StatisticsData>({
+    total: 0,
+    sources: 0,
+    sectors: 0,
+    completeness: 0
+  });
 
   useEffect(() => {
-    async function fetchSummary() {
-      setLoading(true);
+    async function fetchStats() {
       try {
-        const scrapedData = await dataService.fetchAllScrapedData();
+        const data = await dataService.fetchAllScrapedData();
+        const sources = new Set(data.map(d => d.source));
+        const sectors = new Set(data.map(d => d.secteur));
         
-        // Calculate total unique companies
-        const uniqueCompanies = new Set(scrapedData.map(entry => entry.nom)).size;
+        // Calculate completeness
+        const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
+        const totalFields = data.length * fields.length;
+        const filledFields = data.reduce((acc, entry) => {
+          return acc + fields.filter(field => entry[field] && entry[field] !== 'Aucune donnée').length;
+        }, 0);
         
-        // Calculate unique countries
-        const uniqueCountries = new Set(scrapedData.map(entry => entry.pays).filter(pays => pays && pays !== 'Aucune donnée')).size;
-        
-        // Calculate unique sectors
-        const uniqueSectors = new Set(scrapedData.map(entry => entry.secteur).filter(secteur => secteur && secteur !== 'Aucune donnée')).size;
-        
-        // Calculate growth (companies added in last 30 days)
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
-        const recentEntries = scrapedData.filter(entry => 
-          new Date(entry.created_at) > thirtyDaysAgo
-        ).length;
-        
-        const growthRate = scrapedData.length > 0 
-          ? ((recentEntries / scrapedData.length) * 100).toFixed(1)
-          : 0;
-
-        // Get previous period data for comparison
-        const sixtyDaysAgo = new Date();
-        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-        
-        const previousPeriodEntries = scrapedData.filter(entry =>
-          new Date(entry.created_at) > sixtyDaysAgo &&
-          new Date(entry.created_at) <= thirtyDaysAgo
-        ).length;
-
-        const companiesChangeRate = previousPeriodEntries > 0
-          ? ((recentEntries - previousPeriodEntries) / previousPeriodEntries * 100).toFixed(1)
-          : 100;
-
-        setSummary({
-          companies: uniqueCompanies,
-          companiesChange: Number(companiesChangeRate),
-          countries: uniqueCountries,
-          sectors: uniqueSectors,
-          growth: Number(growthRate),
-          countriesLabel: `${uniqueCountries} pays différents identifiés`,
-          sectorsLabel: `${uniqueSectors} secteurs d'activité`,
-          growthLabel: `Croissance sur 30 jours`
+        setStats({
+          total: data.length,
+          sources: sources.size,
+          sectors: sectors.size,
+          completeness: Math.round((filledFields / totalFields) * 100)
         });
       } catch (error) {
-        console.error('Error in StatisticsPage:', error);
+        console.error('Error fetching stats:', error);
         toast.error('Erreur lors du chargement des statistiques');
       } finally {
         setLoading(false);
       }
     }
-    fetchSummary();
-  }, [timeframe]);
+    
+    fetchStats();
+  }, [timeRange]);
+
+  const handleExport = async (format: 'excel' | 'pdf') => {
+    try {
+      const data = await dataService.fetchAllScrapedData();
+      
+      if (format === 'excel') {
+        await dataService.exportToExcel({
+          data,
+          sheets: [
+            {
+              name: 'Résumé',
+              data: [
+                ['Statistiques Générales'],
+                ['Total des entreprises', data.length],
+                ['Sources uniques', new Set(data.map(d => d.source)).size],
+                ['Secteurs uniques', new Set(data.map(d => d.secteur)).size],
+                [''],
+                ['Distribution par secteur'],
+                ...Object.entries(
+                  data.reduce((acc, curr) => {
+                    acc[curr.secteur] = (acc[curr.secteur] || 0) + 1;
+                    return acc;
+                  }, {} as Record<string, number>)
+                ).map(([sector, count]) => [sector, count])
+              ]
+            },
+            {
+              name: 'Données détaillées',
+              data: [
+                ['Nom', 'Email', 'Téléphone', 'Adresse', 'Secteur', 'Source', 'Date de collecte'],
+                ...data.map(item => [
+                  item.nom,
+                  item.email,
+                  item.telephone,
+                  item.adresse,
+                  item.secteur,
+                  item.source,
+                  new Date(item.created_at).toLocaleDateString()
+                ])
+              ]
+            }
+          ]
+        });
+        toast.success('Export Excel réussi');
+      } else {
+        await dataService.exportToPdf({
+          data,
+          sections: [
+            {
+              title: 'Résumé',
+              content: [
+                { type: 'text', text: `Total des entreprises: ${data.length}` },
+                { type: 'text', text: `Sources uniques: ${new Set(data.map(d => d.source)).size}` },
+                { type: 'text', text: `Secteurs uniques: ${new Set(data.map(d => d.secteur)).size}` }
+              ]
+            },
+            {
+              title: 'Distribution par secteur',
+              type: 'table',
+              headers: ['Secteur', 'Nombre'],
+              data: Object.entries(
+                data.reduce((acc, curr) => {
+                  acc[curr.secteur] = (acc[curr.secteur] || 0) + 1;
+                  return acc;
+                }, {} as Record<string, number>)
+              ).map(([sector, count]) => [sector, count.toString()])
+            },
+            {
+              title: 'Données détaillées',
+              type: 'table',
+              headers: ['Nom', 'Email', 'Téléphone', 'Adresse', 'Secteur', 'Source', 'Date'],
+              data: data.map(item => [
+                item.nom,
+                item.email,
+                item.telephone,
+                item.adresse,
+                item.secteur,
+                item.source,
+                new Date(item.created_at).toLocaleDateString()
+              ])
+            }
+          ]
+        });
+        toast.success('Export PDF réussi');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Erreur lors de l\'export');
+    }
+  };
 
   return (
-    <div className="p-6 space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h2 className="text-3xl font-bold font-heading tracking-tight">Statistiques</h2>
-        <div className="flex items-center gap-2">
-          <select 
-            className="rounded-md border border-input px-3 py-1 text-sm bg-background"
-            value={timeframe}
-            onChange={(e) => setTimeframe(e.target.value)}
-            style={{ backgroundColor: '#fff' }}
-          >
-            <option value="all">Toutes les données</option>
-            <option value="month">Dernier mois</option>
-            <option value="quarter">Dernier trimestre</option>
-            <option value="year">Dernière année</option>
-          </select>
-          <button 
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-4 py-1"
-            style={{ backgroundColor: '#15616D', color: 'white' }}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Exporter
-          </button>
+    <div className="space-y-6 p-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Statistiques</h1>
+        <div className="flex gap-4">
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Période" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="week">7 derniers jours</SelectItem>
+              <SelectItem value="month">30 derniers jours</SelectItem>
+              <SelectItem value="year">12 derniers mois</SelectItem>
+              <SelectItem value="all">Toutes les données</SelectItem>
+            </SelectContent>
+          </Select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Exporter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleExport('excel')}>
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="relative overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Entreprises
-            </CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{loading ? '...' : summary.companies}</div>
-            <p className="mt-2 text-xs text-muted-foreground flex items-center">
-              <span className={`mr-1 inline-flex items-center rounded-md px-1 py-0.5 text-xs font-medium ${
-                summary.companiesChange > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'
-              }`}>
-                {loading ? '...' : `${summary.companiesChange > 0 ? '+' : ''}${summary.companiesChange}%`}
-              </span>
-              depuis le mois dernier
-            </p>
-          </CardContent>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+          <div className="flex items-center gap-4">
+            <Database className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <div>
+              <h3 className="text-sm font-medium text-blue-600 dark:text-blue-400">Total des données</h3>
+              <p className="text-2xl font-bold">{loading ? '...' : stats.total}</p>
+            </div>
+          </div>
         </Card>
 
-        <Card className="relative overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Pays
-            </CardTitle>
-            <Globe className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{loading ? '...' : summary.countries}</div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {loading ? '...' : summary.countriesLabel}
-            </p>
-          </CardContent>
+        <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+          <div className="flex items-center gap-4">
+            <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
+            <div>
+              <h3 className="text-sm font-medium text-green-600 dark:text-green-400">Sources</h3>
+              <p className="text-2xl font-bold">{loading ? '...' : stats.sources}</p>
+            </div>
+          </div>
         </Card>
 
-        <Card className="relative overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Secteurs
-            </CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{loading ? '...' : summary.sectors}</div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {loading ? '...' : summary.sectorsLabel}
-            </p>
-          </CardContent>
+        <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+          <div className="flex items-center gap-4">
+            <BarChart2 className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+            <div>
+              <h3 className="text-sm font-medium text-purple-600 dark:text-purple-400">Secteurs</h3>
+              <p className="text-2xl font-bold">{loading ? '...' : stats.sectors}</p>
+            </div>
+          </div>
         </Card>
 
-        <Card className="relative overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Croissance
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{loading ? '...' : `${summary.growth > 0 ? '+' : ''}${summary.growth}%`}</div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {loading ? '...' : summary.growthLabel}
-            </p>
-          </CardContent>
+        <Card className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+          <div className="flex items-center gap-4">
+            <Filter className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+            <div>
+              <h3 className="text-sm font-medium text-orange-600 dark:text-orange-400">Taux de complétude</h3>
+              <p className="text-2xl font-bold">{loading ? '...' : `${stats.completeness}%`}</p>
+            </div>
+          </div>
         </Card>
       </div>
 
-      <Tabs defaultValue="sectors" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 rounded-lg bg-muted p-1">
-          <TabsTrigger value="sectors">Secteurs</TabsTrigger>
-          <TabsTrigger value="geography">Géographie</TabsTrigger>
-          <TabsTrigger value="trends">Tendances</TabsTrigger>
-          <TabsTrigger value="sources">Sources</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="sectors" className="flex items-center gap-2">
+            <BarChart2 className="h-4 w-4" />
+            Secteurs
+          </TabsTrigger>
+          <TabsTrigger value="geography" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Géographie
+          </TabsTrigger>
+          <TabsTrigger value="trends" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Tendances
+          </TabsTrigger>
+          <TabsTrigger value="sources" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Sources
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="sectors" className="mt-6">
+
+        <TabsContent value="sectors">
           <SectorDistribution />
         </TabsContent>
-        <TabsContent value="geography" className="mt-6">
+
+        <TabsContent value="geography">
           <GeographicDistribution />
         </TabsContent>
-        <TabsContent value="trends" className="mt-6">
+
+        <TabsContent value="trends">
           <CollectionTrends />
         </TabsContent>
-        <TabsContent value="sources" className="mt-6">
+
+        <TabsContent value="sources">
           <SourceComparison />
         </TabsContent>
       </Tabs>

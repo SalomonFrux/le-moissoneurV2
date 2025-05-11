@@ -428,3 +428,8 @@ Call log:
 2025-05-10T16:56:37.481Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
 2025-05-10T16:56:51.995Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
 2025-05-10T16:57:47.575Z error: Error fetching scraped data for scraper all: invalid input syntax for type uuid: "all"
+2025-05-11T21:33:14.355Z error: Error: request entity too large
+2025-05-11T21:33:24.011Z error: Error: request entity too large
+2025-05-11T21:33:39.706Z error: Error: request entity too large
+2025-05-11T21:33:44.792Z error: Error: request entity too large
+2025-05-11T21:47:46.037Z error: Error: request entity too large

@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
+import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight, Trash2, MoreVertical, FileSpreadsheet, FilePdf } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { dataService, type ScrapedEntry } from '@/services/dataService';
@@ -50,6 +50,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Company {
   id: string;
@@ -76,6 +82,9 @@ export function DataPage() {
   const [currentEntry, setCurrentEntry] = useState<ScrapedEntry | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<ScrapedEntry | null>(null);
+  const [data, setData] = useState<Record<string, ScrapedEntry[]>>({});
+  const [sortBy, setSortBy] = useState<'name' | 'date' | 'count'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Get unique countries from entries
   const uniqueCountries = useMemo(() => {

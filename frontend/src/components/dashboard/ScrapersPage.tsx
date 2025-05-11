@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Code, Save, RefreshCw } from 'lucide-react';
+import { Plus, Code, Save, RefreshCw, Search, Filter } from 'lucide-react';
 import { ScraperCard, ScraperData } from './ScraperCard';
 import { toast } from 'sonner';
 import { getAllScrapers, runScraper, getScraperStatus, createScraper } from '@/services/scraperService';
@@ -49,6 +49,9 @@ export function ScrapersPage() {
   });
   const [expandedScrapers, setExpandedScrapers] = useState<Set<string>>(new Set());
   const [scrapedData, setScrapedData] = useState<Record<string, any[]>>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchScrapers();
@@ -177,6 +180,14 @@ export function ScrapersPage() {
     }
   };
 
+  // Filter and paginate scrapers
+  const filteredScrapers = scrapers.filter(scraper => 
+    scraper.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredScrapers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedScrapers = filteredScrapers.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div className="space-y-8 p-6">
       <div className="flex items-center justify-between">
@@ -185,82 +196,80 @@ export function ScrapersPage() {
           <Plus className="mr-2 h-4 w-4" /> Nouveau Scraper
         </Button>
       </div>
-      
-      <Tabs defaultValue="all">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList>
-            <TabsTrigger value="all">Tous</TabsTrigger>
-            <TabsTrigger value="active">Actifs</TabsTrigger>
-            <TabsTrigger value="completed">Terminés</TabsTrigger>
-            <TabsTrigger value="error">En erreur</TabsTrigger>
-          </TabsList>
+
+      <Card className="p-4">
+        <div className="flex gap-4 items-center mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un scraper..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8"
+            />
+          </div>
           <Button variant="outline" size="sm" onClick={fetchScrapers}>
             <RefreshCw className="mr-2 h-4 w-4" /> Actualiser
           </Button>
         </div>
-        
-        <TabsContent value="all">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {scrapers.map((scraper) => (
-              <ScraperCard
-                key={scraper.id}
-                scraper={scraper}
-                onRunScraper={handleRunScraper}
-                onStopScraper={handleStopScraper}
-                onViewData={handleViewData}
-              />
-            ))}
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {paginatedScrapers.map((scraper) => (
+            <ScraperCard
+              key={scraper.id}
+              scraper={scraper}
+              onRunScraper={handleRunScraper}
+              onStopScraper={handleStopScraper}
+              onViewData={handleViewData}
+            />
+          ))}
+        </div>
+
+        {filteredScrapers.length > itemsPerPage && (
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">
+                Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, filteredScrapers.length)} sur {filteredScrapers.length} scrapers
+              </p>
+              <Select
+                value={itemsPerPage.toString()}
+                onValueChange={(value) => setItemsPerPage(Number(value))}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Par page" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Précédent
+              </Button>
+              <span className="text-sm">
+                Page {currentPage} sur {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Suivant
+              </Button>
+            </div>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="active">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {scrapers
-              .filter((s) => s.status === 'running')
-              .map((scraper) => (
-                <ScraperCard
-                  key={scraper.id}
-                  scraper={scraper}
-                  onRunScraper={handleRunScraper}
-                  onStopScraper={handleStopScraper}
-                  onViewData={handleViewData}
-                />
-              ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="completed">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {scrapers
-              .filter((s) => s.status === 'completed')
-              .map((scraper) => (
-                <ScraperCard
-                  key={scraper.id}
-                  scraper={scraper}
-                  onRunScraper={handleRunScraper}
-                  onStopScraper={handleStopScraper}
-                  onViewData={handleViewData}
-                />
-              ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="error">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {scrapers
-              .filter((s) => s.status === 'error')
-              .map((scraper) => (
-                <ScraperCard
-                  key={scraper.id}
-                  scraper={scraper}
-                  onRunScraper={handleRunScraper}
-                  onStopScraper={handleStopScraper}
-                  onViewData={handleViewData}
-                />
-              ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </Card>
       
       {showForm && (
         <Card>
@@ -298,17 +307,10 @@ export function ScrapersPage() {
                 <label htmlFor="selector" className="text-sm font-medium">Sélecteurs CSS</label>
                 <Input 
                   id="selector" 
-                  // Example: To select phone, email, and website, use:
-                  // span.palmares-phone, a[href^="mailto:"], a[href^="http"]
                   placeholder="Ex: .card, span.palmares-phone, a[href^='mailto:'], a[href^='http']"
                   value={formData.selector}
                   onChange={(e) => handleInputChange('selector', e.target.value)}
                 />
-                {/*
-                  You can use a comma-separated list of selectors to target multiple elements.
-                  For example, to scrape phone, email, and website:
-                  span.palmares-phone, a[href^="mailto:"], a[href^="http"]
-                */}
               </div>
               <div className="space-y-2">
                 <label htmlFor="paginationSelector" className="text-sm font-medium">Sélecteur de pagination (optionnel)</label>

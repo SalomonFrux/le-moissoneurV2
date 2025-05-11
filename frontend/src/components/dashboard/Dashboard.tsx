@@ -11,9 +11,12 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Database, Globe, TrendingUp, Users, ChevronDown, ChevronRight, Download, Mail, Link as LinkIcon } from 'lucide-react';
+import { Database, Globe, TrendingUp, Users, ChevronDown, ChevronRight, Download, Mail, Link as LinkIcon, Search, ChevronLeft, ChevronRight as ChevronRightIcon, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { dataService, type Scraper, type Company, type ScrapedEntry } from '@/services/dataService';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ScraperData {
   id: string;
@@ -28,13 +31,20 @@ interface ScraperData {
 }
 
 export function Dashboard() {
-  const [page, setPage] = useState(1);
   const [scrapers, setScrapers] = useState<Scraper[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [scrapedData, setScrapedData] = useState<Record<string, ScrapedEntry[]>>({});
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [groupedData, setGroupedData] = useState<Record<string, ScrapedEntry[]>>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAllScrapers, setShowAllScrapers] = useState(false);
+  const [selectedScraperData, setSelectedScraperData] = useState<ScrapedEntry[]>([]);
+  const [selectedScraperId, setSelectedScraperId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [sortBy, setSortBy] = useState<'name' | 'status' | 'dataCount'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const calculateStats = (data: Record<string, ScrapedEntry[]>) => {
     const allEntries = Object.values(data).flat();
@@ -125,6 +135,8 @@ export function Dashboard() {
   const handleViewData = async (id: string) => {
     try {
       const data = await dataService.fetchScrapedData(id);
+      setSelectedScraperData(data);
+      setSelectedScraperId(id);
       toast.info("Affichage des données", {
         description: `${data.length} entrées trouvées`
       });
@@ -133,87 +145,47 @@ export function Dashboard() {
     }
   };
 
-  const toggleGroup = (scraperName: string) => {
-    setExpandedGroups(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(scraperName)) {
-        newSet.delete(scraperName);
-      } else {
-        newSet.add(scraperName);
+  // Filter scrapers based on search query
+  const filteredScrapers = scrapers.filter(scraper =>
+    scraper.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Sort and filter scrapers
+  const filteredAndSortedScrapers = filteredScrapers
+    .sort((a, b) => {
+      const aValue = sortBy === 'name' ? a.name.toLowerCase() :
+                    sortBy === 'status' ? a.status :
+                    a.data_count;
+      const bValue = sortBy === 'name' ? b.name.toLowerCase() :
+                    sortBy === 'status' ? b.status :
+                    b.data_count;
+      
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
       }
-      return newSet;
+      return aValue < bValue ? 1 : -1;
     });
-  };
 
-  const handleExportGroup = (scraperName: string, groupEntries: ScrapedEntry[]) => {
-    const csvData = groupEntries.map(entry => ({
-      'Nom du Scraper': entry.nom || '-',
-      Secteur: entry.secteur === 'Aucune donnée' ? '-' : (entry.secteur || '-'),
-      Pays: entry.pays === 'Aucune donnée' ? '-' : (entry.pays || '-'),
-      'Site Web': entry.site_web === 'Aucune donnée' ? '-' : (entry.site_web || '-'),
-      Email: entry.email === 'Aucune donnée' ? '-' : (entry.email || '-'),
-      Téléphone: entry.telephone === 'Aucune donnée' ? '-' : (entry.telephone || '-'),
-      Adresse: entry.adresse === 'Aucune donnée' ? '-' : (entry.adresse || '-'),
-      'Date de création': new Date(entry.created_at).toLocaleDateString()
-    }));
-
-    // Create CSV content
-    const headers = Object.keys(csvData[0]);
-    const csvContent = "data:text/csv;charset=utf-8," + 
-      headers.map(header => escapeCSVValue(header)).join(",") + "\n" +
-      csvData.map(row => 
-        headers.map(header => escapeCSVValue(row[header])).join(",")
-      ).join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${scraperName}_donnees.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast.success("Export terminé", {
-      description: `Les données de ${scraperName} ont été exportées au format CSV.`
-    });
-  };
-
-  const escapeCSVValue = (value: string): string => {
-    if (!value) return '';
-    value = value.replace(/"/g, '""');
-    if (/[",\n]/.test(value)) {
-      value = `"${value}"`;
-    }
-    return value;
-  };
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredAndSortedScrapers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedScrapers = filteredAndSortedScrapers.slice(startIndex, startIndex + itemsPerPage);
 
   // Get statistics
   const stats = calculateStats(groupedData);
 
   // Map scrapers to ScraperData format
-  const mappedScrapers: ScraperData[] = scrapers.map(scraper => ({
+  const mappedScrapers: ScraperData[] = paginatedScrapers.map(scraper => ({
     id: scraper.id,
     name: scraper.name,
     source: scraper.source,
     status: scraper.status,
     lastRun: scraper.last_run || undefined,
-    dataCount: scrapedData[scraper.id]?.length || 0,
+    dataCount: scraper.data_count || 0,
     selectors: { main: scraper.selectors?.main || '' },
     frequency: scraper.frequency,
     country: scraper.country
   }));
-
-  // Map companies to ScrapedEntry format for DataTable
-  const mappedEntries: ScrapedEntry[] = companies.flatMap(company => 
-    (company.scraped_entries || []).map(entry => ({
-      ...entry,
-      nom: entry.nom || company.name,
-      secteur: entry.secteur || company.sector,
-      pays: entry.pays || company.country
-    }))
-  );
-
-  
 
   return (
     <div className="space-y-8 p-6">
@@ -249,125 +221,180 @@ export function Dashboard() {
             />
           </div>
 
-          <h3 className="text-xl font-semibold font-heading">Scrapers</h3>
-          {scrapers.length === 0 ? (
-            <p>No scrapers available.</p>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {mappedScrapers.map((scraper) => (
-                <ScraperCard
-                  key={scraper.id}
-                  scraper={scraper}
-                  onRunScraper={handleRunScraper}
-                  onStopScraper={handleStopScraper}
-                  onViewData={handleViewData}
-                />
-              ))}
-            </div>
-          )}
-
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold font-heading">Données collectées</h3>
-            <div className="border rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nom du Scraper</TableHead>
-                    <TableHead>Secteur</TableHead>
-                    <TableHead>Pays</TableHead>
-                    <TableHead>Site Web</TableHead>
-                    <TableHead>Lien</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-4">
-                        Chargement des données...
-                      </TableCell>
-                    </TableRow>
-                  ) : Object.entries(groupedData).length > 0 ? (
-                    Object.entries(groupedData).map(([scraperName, entries]) => (
-                      <React.Fragment key={scraperName}>
-                        <TableRow 
-                          className="bg-muted/50 cursor-pointer hover:bg-muted"
-                          onClick={() => toggleGroup(scraperName)}
-                        >
-                          <TableCell colSpan={5}>
-                            <div className="flex items-center">
-                              {expandedGroups.has(scraperName) ? (
-                                <ChevronDown className="h-4 w-4 mr-2" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4 mr-2" />
-                              )}
-                              <span className="font-medium">{scraperName}</span>
-                              <Badge variant="secondary" className="ml-2">
-                                {entries.length}
-                              </Badge>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleExportGroup(scraperName, entries);
-                              }}
-                            >
-                              <Download className="h-4 w-4 mr-2" />
-                              Exporter
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                        {expandedGroups.has(scraperName) && entries.map((entry) => (
-                          <TableRow key={entry.id}>
-                            <TableCell>{entry.nom || '-'}</TableCell>
-                            <TableCell>{entry.secteur === 'Aucune donnée' ? '-' : (entry.secteur || '-')}</TableCell>
-                            <TableCell>{entry.pays === 'Aucune donnée' ? '-' : (entry.pays || '-')}</TableCell>
-                            <TableCell>
-                              {entry.site_web && entry.site_web !== 'Aucune donnée' ? (
-                                <a
-                                  href={entry.site_web.startsWith('http') ? entry.site_web : `https://${entry.site_web}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline flex items-center gap-1"
-                                >
-                                  <LinkIcon className="h-4 w-4" />
-                                  {entry.site_web}
-                                </a>
-                              ) : '-'}
-                            </TableCell>
-                            <TableCell>
-                              {entry.lien && entry.lien !== 'Aucune donnée' ? (
-                                <a
-                                  href={entry.lien.startsWith('http') ? entry.lien : `https://${entry.lien}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline flex items-center gap-1"
-                                >
-                                  <LinkIcon className="h-4 w-4" />
-                                  Voir
-                                </a>
-                              ) : '-'}
-                            </TableCell>
-                            <TableCell></TableCell>
-                          </TableRow>
-                        ))}
-                      </React.Fragment>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-4">
-                        Aucune donnée trouvée
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-semibold font-heading">Scrapers</h3>
+              <div className="flex gap-4 items-center">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Rechercher un scraper..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 w-[300px]"
+                  />
+                </div>
+                <Select
+                  value={sortBy}
+                  onValueChange={(value: 'name' | 'status' | 'dataCount') => setSortBy(value)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Trier par" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Nom</SelectItem>
+                    <SelectItem value="status">Statut</SelectItem>
+                    <SelectItem value="dataCount">Nombre de données</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                >
+                  {sortOrder === 'asc' ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
+
+            {scrapers.length === 0 ? (
+              <p>No scrapers available.</p>
+            ) : (
+              <>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  {paginatedScrapers.map((scraper) => (
+                    <ScraperCard
+                      key={scraper.id}
+                      scraper={scraper}
+                      onRunScraper={handleRunScraper}
+                      onStopScraper={handleStopScraper}
+                      onViewData={handleViewData}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between border-t pt-4">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground">
+                      Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, filteredAndSortedScrapers.length)} sur {filteredAndSortedScrapers.length} scrapers
+                    </p>
+                    <Select
+                      value={itemsPerPage.toString()}
+                      onValueChange={(value) => setItemsPerPage(Number(value))}
+                    >
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue placeholder="Par page" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="8">8</SelectItem>
+                        <SelectItem value="16">16</SelectItem>
+                        <SelectItem value="24">24</SelectItem>
+                        <SelectItem value="32">32</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        const pageNum = i + 1;
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="icon"
+                            onClick={() => setCurrentPage(pageNum)}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                      {totalPages > 5 && (
+                        <>
+                          <span className="px-2">...</span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setCurrentPage(totalPages)}
+                          >
+                            {totalPages}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRightIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
+
+          {selectedScraperData.length > 0 && (
+            <Card className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">
+                  Données du scraper: {scrapers.find(s => s.id === selectedScraperId)?.name}
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedScraperData([])}
+                >
+                  Fermer
+                </Button>
+              </div>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead>Nom</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Téléphone</TableHead>
+                      <TableHead>Adresse</TableHead>
+                      <TableHead>Secteur</TableHead>
+                      <TableHead>Source</TableHead>
+                      <TableHead>Date de collecte</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedScraperData.map((item) => (
+                      <TableRow key={item.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">{item.nom}</TableCell>
+                        <TableCell>{item.email}</TableCell>
+                        <TableCell>{item.telephone}</TableCell>
+                        <TableCell>{item.adresse}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                            {item.secteur}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                            {item.source}
+                          </span>
+                        </TableCell>
+                        <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+          )}
         </>
       )}
     </div>

@@ -1346,3 +1346,117 @@ Call log:
 2025-05-11T14:57:32.480Z info: Server running on port 4000
 2025-05-11T14:57:35.153Z info: Raw scraped data:
 2025-05-11T14:57:35.253Z info: Final response:
+2025-05-11T20:08:50.874Z info: Server running on port 4000
+2025-05-11T20:08:53.905Z info: Raw scraped data:
+2025-05-11T20:08:54.003Z info: Final response:
+2025-05-11T20:09:05.183Z info: Raw scraped data:
+2025-05-11T20:09:05.381Z info: Final response:
+2025-05-11T20:09:56.620Z info: Raw scraped data:
+2025-05-11T20:09:56.894Z info: Final response:
+2025-05-11T20:21:08.054Z info: Server running on port 4000
+2025-05-11T20:21:12.615Z info: Raw scraped data:
+2025-05-11T20:21:12.729Z info: Final response:
+2025-05-11T20:22:53.990Z info: Raw scraped data:
+2025-05-11T20:22:54.141Z info: Final response:
+2025-05-11T21:29:48.082Z info: Server running on port 4000
+2025-05-11T21:29:54.469Z info: Raw scraped data:
+2025-05-11T21:29:54.576Z info: Final response:
+2025-05-11T21:33:14.355Z error: Error: request entity too large
+2025-05-11T21:33:24.011Z error: Error: request entity too large
+2025-05-11T21:33:39.706Z error: Error: request entity too large
+2025-05-11T21:33:44.792Z error: Error: request entity too large
+2025-05-11T21:34:24.448Z info: Raw scraped data:
+2025-05-11T21:34:24.595Z info: Final response:
+2025-05-11T21:38:49.864Z info: Raw scraped data:
+2025-05-11T21:38:49.964Z info: Final response:
+2025-05-11T21:47:46.037Z error: Error: request entity too large
+2025-05-11T21:47:48.689Z info: Raw scraped data:
+2025-05-11T21:47:48.758Z info: Final response:
+2025-05-11T21:49:21.666Z info: Raw scraped data:
+2025-05-11T21:49:21.764Z info: Final response:
+2025-05-11T21:59:13.060Z info: Server running on port 4000
+2025-05-11T21:59:17.034Z info: Raw scraped data:
+2025-05-11T21:59:17.161Z info: Final response:
+2025-05-11T22:01:13.590Z info: Raw scraped data:
+2025-05-11T22:01:13.657Z info: Final response:
+2025-05-11T22:03:16.626Z info: Raw scraped data:
+2025-05-11T22:03:16.735Z info: Final response:
+2025-05-11T22:04:42.026Z info: Raw scraped data:
+2025-05-11T22:04:42.124Z info: Final response:
+2025-05-11T22:04:50.863Z info: Raw scraped data:
+2025-05-11T22:04:50.944Z info: Final response:
+2025-05-11T22:06:18.689Z info: Raw scraped data:
+2025-05-11T22:06:18.789Z info: Final response:
+2025-05-11T22:07:41.311Z info: Raw scraped data:
+2025-05-11T22:07:41.425Z info: Final response:
+2025-05-11T22:11:19.948Z info: Raw scraped data:
+2025-05-11T22:11:20.048Z info: Final response:
+2025-05-11T22:19:00.926Z info: Server running on port 4000
+2025-05-11T22:19:05.605Z info: Raw scraped data:
+2025-05-11T22:19:05.758Z info: Final response:
+2025-05-11T22:20:40.273Z info: Raw scraped data:
+2025-05-11T22:20:40.424Z info: Final response:
+2025-05-11T22:20:46.233Z info: Starting scraper: Bijouterie-CI (098ea77f-103e-4b5b-8418-7803673a6cc9)
+2025-05-11T22:20:55.885Z info: Stored 10 items for scraper 098ea77f-103e-4b5b-8418-7803673a6cc9. Total items: 10
+2025-05-11T22:20:55.886Z info: Scraper 098ea77f-103e-4b5b-8418-7803673a6cc9 completed successfully
+2025-05-11T22:22:43.404Z info: Raw scraped data:
+2025-05-11T22:22:43.561Z info: Final response:
+2025-05-11T22:24:14.545Z info: Raw scraped data:
+2025-05-11T22:24:14.642Z info: Final response:
+2025-05-11T22:25:25.764Z info: Raw scraped data:
+2025-05-11T22:25:25.861Z info: Final response:
+2025-05-11T22:30:59.274Z info: Raw scraped data:
+2025-05-11T22:30:59.342Z info: Final response:
+2025-05-11T22:31:20.174Z info: Raw scraped data:
+2025-05-11T22:31:20.264Z info: Final response:
+2025-05-11T22:35:16.589Z info: Raw scraped data:
+2025-05-11T22:35:16.658Z info: Final response:
+2025-05-11T22:35:51.005Z info: Server running on port 4000
+2025-05-11T22:36:45.285Z info: Raw scraped data:
+2025-05-11T22:36:45.383Z info: Final response:
+2025-05-11T22:37:00.947Z info: Raw scraped data:
+2025-05-11T22:37:01.047Z info: Final response:
+2025-05-11T22:39:12.225Z info: Raw scraped data:
+2025-05-11T22:39:12.343Z info: Final response:
+2025-05-11T22:40:28.967Z info: Starting scraper: Clothing-CI (9c630c00-d079-4aba-8414-95f9f31217ec)
+2025-05-11T22:40:38.184Z info: Stored 8 items for scraper 9c630c00-d079-4aba-8414-95f9f31217ec. Total items: 8
+2025-05-11T22:40:38.185Z info: Scraper 9c630c00-d079-4aba-8414-95f9f31217ec completed successfully
+2025-05-11T22:41:22.874Z info: Server running on port 4000
+2025-05-11T22:41:24.281Z info: Raw scraped data:
+2025-05-11T22:41:24.419Z info: Final response:
+2025-05-11T22:42:34.262Z info: Raw scraped data:
+2025-05-11T22:42:34.406Z info: Final response:
+2025-05-11T22:48:12.102Z info: Server running on port 4000
+2025-05-11T22:48:16.863Z info: Raw scraped data:
+2025-05-11T22:48:16.933Z info: Final response:
+2025-05-11T22:50:09.981Z info: Raw scraped data:
+2025-05-11T22:50:10.080Z info: Final response:
+2025-05-11T22:50:16.226Z info: Raw scraped data:
+2025-05-11T22:50:16.300Z info: Final response:
+2025-05-11T22:51:05.997Z info: Raw scraped data:
+2025-05-11T22:51:06.145Z info: Final response:
+2025-05-11T22:53:46.606Z info: Raw scraped data:
+2025-05-11T22:53:46.706Z info: Final response:
+2025-05-11T22:59:01.382Z info: Raw scraped data:
+2025-05-11T22:59:01.481Z info: Final response:
+2025-05-11T23:03:57.786Z info: Raw scraped data:
+2025-05-11T23:03:57.876Z info: Final response:
+2025-05-11T23:04:27.419Z info: Raw scraped data:
+2025-05-11T23:04:27.521Z info: Final response:
+2025-05-11T23:05:18.156Z info: Raw scraped data:
+2025-05-11T23:05:18.258Z info: Final response:
+2025-05-11T23:05:33.104Z info: Starting scraper: Charika-Maroc (99a1d5f8-90c7-4722-9b0e-dd854ccb1e28)
+2025-05-11T23:05:39.984Z warn: No data scraped for 99a1d5f8-90c7-4722-9b0e-dd854ccb1e28
+2025-05-11T23:05:40.191Z info: Scraper 99a1d5f8-90c7-4722-9b0e-dd854ccb1e28 completed successfully
+2025-05-11T23:06:11.555Z info: Raw scraped data:
+2025-05-11T23:06:11.614Z info: Final response:
+2025-05-11T23:08:26.517Z info: Starting scraper: Charika-Maroc-P31 (e6d5140f-8f65-4c47-93d4-81f8ceb4cd81)
+2025-05-11T23:08:41.262Z info: Stored 30 items for scraper e6d5140f-8f65-4c47-93d4-81f8ceb4cd81. Total items: 30
+2025-05-11T23:08:41.263Z info: Scraper e6d5140f-8f65-4c47-93d4-81f8ceb4cd81 completed successfully
+2025-05-11T23:09:03.690Z info: Raw scraped data:
+2025-05-11T23:09:03.790Z info: Final response:
+2025-05-11T23:10:14.971Z info: Raw scraped data:
+2025-05-11T23:10:15.108Z info: Final response:
+2025-05-11T23:11:29.388Z info: Server running on port 4000
+2025-05-11T23:11:39.031Z info: Raw scraped data:
+2025-05-11T23:11:39.188Z info: Final response:
