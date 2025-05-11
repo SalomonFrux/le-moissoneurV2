@@ -14,7 +14,11 @@ A web application for managing and running web scrapers to collect data from Afr
 
 1. Install dependencies:
    ```
-   npm install
+   npm install in frontend
+   npm install in backend
+   npm install in root
+   And it will all work fine.
+
    ```
 
 2. Copy `.env.local.example` to `.env.local` and add your Supabase credentials:

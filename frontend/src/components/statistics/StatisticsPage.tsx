@@ -4,7 +4,7 @@ import {
   Globe, 
   TrendingUp, 
   PieChart,
-  CalendarRange
+  Download
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -44,10 +44,9 @@ export function StatisticsPage() {
     async function fetchSummary() {
       setLoading(true);
       try {
-        // Fetch all scraped data
         const scrapedData = await dataService.fetchAllScrapedData();
         
-        // Calculate total unique companies (based on unique names)
+        // Calculate total unique companies
         const uniqueCompanies = new Set(scrapedData.map(entry => entry.nom)).size;
         
         // Calculate unique countries
@@ -94,16 +93,6 @@ export function StatisticsPage() {
       } catch (error) {
         console.error('Error in StatisticsPage:', error);
         toast.error('Erreur lors du chargement des statistiques');
-        setSummary({
-          companies: 0,
-          companiesChange: 0,
-          countries: 0,
-          sectors: 0,
-          growth: 0,
-          countriesLabel: "Erreur de chargement",
-          sectorsLabel: "Erreur de chargement",
-          growthLabel: "Erreur de chargement"
-        });
       } finally {
         setLoading(false);
       }
@@ -112,7 +101,7 @@ export function StatisticsPage() {
   }, [timeframe]);
 
   return (
-    <div className="space-y-8 p-6">
+    <div className="p-6 space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-3xl font-bold font-heading tracking-tight">Statistiques</h2>
         <div className="flex items-center gap-2">
@@ -120,20 +109,25 @@ export function StatisticsPage() {
             className="rounded-md border border-input px-3 py-1 text-sm bg-background"
             value={timeframe}
             onChange={(e) => setTimeframe(e.target.value)}
+            style={{ backgroundColor: '#fff' }}
           >
             <option value="all">Toutes les données</option>
             <option value="month">Dernier mois</option>
             <option value="quarter">Dernier trimestre</option>
             <option value="year">Dernière année</option>
           </select>
-          <button className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground h-8 px-4 py-1">
+          <button 
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-4 py-1"
+            style={{ backgroundColor: '#15616D', color: 'white' }}
+          >
+            <Download className="h-4 w-4 mr-2" />
             Exporter
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="relative overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Entreprises
@@ -152,7 +146,8 @@ export function StatisticsPage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="relative overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Pays
@@ -166,7 +161,8 @@ export function StatisticsPage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="relative overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Secteurs
@@ -180,7 +176,8 @@ export function StatisticsPage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="relative overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Croissance
@@ -197,22 +194,22 @@ export function StatisticsPage() {
       </div>
 
       <Tabs defaultValue="sectors" className="w-full">
-        <TabsList className="grid grid-cols-4 mb-8">
+        <TabsList className="grid w-full grid-cols-4 rounded-lg bg-muted p-1">
           <TabsTrigger value="sectors">Secteurs</TabsTrigger>
           <TabsTrigger value="geography">Géographie</TabsTrigger>
           <TabsTrigger value="trends">Tendances</TabsTrigger>
           <TabsTrigger value="sources">Sources</TabsTrigger>
         </TabsList>
-        <TabsContent value="sectors">
+        <TabsContent value="sectors" className="mt-6">
           <SectorDistribution />
         </TabsContent>
-        <TabsContent value="geography">
+        <TabsContent value="geography" className="mt-6">
           <GeographicDistribution />
         </TabsContent>
-        <TabsContent value="trends">
+        <TabsContent value="trends" className="mt-6">
           <CollectionTrends />
         </TabsContent>
-        <TabsContent value="sources">
+        <TabsContent value="sources" className="mt-6">
           <SourceComparison />
         </TabsContent>
       </Tabs>
