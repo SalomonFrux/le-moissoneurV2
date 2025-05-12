@@ -42,7 +42,7 @@ export function Dashboard() {
   const [selectedScraperData, setSelectedScraperData] = useState<ScrapedEntry[]>([]);
   const [selectedScraperId, setSelectedScraperId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
   const [sortBy, setSortBy] = useState<'name' | 'status' | 'dataCount'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -184,7 +184,8 @@ export function Dashboard() {
     dataCount: scraper.data_count || 0,
     selectors: { main: scraper.selectors?.main || '' },
     frequency: scraper.frequency,
-    country: scraper.country
+    country: scraper.country,
+    type: scraper.type || 'playwright' 
   }));
 
   return (
@@ -286,9 +287,9 @@ export function Dashboard() {
                         <SelectValue placeholder="Par page" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="4">4</SelectItem>
                         <SelectItem value="8">8</SelectItem>
                         <SelectItem value="16">16</SelectItem>
-                        <SelectItem value="24">24</SelectItem>
                         <SelectItem value="32">32</SelectItem>
                       </SelectContent>
                     </Select>
@@ -303,7 +304,7 @@ export function Dashboard() {
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      {Array.from({ length: Math.min(4, totalPages) }, (_, i) => {
                         const pageNum = i + 1;
                         return (
                           <Button
@@ -316,7 +317,7 @@ export function Dashboard() {
                           </Button>
                         );
                       })}
-                      {totalPages > 5 && (
+                      {totalPages > 4 && (
                         <>
                           <span className="px-2">...</span>
                           <Button

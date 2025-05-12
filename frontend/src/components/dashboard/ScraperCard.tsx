@@ -40,12 +40,13 @@ interface ScraperCardProps {
   scraper: ScraperData;
   onRunScraper: (id: string) => void;
   onStopScraper: (id: string) => void;
-  onViewData: (id: string) => void;
+  onViewData?: (id: string) => void;
   onEditScraper: (scraper: ScraperData) => void;
   onDeleteScraper: (id: string) => void;
+  showViewData?: boolean; // New prop to control visibility
 }
 
-export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, onEditScraper, onDeleteScraper }: ScraperCardProps) {
+export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, onEditScraper, onDeleteScraper,showViewData = true }: ScraperCardProps) {
   const getStatusColor = (status: ScraperData['status']) => {
     switch (status) {
       case 'running':
@@ -116,7 +117,7 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
         </DropdownMenu>
       </CardHeader>
       <CardContent>
-        <div className="text-sm text-muted-foreground mb-4">
+        <div className="text-sm text-muted-foreground mb-2">
           Source: <span className="font-medium">{scraper.source}</span>
           {scraper.lastRun && (
             <div className="text-xs mt-1">
@@ -132,38 +133,7 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
           </div>
         </div>
         
-        <div className="flex gap-2 mt-2">
-          {scraper.status === 'running' ? (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex-1"
-              onClick={() => onStopScraper(scraper.id)}
-            >
-              <Square className="h-4 w-4 mr-2" />
-              Arrêter
-            </Button>
-          ) : (
-            <Button 
-              variant="default" 
-              size="sm" 
-              className="flex-1 bg-africa-green-500 hover:bg-africa-green-600"
-              onClick={() => onRunScraper(scraper.id)}
-            >
-              <Play className="h-4 w-4 mr-2" />
-              Exécuter
-            </Button>
-          )}
-          <Button 
-            variant="outline"
-            size="sm"
-            className="flex-1"
-            onClick={() => onViewData(scraper.id)}
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            Données
-          </Button>
-        </div>
+
       </CardContent>
       <CardFooter className="flex justify-between">
         <div className="flex items-center gap-2">
@@ -182,7 +152,7 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
               <Square className="h-4 w-4" />
             </Button>
           ) : (
-            <Button
+            <Button className="hover:bg-africa-green-500 hover:text-white"
               variant="outline"
               size="sm"
               onClick={() => onRunScraper(scraper.id)}
@@ -190,13 +160,11 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
               <Play className="h-4 w-4" />
             </Button>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onViewData(scraper.id)}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
+          {showViewData && onViewData && ( // Conditionally render the button
+            <Button className="" variant="outline" size="sm" onClick={() => onViewData(scraper.id)}>
+              <Eye className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>

@@ -77,7 +77,7 @@ export function ScrapersPage() {
   const [scrapedData, setScrapedData] = useState<Record<string, any[]>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   useEffect(() => {
     fetchScrapers();
@@ -274,14 +274,14 @@ export function ScrapersPage() {
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" >
           {paginatedScrapers.map((scraper) => (
             <ScraperCard
               key={scraper.id}
               scraper={scraper}
               onRunScraper={handleRunScraper}
               onStopScraper={handleStopScraper}
-              onViewData={handleViewData}
+            //onViewData={handleViewData}
               onEditScraper={handleEditScraper}
               onDeleteScraper={handleDeleteScraper}
             />
@@ -289,7 +289,7 @@ export function ScrapersPage() {
         </div>
 
         {filteredScrapers.length > itemsPerPage && (
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center justify-between mt-4" >
             <div className="flex items-center gap-2">
               <p className="text-sm text-muted-foreground">
                 Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, filteredScrapers.length)} sur {filteredScrapers.length} scrapers
@@ -302,6 +302,7 @@ export function ScrapersPage() {
                   <SelectValue placeholder="Par page" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="5">5</SelectItem>
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="25">25</SelectItem>
                   <SelectItem value="50">50</SelectItem>
