@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight, Trash2, MoreVertical, FileSpreadsheet, FileText, Calendar, Globe, Building2 } from 'lucide-react';
+import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight, Trash2, MoreVertical, FileSpreadsheet, FileText, Calendar, Globe, Building2, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { dataService, type ScrapedEntry } from '@/services/dataService';
@@ -220,6 +220,28 @@ export function DataPage() {
     });
   };
 
+  const handleExportPdf = async () => {
+    try {
+      setLoading(true);
+      const response = await dataService.exportToPdf();
+      const blob = new Blob([response], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'donnees_extraites.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('Export PDF terminé');
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      toast.error('Erreur lors de l\'export PDF');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEdit = (entry: ScrapedEntry) => {
     setEditId(entry.id);
     setEditForm(entry);
@@ -313,11 +335,11 @@ export function DataPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleExport}>
+          <Button variant="outline" onClick={handleExport} disabled={loading}>
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             Exporter CSV
           </Button>
-          <Button variant="outline" onClick={() => dataService.exportToPdf()}>
+          <Button variant="outline" onClick={handleExportPdf} disabled={loading}>
             <FileText className="mr-2 h-4 w-4" />
             Exporter PDF
           </Button>
@@ -335,11 +357,13 @@ export function DataPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-8"
+                  disabled={loading}
                 />
               </div>
               <Select
                 value={selectedCountry}
                 onValueChange={setSelectedCountry}
+                disabled={loading}
               >
                 <SelectTrigger className="w-[180px]">
                   <Globe className="mr-2 h-4 w-4" />
@@ -357,6 +381,7 @@ export function DataPage() {
               <Select
                 value={sortBy}
                 onValueChange={(value: 'name' | 'date' | 'count') => setSortBy(value)}
+                disabled={loading}
               >
                 <SelectTrigger className="w-[180px]">
                   <Calendar className="mr-2 h-4 w-4" />
@@ -372,115 +397,124 @@ export function DataPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[calc(100vh-300px)]">
-            <div className="space-y-4">
-              {Object.entries(groupedEntries).map(([scraperName, entries]) => (
-                <Card key={scraperName} className="overflow-hidden">
-                  <div 
-                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50"
-                    onClick={() => toggleGroup(scraperName)}
-                  >
-                    <div className="flex items-center gap-4">
-                      <Building2 className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <h3 className="font-semibold">{scraperName}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {entries.length} entrées collectées
-                        </p>
+          {loading ? (
+            <div className="flex items-center justify-center h-[calc(100vh-300px)]">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Chargement des données...</p>
+              </div>
+            </div>
+          ) : (
+            <ScrollArea className="h-[calc(100vh-300px)]">
+              <div className="space-y-4">
+                {Object.entries(groupedEntries).map(([scraperName, entries]) => (
+                  <Card key={scraperName} className="overflow-hidden">
+                    <div 
+                      className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50"
+                      onClick={() => toggleGroup(scraperName)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <Building2 className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                          <h3 className="font-semibold">{scraperName}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {entries.length} entrées collectées
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">
+                          {entries[0]?.pays || 'Pays inconnu'}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleExportGroup(scraperName, entries);
+                          }}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        {expandedGroups.has(scraperName) ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">
-                        {entries[0]?.pays || 'Pays inconnu'}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleExportGroup(scraperName, entries);
-                        }}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      {expandedGroups.has(scraperName) ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                    </div>
-                  </div>
-                  
-                  {expandedGroups.has(scraperName) && (
-                    <div className="border-t">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nom</TableHead>
-                            <TableHead>Secteur</TableHead>
-                            <TableHead>Pays</TableHead>
-                            <TableHead>Contact</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead className="w-[100px]">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {entries.map((entry) => (
-                            <TableRow key={entry.id}>
-                              <TableCell className="font-medium">
-                                {entry.nom || '-'}
-                              </TableCell>
-                              <TableCell>{entry.secteur || '-'}</TableCell>
-                              <TableCell>{entry.pays || '-'}</TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  {entry.email && (
-                                    <a href={`mailto:${entry.email}`} className="text-blue-500 hover:underline">
-                                      <Mail className="h-4 w-4" />
-                                    </a>
-                                  )}
-                                  {entry.site_web && (
-                                    <a href={entry.site_web} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                                      <LinkIcon className="h-4 w-4" />
-                                    </a>
-                                  )}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {new Date(entry.created_at).toLocaleDateString()}
-                              </TableCell>
-                              <TableCell>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm">
-                                      <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => handleEditClick(entry)}>
-                                      <Edit2 className="mr-2 h-4 w-4" />
-                                      Modifier
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem 
-                                      className="text-red-600"
-                                      onClick={() => handleDeleteClick(entry)}
-                                    >
-                                      <Trash2 className="mr-2 h-4 w-4" />
-                                      Supprimer
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
+                    
+                    {expandedGroups.has(scraperName) && (
+                      <div className="border-t">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Nom</TableHead>
+                              <TableHead>Secteur</TableHead>
+                              <TableHead>Pays</TableHead>
+                              <TableHead>Contact</TableHead>
+                              <TableHead>Date</TableHead>
+                              <TableHead className="w-[100px]">Actions</TableHead>
                             </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
+                          </TableHeader>
+                          <TableBody>
+                            {entries.map((entry) => (
+                              <TableRow key={entry.id}>
+                                <TableCell className="font-medium">
+                                  {entry.nom || '-'}
+                                </TableCell>
+                                <TableCell>{entry.secteur || '-'}</TableCell>
+                                <TableCell>{entry.pays || '-'}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    {entry.email && (
+                                      <a href={`mailto:${entry.email}`} className="text-blue-500 hover:underline">
+                                        <Mail className="h-4 w-4" />
+                                      </a>
+                                    )}
+                                    {entry.site_web && (
+                                      <a href={entry.site_web} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                        <LinkIcon className="h-4 w-4" />
+                                      </a>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  {new Date(entry.created_at).toLocaleDateString()}
+                                </TableCell>
+                                <TableCell>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="sm">
+                                        <MoreVertical className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem onClick={() => handleEditClick(entry)}>
+                                        <Edit2 className="mr-2 h-4 w-4" />
+                                        Modifier
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem 
+                                        className="text-red-600"
+                                        onClick={() => handleDeleteClick(entry)}
+                                      >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Supprimer
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
         </CardContent>
       </Card>
 

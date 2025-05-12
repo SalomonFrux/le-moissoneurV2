@@ -272,7 +272,7 @@ export function Dashboard() {
                     />
                   ))}
                 </div>
-
+                  
                 <div className="flex items-center justify-between border-t pt-4">
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-muted-foreground">
@@ -366,7 +366,6 @@ export function Dashboard() {
                       <TableHead>Téléphone</TableHead>
                       <TableHead>Adresse</TableHead>
                       <TableHead>Secteur</TableHead>
-                      <TableHead>Source</TableHead>
                       <TableHead>Date de collecte</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -382,11 +381,7 @@ export function Dashboard() {
                             {item.secteur}
                           </span>
                         </TableCell>
-                        <TableCell>
-                          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                            {item.source}
-                          </span>
-                        </TableCell>
+                     
                         <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
                       </TableRow>
                     ))}

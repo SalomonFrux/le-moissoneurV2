@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Code, Save, RefreshCw, Search, Filter } from 'lucide-react';
 import { ScraperCard, ScraperData } from './ScraperCard';
 import { toast } from 'sonner';
-import { getAllScrapers, runScraper, getScraperStatus, createScraper } from '@/services/scraperService';
+import { getAllScrapers, runScraper, getScraperStatus, createScraper, deleteScraper, updateScraper } from '@/services/scraperService';
 import { dataService } from '@/services/dataService';
 
 const countries = [
@@ -109,16 +109,47 @@ export function ScrapersPage() {
     setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '', twoPhaseScraping: false, phase1Selectors: { name: '', dropdownTrigger: '' }, phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' } });
   };
 
+  const handleEditScraper = (scraper: ScraperData) => {
+    setFormData({
+      name: scraper.name,
+      source: scraper.source,
+      selector: scraper.selectors?.main || '',
+      paginationSelector: scraper.selectors?.pagination || '',
+      dropdownClickSelector: scraper.selectors?.dropdownClick || '',
+      childSelectors: scraper.selectors?.child ? JSON.stringify(scraper.selectors.child) : '',
+      engine: scraper.type,
+      frequency: scraper.frequency,
+      country: scraper.country || '',
+      twoPhaseScraping: false,
+      phase1Selectors: { name: '', dropdownTrigger: '' },
+      phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' }
+    });
+    setShowForm(true);
+  };
+
+  const handleDeleteScraper = async (id: string) => {
+    try {
+      setLoading(true);
+      await deleteScraper(id);
+      setScrapers(prev => prev.filter(scraper => scraper.id !== id));
+      toast.success('Scraper supprimé avec succès');
+    } catch (error) {
+      toast.error('Erreur lors de la suppression du scraper');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCreateScraper = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.source) {
-      toast.error('Name and source URL are required');
+      toast.error('Le nom et l\'URL de la source sont requis');
       return;
     }
 
     try {
       setLoading(true);
-      const newScraper = await createScraper({
+      const scraperData = {
         name: formData.name,
         source: formData.source,
         selectors: formData.selector || formData.paginationSelector || formData.dropdownClickSelector || formData.childSelectors ? {
@@ -132,8 +163,9 @@ export function ScrapersPage() {
         dataCount: 0,
         type: formData.engine,
         country: formData.country || 'Unknown'
-      });
-      
+      };
+
+      const newScraper = await createScraper(scraperData);
       setScrapers(prev => [...prev, newScraper]);
       setFormData({ 
         name: '', 
@@ -150,9 +182,9 @@ export function ScrapersPage() {
         phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' }
       });
       setShowForm(false);
-      toast.success('Scraper created successfully');
+      toast.success('Scraper créé avec succès');
     } catch (error) {
-      toast.error('Failed to create scraper');
+      toast.error('Erreur lors de la création du scraper');
     } finally {
       setLoading(false);
     }
@@ -250,6 +282,8 @@ export function ScrapersPage() {
               onRunScraper={handleRunScraper}
               onStopScraper={handleStopScraper}
               onViewData={handleViewData}
+              onEditScraper={handleEditScraper}
+              onDeleteScraper={handleDeleteScraper}
             />
           ))}
         </div>
@@ -480,7 +514,7 @@ export function ScrapersPage() {
                     <label htmlFor="childSelectors" className="text-sm font-medium">Sélecteurs enfants (JSON)</label>
                     <Textarea
                       id="childSelectors"
-                      placeholder={`Exemple: {"name": "h1.title", "address": "span.address", "phone": "span.palmares-phone", "email": "a[href^='mailto:']", "website": "a[href^='http']"}`}
+                      placeholder={`Exemple: {"name": "h3.SearchResult-title", "phone": "span.SearchResult-btnText", "address": "small.SearchResult-location a", "sector": "div.SearchResult-description"}`}
                       value={formData.childSelectors || ''}
                       onChange={(e) => handleInputChange('childSelectors', e.target.value)}
                       rows={4}

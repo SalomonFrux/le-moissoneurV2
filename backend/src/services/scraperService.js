@@ -227,9 +227,9 @@ async function executeScraper(scraper) {
             return extractFromContent(/(?:Adresse|Address)\s*:\s*([^\n]+)/i) || 'Aucune donnée';
           })(),
           sector: (() => {
+            // First try to get from metadata (this will include the category from selectors)
+            if (metadata.category && metadata.category !== 'Aucune donnée') return metadata.category;
             if (metadata.sector && metadata.sector !== 'Aucune donnée') return metadata.sector;
-            // Look for "E-commerce" or similar in content
-            if (typeof content === 'string' && content.includes('E-commerce')) return 'E-commerce';
             return extractFromContent(/(?:Secteur|Sector)\s*:\s*([^\n]+)/i) || 'Aucune donnée';
           })()
         };

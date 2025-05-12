@@ -179,23 +179,15 @@ export const dataService = {
     }
   },
 
-  async exportToPdf(options: ExportOptions): Promise<void> {
+  async exportToPdf(): Promise<Blob> {
     try {
-      const response = await axios.post<Blob>('/api/export/pdf', options, {
+      const response = await axios.get('/api/export/pdf', {
         responseType: 'blob'
       });
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'export.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      return response.data;
     } catch (error) {
       console.error('Error exporting to PDF:', error);
-      throw error;
+      throw new Error('Failed to export to PDF');
     }
   },
 

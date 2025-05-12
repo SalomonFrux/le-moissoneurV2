@@ -1479,3 +1479,60 @@ Call log:
 2025-05-11T23:59:57.437Z info: Final response:
 2025-05-12T00:00:26.673Z info: Raw scraped data:
 2025-05-12T00:00:26.798Z info: Final response:
+2025-05-12T16:29:48.329Z info: Server running on port 4000
+2025-05-12T16:29:56.458Z info: Raw scraped data:
+2025-05-12T16:29:56.602Z info: Final response:
+2025-05-12T16:30:13.161Z info: Raw scraped data:
+2025-05-12T16:30:13.261Z info: Final response:
+2025-05-12T16:32:19.013Z info: Raw scraped data:
+2025-05-12T16:32:19.145Z info: Final response:
+2025-05-12T16:35:44.686Z info: Raw scraped data:
+2025-05-12T16:35:44.767Z info: Final response:
+2025-05-12T16:36:05.774Z info: Raw scraped data:
+2025-05-12T16:36:05.914Z info: Final response:
+2025-05-12T16:36:44.649Z info: Raw scraped data:
+2025-05-12T16:36:44.793Z info: Final response:
+2025-05-12T16:36:49.284Z info: Raw scraped data:
+2025-05-12T16:36:49.382Z info: Final response:
+2025-05-12T16:37:00.601Z info: Raw scraped data:
+2025-05-12T16:37:00.750Z info: Final response:
+2025-05-12T17:04:16.160Z info: Server running on port 4000
+2025-05-12T17:08:04.571Z info: Raw scraped data:
+2025-05-12T17:08:04.727Z info: Final response:
+2025-05-12T17:25:10.184Z info: Raw scraped data:
+2025-05-12T17:25:10.336Z info: Final response:
+2025-05-12T18:00:14.487Z info: Server running on port 4000
+2025-05-12T18:12:41.877Z info: Server running on port 4000
+2025-05-12T18:12:44.291Z info: Server running on port 4000
+2025-05-12T18:18:40.825Z error: Error fetching scrapers: TypeError: fetch failed
+2025-05-12T18:19:08.588Z info: Server running on port 4000
+2025-05-12T18:19:15.615Z info: Raw scraped data:
+2025-05-12T18:19:18.399Z info: Final response:
+2025-05-12T18:19:52.842Z info: Raw scraped data:
+2025-05-12T18:19:54.134Z info: Final response:
+2025-05-12T18:19:54.896Z info: Raw scraped data:
+2025-05-12T18:19:55.157Z info: Final response:
+2025-05-12T18:20:07.589Z info: Raw scraped data:
+2025-05-12T18:20:07.709Z info: Final response:
+2025-05-12T18:20:25.884Z info: Raw scraped data:
+2025-05-12T18:20:26.075Z info: Final response:
+2025-05-12T18:20:40.109Z info: Raw scraped data:
+2025-05-12T18:20:40.324Z info: Final response:
+2025-05-12T18:20:51.338Z info: Raw scraped data:
+2025-05-12T18:20:51.459Z info: Final response:
+2025-05-12T18:21:47.783Z info: Starting scraper: Bijouterie-CI (098ea77f-103e-4b5b-8418-7803673a6cc9)
+2025-05-12T18:22:02.900Z info: Stored 10 items for scraper 098ea77f-103e-4b5b-8418-7803673a6cc9. Total items: 19
+2025-05-12T18:22:02.901Z info: Scraper 098ea77f-103e-4b5b-8418-7803673a6cc9 completed successfully
+2025-05-12T18:22:17.670Z info: Raw scraped data:
+2025-05-12T18:22:17.781Z info: Final response:
+2025-05-12T18:22:26.284Z info: Raw scraped data:
+2025-05-12T18:22:26.381Z info: Final response:
+2025-05-12T18:23:57.439Z info: Raw scraped data:
+2025-05-12T18:23:57.575Z info: Final response:
+2025-05-12T18:24:43.208Z info: Raw scraped data:
+2025-05-12T18:24:43.294Z info: Final response:
+2025-05-12T18:31:02.071Z info: Starting scraper: Salomon-Testing (34c6ecb1-e6b8-4da7-a57a-840b2646c317)
+2025-05-12T18:31:09.700Z info: Stored 3 items for scraper 34c6ecb1-e6b8-4da7-a57a-840b2646c317. Total items: 3
+2025-05-12T18:31:09.701Z info: Scraper 34c6ecb1-e6b8-4da7-a57a-840b2646c317 completed successfully
+2025-05-12T18:31:33.835Z info: Raw scraped data:
+2025-05-12T18:31:33.991Z info: Final response:

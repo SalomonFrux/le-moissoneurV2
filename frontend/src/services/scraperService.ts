@@ -1,64 +1,74 @@
-import { ScraperData } from '@/components/dashboard/ScraperCard';
+import axios from 'axios';
 
-export async function getAllScrapers(): Promise<ScraperData[]> {
-  const response = await fetch('/api/scrapers');
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to fetch scrapers' }));
-    throw new Error(error.message || 'Failed to fetch scrapers');
-  }
-  
-  return response.json();
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+export interface ScraperData {
+  id: string;
+  name: string;
+  source: string;
+  status: 'idle' | 'running' | 'error' | 'completed';
+  lastRun?: string;
+  dataCount: number;
+  selectors?: { main: string };
+  frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
+  country: string;
+  type: 'playwright' | 'puppeteer';
 }
 
-export async function runScraper(id: string): Promise<ScraperData> {
-  if (!id) {
-    throw new Error('Scraper ID is required');
+export async function getAllScrapers(): Promise<ScraperData[]> {
+  try {
+    const response = await axios.get<ScraperData[]>(`${API_URL}/api/scrapers`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching scrapers:', error);
+    throw error;
   }
+}
 
-  const response = await fetch(`/api/scrapers/run/${id}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to run scraper' }));
-    throw new Error(error.message || 'Failed to run scraper');
+export async function runScraper(id: string): Promise<void> {
+  try {
+    await axios.post(`${API_URL}/api/scrapers/run/${id}`);
+  } catch (error) {
+    console.error('Error running scraper:', error);
+    throw error;
   }
-  
-  return response.json();
 }
 
 export async function getScraperStatus(id: string): Promise<ScraperData> {
-  if (!id) {
-    throw new Error('Scraper ID is required');
+  try {
+    const response = await axios.get<ScraperData>(`${API_URL}/api/scrapers/${id}/status`);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting scraper status:', error);
+    throw error;
   }
-
-  const response = await fetch(`/api/scrapers/status/${id}`);
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to get scraper status' }));
-    throw new Error(error.message || 'Failed to get scraper status');
-  }
-  
-  return response.json();
 }
 
 export async function createScraper(data: Partial<ScraperData>): Promise<ScraperData> {
-  const response = await fetch('/api/scrapers', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to create scraper' }));
-    throw new Error(error.message || 'Failed to create scraper');
+  try {
+    const response = await axios.post<ScraperData>(`${API_URL}/api/scrapers`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating scraper:', error);
+    throw error;
   }
-  
-  return response.json();
+}
+
+export async function deleteScraper(id: string): Promise<void> {
+  try {
+    await axios.delete(`${API_URL}/api/scrapers/${id}`);
+  } catch (error) {
+    console.error('Error deleting scraper:', error);
+    throw error;
+  }
+}
+
+export async function updateScraper(id: string, data: Partial<ScraperData>): Promise<ScraperData> {
+  try {
+    const response = await axios.put<ScraperData>(`${API_URL}/api/scrapers/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating scraper:', error);
+    throw error;
+  }
 }
