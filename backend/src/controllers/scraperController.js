@@ -330,6 +330,110 @@ const deleteScrapedData = async (req, res) => {
   }
 };
 
+const exportToPdf = async (req, res) => {
+  try {
+    const PDFDocument = require('pdfkit');
+    const doc = new PDFDocument();
+    
+    // Set response headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=export-${new Date().toISOString()}.pdf`);
+    
+    // Pipe the PDF document to the response
+    doc.pipe(res);
+    
+    // Get all scraped data
+    const data = await supabase
+      .from('scraped_data')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    // Add content to PDF
+    doc.fontSize(25).text('Données Extraites', { align: 'center' });
+    doc.moveDown();
+    
+    // Add table headers
+    doc.fontSize(12);
+    const headers = ['Nom', 'Secteur', 'Pays', 'Email', 'Téléphone', 'Adresse'];
+    let y = doc.y;
+    headers.forEach((header, i) => {
+      doc.text(header, 50 + (i * 90), y);
+    });
+    doc.moveDown();
+    
+    // Add data rows
+    data.forEach(entry => {
+      y = doc.y;
+      doc.text(entry.nom || '-', 50, y);
+      doc.text(entry.secteur || '-', 140, y);
+      doc.text(entry.pays || '-', 230, y);
+      doc.text(entry.email || '-', 320, y);
+      doc.text(entry.telephone || '-', 410, y);
+      doc.text(entry.adresse || '-', 500, y);
+      doc.moveDown();
+      
+      // Add a new page if we're near the bottom
+      if (doc.y > 700) {
+        doc.addPage();
+      }
+    });
+    
+    // Finalize the PDF
+    doc.end();
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).json({ error: 'Failed to generate PDF' });
+  }
+};
+
+/**
+ * Update a scraper
+ */
+async function updateScraper(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { name, source, selectors, frequency, type, country } = req.body;
+
+    // First check if the scraper exists
+    const { data: existingScraper, error: fetchError } = await supabase
+      .from('scrapers')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingScraper) {
+      logger.error(`Scraper with ID ${id} not found`);
+      return res.status(404).json({ error: 'Scraper not found' });
+    }
+
+    // Update the scraper
+    const { data, error } = await supabase
+      .from('scrapers')
+      .update({ 
+        name, 
+        source,
+        selectors,
+        frequency: frequency || existingScraper.frequency,
+        type: type || existingScraper.type,
+        country: country || existingScraper.country,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      logger.error(`Error updating scraper: ${error.message}`);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error(`Error in updateScraper: ${err.message}`);
+    next(err);
+  }
+}
+
 module.exports = {
   getAllScrapers,
   createScraper,
@@ -338,5 +442,7 @@ module.exports = {
   getScraperData,
   getAllScrapedData,
   updateScrapedData,
-  deleteScrapedData
+  deleteScrapedData,
+  exportToPdf,
+  updateScraper
 };

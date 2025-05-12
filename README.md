@@ -17,6 +17,7 @@ A web application for managing and running web scrapers to collect data from Afr
    npm install in frontend
    npm install in backend
    npm install in root
+   cd backend && npm install pdfkit
    And it will all work fine.
 
    ```

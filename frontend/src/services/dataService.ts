@@ -179,12 +179,19 @@ export const dataService = {
     }
   },
 
-  async exportToPdf(): Promise<Blob> {
+  async exportToPdf(): Promise<void> {
     try {
-      const response = await axios.get('/api/export/pdf', {
+      const response = await axios.get(`${API_URL}/api/scrapers/export/pdf`, {
         responseType: 'blob'
       });
-      return response.data;
+      
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `export-${new Date().toISOString()}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting to PDF:', error);
       throw new Error('Failed to export to PDF');

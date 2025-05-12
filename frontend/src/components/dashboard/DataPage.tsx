@@ -187,37 +187,45 @@ export function DataPage() {
     return groups;
   }, [filteredEntries]);
 
-  const handleExport = () => {
-    const csvData = filteredEntries.map(entry => ({
-      'Nom du Scraper': entry.nom || '-',
-      Secteur: entry.secteur === 'Aucune donnée' ? '-' : (entry.secteur || '-'),
-      Pays: entry.pays === 'Aucune donnée' ? '-' : (entry.pays || '-'),
-      'Site Web': entry.site_web === 'Aucune donnée' ? '-' : (entry.site_web || '-'),
-      Email: entry.email === 'Aucune donnée' ? '-' : (entry.email || '-'),
-      Téléphone: entry.telephone === 'Aucune donnée' ? '-' : (entry.telephone || '-'),
-      Adresse: entry.adresse === 'Aucune donnée' ? '-' : (entry.adresse || '-'),
-      'Date de création': new Date(entry.created_at).toLocaleDateString()
-    }));
+  const CHUNK_SIZE = 100000; // Number of rows per chunk
 
-    // Create CSV content with proper escaping
-    const headers = Object.keys(csvData[0]);
-    const csvContent = "data:text/csv;charset=utf-8," + 
-      headers.map(header => escapeCSVValue(header)).join(",") + "\n" +
-      csvData.map(row => 
-        headers.map(header => escapeCSVValue(row[header])).join(",")
-      ).join("\n");
+  const handleCsvExport = async () => {
+    try {
+      const allData = await dataService.fetchAllScrapedData();
+      const totalChunks = Math.ceil(allData.length / CHUNK_SIZE);
+      
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min((i + 1) * CHUNK_SIZE, allData.length);
+        const chunk = allData.slice(start, end);
+        
+        const csvContent = convertToCSV(chunk);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `export-part${i + 1}-${new Date().toISOString()}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        
+        // Add delay between chunks to prevent browser overload
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      toast.success(`Export completed in ${totalChunks} parts`);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export data');
+    }
+  };
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "donnees_extraites.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast.success("Export terminé", {
-      description: "Les données ont été exportées au format CSV."
-    });
+  const convertToCSV = (data: any[]) => {
+    const headers = Object.keys(data[0]).join(',');
+    const rows = data.map(row => 
+      Object.values(row).map(value => 
+        typeof value === 'string' ? `"${value.replace(/"/g, '""')}"` : value
+      ).join(',')
+    );
+    return [headers, ...rows].join('\n');
   };
 
   const handleExportPdf = async () => {
@@ -335,7 +343,7 @@ export function DataPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleExport} disabled={loading}>
+          <Button variant="outline" onClick={handleCsvExport} disabled={loading}>
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             Exporter CSV
           </Button>

@@ -278,10 +278,13 @@ export function ScrapersPage() {
           {paginatedScrapers.map((scraper) => (
             <ScraperCard
               key={scraper.id}
-              scraper={scraper}
+              scraper={{
+                ...scraper,
+                dataCount: scraper.data_count || 0,
+                type: scraper.type || 'playwright'
+              }}
               onRunScraper={handleRunScraper}
               onStopScraper={handleStopScraper}
-            //onViewData={handleViewData}
               onEditScraper={handleEditScraper}
               onDeleteScraper={handleDeleteScraper}
             />

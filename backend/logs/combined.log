@@ -1734,3 +1734,244 @@ Call log:
 2025-05-12T21:12:21.118Z error: Error: request entity too large
 2025-05-12T21:12:30.780Z info: Raw scraped data:
 2025-05-12T21:12:30.872Z info: Final response:
+2025-05-12T21:25:33.081Z info: Server running on port 4000
+2025-05-12T21:25:39.713Z info: Raw scraped data:
+2025-05-12T21:25:39.866Z info: Final response:
+2025-05-12T21:26:28.144Z info: Raw scraped data:
+2025-05-12T21:26:28.250Z info: Final response:
+2025-05-12T21:26:43.721Z info: Raw scraped data:
+2025-05-12T21:26:43.815Z info: Final response:
+2025-05-12T21:26:53.152Z info: Raw scraped data:
+2025-05-12T21:26:53.338Z info: Final response:
+2025-05-12T21:27:28.861Z info: Raw scraped data:
+2025-05-12T21:27:28.949Z info: Final response:
+2025-05-12T21:29:59.708Z info: Raw scraped data:
+2025-05-12T21:29:59.829Z info: Final response:
+2025-05-12T21:30:15.223Z info: Raw scraped data:
+2025-05-12T21:30:15.319Z info: Final response:
+2025-05-12T21:30:53.473Z info: Raw scraped data:
+2025-05-12T21:30:53.829Z info: Final response:
+2025-05-12T21:32:27.831Z info: Raw scraped data:
+2025-05-12T21:32:28.030Z info: Final response:
+2025-05-12T21:34:33.438Z info: Raw scraped data:
+2025-05-12T21:34:33.525Z info: Final response:
+2025-05-12T21:34:43.472Z info: Raw scraped data:
+2025-05-12T21:34:43.608Z info: Final response:
+2025-05-12T21:35:07.368Z info: Raw scraped data:
+2025-05-12T21:35:07.485Z info: Final response:
+2025-05-12T21:36:26.520Z info: Raw scraped data:
+2025-05-12T21:36:26.621Z info: Final response:
+2025-05-12T21:36:52.021Z info: Raw scraped data:
+2025-05-12T21:36:52.121Z info: Final response:
+2025-05-12T21:37:57.216Z info: Raw scraped data:
+2025-05-12T21:37:57.349Z info: Final response:
+2025-05-12T21:37:57.524Z info: Raw scraped data:
+2025-05-12T21:37:57.722Z info: Final response:
+2025-05-12T21:37:57.835Z info: Raw scraped data:
+2025-05-12T21:37:57.917Z info: Final response:
+2025-05-12T21:38:18.405Z info: Raw scraped data:
+2025-05-12T21:38:18.495Z info: Final response:
+2025-05-12T21:38:29.286Z info: Raw scraped data:
+2025-05-12T21:38:29.353Z info: Final response:
+2025-05-12T21:38:45.944Z info: Raw scraped data:
+2025-05-12T21:38:46.090Z info: Final response:
+2025-05-12T21:42:55.154Z info: Raw scraped data:
+2025-05-12T21:42:55.283Z info: Final response:
+2025-05-12T21:43:30.379Z info: Raw scraped data:
+2025-05-12T21:43:30.508Z info: Final response:
+2025-05-12T21:43:49.873Z info: Raw scraped data:
+2025-05-12T21:43:49.981Z info: Final response:
+2025-05-12T21:44:46.412Z info: Raw scraped data:
+2025-05-12T21:44:46.499Z info: Final response:
+2025-05-12T21:44:46.653Z info: Raw scraped data:
+2025-05-12T21:44:46.749Z info: Final response:
+2025-05-12T21:44:46.873Z info: Raw scraped data:
+2025-05-12T21:44:47.002Z info: Final response:
+2025-05-12T21:45:31.400Z info: Raw scraped data:
+2025-05-12T21:45:31.519Z info: Final response:
+2025-05-12T21:45:47.318Z info: Raw scraped data:
+2025-05-12T21:45:47.419Z info: Final response:
+2025-05-12T21:50:39.353Z info: Raw scraped data:
+2025-05-12T21:50:39.448Z info: Final response:
+2025-05-12T21:53:53.300Z info: Raw scraped data:
+2025-05-12T21:53:53.407Z info: Final response:
+2025-05-12T21:56:50.504Z info: Raw scraped data:
+2025-05-12T21:56:50.600Z info: Final response:
+2025-05-12T21:56:50.706Z info: Raw scraped data:
+2025-05-12T21:56:50.806Z info: Final response:
+2025-05-12T21:57:44.712Z info: Server running on port 4000
+2025-05-12T22:01:17.106Z info: Server running on port 4000
+2025-05-12T22:03:30.843Z info: Raw scraped data:
+2025-05-12T22:03:30.913Z info: Final response:
+2025-05-12T22:03:44.735Z info: Raw scraped data:
+2025-05-12T22:03:44.868Z info: Final response:
+2025-05-12T22:04:03.557Z info: Raw scraped data:
+2025-05-12T22:04:03.722Z info: Final response:
+2025-05-12T22:04:23.528Z info: Raw scraped data:
+2025-05-12T22:04:23.642Z info: Final response:
+2025-05-12T22:04:47.645Z info: Raw scraped data:
+2025-05-12T22:04:47.708Z info: Final response:
+2025-05-12T22:05:23.588Z info: Raw scraped data:
+2025-05-12T22:05:23.794Z info: Final response:
+2025-05-12T22:06:15.564Z info: Raw scraped data:
+2025-05-12T22:06:15.723Z info: Final response:
+2025-05-12T22:07:18.606Z info: Raw scraped data:
+2025-05-12T22:07:18.733Z info: Final response:
+2025-05-12T22:08:13.312Z info: Starting scraper: Salomon-Testing (34c6ecb1-e6b8-4da7-a57a-840b2646c317)
+2025-05-12T22:08:22.173Z info: Stored 3 items for scraper 34c6ecb1-e6b8-4da7-a57a-840b2646c317. Total items: 9
+2025-05-12T22:08:22.173Z info: Scraper 34c6ecb1-e6b8-4da7-a57a-840b2646c317 completed successfully
+2025-05-12T22:10:48.353Z info: Raw scraped data:
+2025-05-12T22:10:48.451Z info: Final response:
+2025-05-12T22:11:20.956Z info: Raw scraped data:
+2025-05-12T22:11:21.067Z info: Final response:
+2025-05-12T22:12:39.535Z info: Starting scraper: Habbit-Babi-test (f9af598b-4da7-4eb4-8899-8aca1b6f2ae3)
+2025-05-12T22:12:48.004Z info: Stored 8 items for scraper f9af598b-4da7-4eb4-8899-8aca1b6f2ae3. Total items: 8
+2025-05-12T22:12:48.005Z info: Scraper f9af598b-4da7-4eb4-8899-8aca1b6f2ae3 completed successfully
+2025-05-12T22:15:10.749Z info: Raw scraped data:
+2025-05-12T22:15:10.906Z info: Final response:
+2025-05-12T22:16:15.138Z info: Raw scraped data:
+2025-05-12T22:16:15.267Z info: Final response:
+2025-05-12T22:16:15.474Z info: Raw scraped data:
+2025-05-12T22:16:15.588Z info: Final response:
+2025-05-12T22:16:15.717Z info: Raw scraped data:
+2025-05-12T22:16:15.828Z info: Final response:
+2025-05-12T22:16:22.951Z info: Raw scraped data:
+2025-05-12T22:16:23.056Z info: Final response:
+2025-05-12T22:16:23.568Z info: Raw scraped data:
+2025-05-12T22:16:23.677Z info: Final response:
+2025-05-12T22:16:23.821Z info: Raw scraped data:
+2025-05-12T22:16:23.988Z info: Final response:
+2025-05-12T22:16:25.467Z info: Raw scraped data:
+2025-05-12T22:16:25.560Z info: Final response:
+2025-05-12T22:16:25.609Z info: Raw scraped data:
+2025-05-12T22:16:25.726Z info: Final response:
+2025-05-12T22:16:25.825Z info: Raw scraped data:
+2025-05-12T22:16:25.917Z info: Final response:
+2025-05-12T22:16:26.481Z info: Raw scraped data:
+2025-05-12T22:16:26.596Z info: Final response:
+2025-05-12T22:16:27.216Z info: Raw scraped data:
+2025-05-12T22:16:27.299Z info: Final response:
+2025-05-12T22:16:27.424Z info: Raw scraped data:
+2025-05-12T22:16:27.556Z info: Final response:
+2025-05-12T22:16:34.847Z info: Raw scraped data:
+2025-05-12T22:16:34.978Z info: Final response:
+2025-05-12T22:16:35.618Z info: Raw scraped data:
+2025-05-12T22:16:35.745Z info: Final response:
+2025-05-12T22:16:35.857Z info: Raw scraped data:
+2025-05-12T22:16:35.910Z info: Final response:
+2025-05-12T22:16:36.517Z info: Raw scraped data:
+2025-05-12T22:16:36.773Z info: Final response:
+2025-05-12T22:16:37.438Z info: Raw scraped data:
+2025-05-12T22:16:37.539Z info: Final response:
+2025-05-12T22:16:37.639Z info: Raw scraped data:
+2025-05-12T22:16:37.743Z info: Final response:
+2025-05-12T22:17:52.058Z info: Raw scraped data:
+2025-05-12T22:17:52.187Z info: Final response:
+2025-05-12T22:17:52.467Z info: Raw scraped data:
+2025-05-12T22:17:52.554Z info: Final response:
+2025-05-12T22:17:52.667Z info: Raw scraped data:
+2025-05-12T22:17:52.754Z info: Final response:
+2025-05-12T22:17:52.948Z info: Raw scraped data:
+2025-05-12T22:17:53.061Z info: Final response:
+2025-05-12T22:17:53.420Z info: Raw scraped data:
+2025-05-12T22:17:53.520Z info: Final response:
+2025-05-12T22:17:53.649Z info: Raw scraped data:
+2025-05-12T22:17:53.738Z info: Final response:
+2025-05-12T22:17:54.830Z info: Raw scraped data:
+2025-05-12T22:17:54.909Z info: Final response:
+2025-05-12T22:17:55.179Z info: Raw scraped data:
+2025-05-12T22:17:55.248Z info: Final response:
+2025-05-12T22:17:55.373Z info: Raw scraped data:
+2025-05-12T22:17:55.478Z info: Final response:
+2025-05-12T22:18:00.200Z info: Raw scraped data:
+2025-05-12T22:18:00.432Z info: Final response:
+2025-05-12T22:18:04.948Z info: Raw scraped data:
+2025-05-12T22:18:05.046Z info: Final response:
+2025-05-12T22:18:16.360Z info: Raw scraped data:
+2025-05-12T22:18:16.459Z info: Final response:
+2025-05-12T22:18:16.462Z info: Raw scraped data:
+2025-05-12T22:18:16.532Z info: Final response:
+2025-05-12T22:18:16.563Z info: Raw scraped data:
+2025-05-12T22:18:16.713Z info: Final response:
+2025-05-12T22:18:17.618Z info: Raw scraped data:
+2025-05-12T22:18:17.706Z info: Final response:
+2025-05-12T22:18:18.313Z info: Raw scraped data:
+2025-05-12T22:18:18.402Z info: Final response:
+2025-05-12T22:18:18.534Z info: Raw scraped data:
+2025-05-12T22:18:18.620Z info: Final response:
+2025-05-12T22:18:19.168Z info: Raw scraped data:
+2025-05-12T22:18:19.227Z info: Final response:
+2025-05-12T22:18:19.231Z info: Raw scraped data:
+2025-05-12T22:18:19.325Z info: Final response:
+2025-05-12T22:18:19.475Z info: Raw scraped data:
+2025-05-12T22:18:19.583Z info: Final response:
+2025-05-12T22:18:22.610Z info: Raw scraped data:
+2025-05-12T22:18:22.703Z info: Final response:
+2025-05-12T22:18:32.999Z info: Raw scraped data:
+2025-05-12T22:18:33.098Z info: Final response:
+2025-05-12T22:18:33.498Z info: Raw scraped data:
+2025-05-12T22:18:33.611Z info: Final response:
+2025-05-12T22:18:33.790Z info: Raw scraped data:
+2025-05-12T22:18:33.867Z info: Final response:
+2025-05-12T22:18:39.838Z info: Raw scraped data:
+2025-05-12T22:18:40.009Z info: Final response:
+2025-05-12T22:18:44.264Z info: Raw scraped data:
+2025-05-12T22:18:44.362Z info: Final response:
+2025-05-12T22:19:44.780Z info: Raw scraped data:
+2025-05-12T22:19:44.883Z info: Final response:
+2025-05-12T22:19:45.500Z info: Raw scraped data:
+2025-05-12T22:19:45.567Z info: Final response:
+2025-05-12T22:19:48.005Z info: Raw scraped data:
+2025-05-12T22:19:48.080Z info: Final response:
+2025-05-12T22:19:48.129Z info: Raw scraped data:
+2025-05-12T22:19:48.264Z info: Final response:
+2025-05-12T22:19:48.270Z info: Raw scraped data:
+2025-05-12T22:19:48.413Z info: Final response:
+2025-05-12T22:19:53.390Z info: Raw scraped data:
+2025-05-12T22:19:53.538Z info: Final response:
+2025-05-12T22:19:57.954Z info: Raw scraped data:
+2025-05-12T22:19:58.047Z info: Final response:
+2025-05-12T22:21:25.249Z info: Server running on port 4000
+2025-05-12T22:21:37.631Z info: Raw scraped data:
+2025-05-12T22:21:37.778Z info: Final response:
+2025-05-12T22:22:34.509Z info: Server running on port 4000
+2025-05-12T22:26:47.060Z info: Server running on port 4000
+2025-05-12T22:27:10.502Z info: Raw scraped data:
+2025-05-12T22:27:10.598Z info: Final response:
+2025-05-12T22:28:30.209Z info: Server running on port 4000
+2025-05-12T22:31:53.659Z info: Raw scraped data:
+2025-05-12T22:31:53.757Z info: Final response:
+2025-05-12T22:36:15.497Z info: Raw scraped data:
+2025-05-12T22:36:15.641Z info: Final response:
+2025-05-12T22:37:15.246Z info: Raw scraped data:
+2025-05-12T22:37:15.341Z info: Final response:
+2025-05-12T22:38:03.562Z info: Raw scraped data:
+2025-05-12T22:38:03.946Z info: Final response:
+2025-05-12T22:41:50.257Z info: Server running on port 4000
+2025-05-12T22:42:05.105Z info: Server running on port 4000
+2025-05-12T22:42:17.786Z info: Raw scraped data:
+2025-05-12T22:42:17.952Z info: Final response:
+2025-05-12T22:42:18.387Z info: Raw scraped data:
+2025-05-12T22:42:18.477Z info: Final response:
+2025-05-12T22:42:30.740Z info: Raw scraped data:
+2025-05-12T22:42:30.841Z info: Final response:
+2025-05-12T22:42:31.458Z info: Raw scraped data:
+2025-05-12T22:42:31.681Z info: Final response:
+2025-05-12T22:43:39.985Z info: Raw scraped data:
+2025-05-12T22:43:40.115Z info: Final response:
+2025-05-12T22:43:46.928Z info: Raw scraped data:
+2025-05-12T22:43:47.028Z info: Final response:
+2025-05-12T22:44:46.808Z info: Server running on port 4000
+2025-05-12T22:44:53.236Z info: Raw scraped data:
+2025-05-12T22:44:53.335Z info: Final response:
+2025-05-12T22:46:18.045Z info: Starting scraper: Habbit-Babi-test (ef5ea7af-748e-4e64-bd3b-4041805c26f3)
+2025-05-12T22:46:27.154Z info: Stored 8 items for scraper ef5ea7af-748e-4e64-bd3b-4041805c26f3. Total items: 8
+2025-05-12T22:46:27.155Z info: Scraper ef5ea7af-748e-4e64-bd3b-4041805c26f3 completed successfully
+2025-05-12T22:47:42.488Z info: Raw scraped data:
+2025-05-12T22:47:42.602Z info: Final response:
+2025-05-12T22:48:03.393Z info: Raw scraped data:
+2025-05-12T22:48:03.557Z info: Final response:
+2025-05-12T22:51:17.106Z info: Raw scraped data:
+2025-05-12T22:51:17.238Z info: Final response:
+2025-05-12T22:51:46.020Z info: Raw scraped data:
+2025-05-12T22:51:46.114Z info: Final response:

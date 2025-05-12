@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { MobileSidebar } from '@/components/MobileSidebar';
@@ -8,9 +8,36 @@ import { DataPage } from '@/components/dashboard/DataPage';
 import { StatisticsPage } from '@/components/statistics/StatisticsPage';
 import { ParametersPage } from '@/components/settings/ParametersPage';
 import { EnrichmentPage } from '@/components/enrichment/EnrichmentPage';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 const Index = () => {
   const [activePage, setActivePage] = useState('dashboard');
+  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`${API_URL}/api/dashboard`, {
+        params: {
+          page,
+          pageSize,
+        }
+      });
+      // Handle response data
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [page]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -24,7 +51,15 @@ const Index = () => {
       <div className="flex-1 flex">
         <Sidebar activePage={activePage} setActivePage={setActivePage} />
         <div className="flex-1 overflow-auto">
-          {activePage === 'dashboard' && <Dashboard />}
+          {activePage === 'dashboard' && (
+            isLoading ? (
+              <div className="flex items-center justify-center h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+              </div>
+            ) : (
+              <Dashboard />
+            )
+          )}
           {activePage === 'scrapers' && <ScrapersPage />}
           {activePage === 'data' && <DataPage />}
           {activePage === 'statistics' && <StatisticsPage />}

@@ -192,7 +192,15 @@ export function Dashboard() {
     <div className="space-y-8 p-6">
       <h2 className="text-3xl font-bold font-heading tracking-tight">Tableau de bord</h2>
       {loading ? (
-        <p>Loading data...</p>
+        <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+          <div className="relative">
+            <div className="h-16 w-16 rounded-full border-4 border-t-africa-green-500 border-r-africa-green-500 border-b-gray-200 border-l-gray-200 animate-spin"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <Database className="h-6 w-6 text-africa-green-500 animate-ping" />
+            </div>
+          </div>
+          <p className="text-lg text-muted-foreground">Chargement des données...</p>
+        </div>
       ) : (
         <>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -266,7 +274,11 @@ export function Dashboard() {
                   {paginatedScrapers.map((scraper) => (
                     <ScraperCard
                       key={scraper.id}
-                      scraper={scraper}
+                      scraper={{
+                        ...scraper,
+                        dataCount: scraper.data_count || 0,
+                        type: scraper.type || 'playwright'
+                      }}
                       onRunScraper={handleRunScraper}
                       onStopScraper={handleStopScraper}
                       onViewData={handleViewData}
@@ -372,17 +384,23 @@ export function Dashboard() {
                   </TableHeader>
                   <TableBody>
                     {selectedScraperData.map((item) => (
-                      <TableRow key={item.id} className="hover:bg-muted/50">
-                        <TableCell className="font-medium">{item.nom}</TableCell>
-                        <TableCell>{item.email}</TableCell>
-                        <TableCell>{item.telephone}</TableCell>
-                        <TableCell>{item.adresse}</TableCell>
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">{item.nom || '-'}</TableCell>
+                        <TableCell>
+                          {item.email ? (
+                            <a href={`mailto:${item.email}`} className="text-blue-500 hover:underline flex items-center gap-1">
+                              <Mail className="h-4 w-4" />
+                              {item.email}
+                            </a>
+                          ) : '-'}
+                        </TableCell>
+                        <TableCell>{item.telephone || '-'}</TableCell>
+                        <TableCell>{item.adresse || '-'}</TableCell>
                         <TableCell>
                           <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                            {item.secteur}
+                            {item.secteur || '-'}
                           </span>
                         </TableCell>
-                     
                         <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
                       </TableRow>
                     ))}
