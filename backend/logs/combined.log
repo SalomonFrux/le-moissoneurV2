@@ -1460,3 +1460,22 @@ Call log:
 2025-05-11T23:11:29.388Z info: Server running on port 4000
 2025-05-11T23:11:39.031Z info: Raw scraped data:
 2025-05-11T23:11:39.188Z info: Final response:
+2025-05-11T23:14:03.976Z info: Raw scraped data:
+2025-05-11T23:14:04.127Z info: Final response:
+2025-05-11T23:32:25.689Z info: Raw scraped data:
+2025-05-11T23:32:25.792Z info: Final response:
+2025-05-11T23:34:42.141Z info: Raw scraped data:
+2025-05-11T23:34:42.239Z info: Final response:
+2025-05-11T23:38:18.766Z info: Raw scraped data:
+2025-05-11T23:38:18.916Z info: Final response:
+2025-05-11T23:48:39.556Z info: Starting scraper: Habbit-Babi-test (657a35d9-749c-4e7d-8120-712f81769d9b)
+2025-05-11T23:48:48.571Z info: Stored 8 items for scraper 657a35d9-749c-4e7d-8120-712f81769d9b. Total items: 8
+2025-05-11T23:48:48.571Z info: Scraper 657a35d9-749c-4e7d-8120-712f81769d9b completed successfully
+2025-05-11T23:53:25.718Z info: Raw scraped data:
+2025-05-11T23:53:25.826Z info: Final response:
+2025-05-11T23:54:53.365Z info: Raw scraped data:
+2025-05-11T23:54:53.434Z info: Final response:
+2025-05-11T23:59:57.285Z info: Raw scraped data:
+2025-05-11T23:59:57.437Z info: Final response:
+2025-05-12T00:00:26.673Z info: Raw scraped data:
+2025-05-12T00:00:26.798Z info: Final response:

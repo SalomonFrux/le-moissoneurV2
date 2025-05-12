@@ -22,21 +22,35 @@ const countries = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic of the", "Congo, Republic of the", "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 ];
 
+interface ScraperConfig {
+  name: string;
+  source: string;
+  selector: string;
+  paginationSelector: string;
+  dropdownClickSelector?: string;
+  childSelectors?: string;
+  engine: 'playwright' | 'puppeteer';
+  frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
+  country?: string;
+  twoPhaseScraping?: boolean;
+  phase1Selectors?: {
+    name: string;
+    dropdownTrigger?: string;
+  };
+  phase2Selectors?: {
+    name: string;
+    phone: string;
+    email: string;
+    website: string;
+    address: string;
+  };
+}
+
 export function ScrapersPage() {
   const [scrapers, setScrapers] = useState<ScraperData[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState<{
-    name: string;
-    source: string;
-    selector: string;
-    paginationSelector: string;
-    dropdownClickSelector?: string;
-    childSelectors?: string;
-    engine: 'playwright' | 'puppeteer';
-    frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
-    country?: string;
-  }>({
+  const [formData, setFormData] = useState<ScraperConfig>({
     name: '',
     source: '',
     selector: '',
@@ -45,7 +59,19 @@ export function ScrapersPage() {
     childSelectors: '',
     engine: 'playwright',
     frequency: 'manual',
-    country: ''
+    country: '',
+    twoPhaseScraping: false,
+    phase1Selectors: {
+      name: '',
+      dropdownTrigger: ''
+    },
+    phase2Selectors: {
+      name: '',
+      phone: '',
+      email: '',
+      website: '',
+      address: ''
+    }
   });
   const [expandedScrapers, setExpandedScrapers] = useState<Set<string>>(new Set());
   const [scrapedData, setScrapedData] = useState<Record<string, any[]>>({});
@@ -75,12 +101,12 @@ export function ScrapersPage() {
 
   const handleNewScraper = () => {
     setShowForm(true);
-    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '' });
+    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '', twoPhaseScraping: false, phase1Selectors: { name: '', dropdownTrigger: '' }, phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' } });
   };
 
   const handleCancel = () => {
     setShowForm(false);
-    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '' });
+    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '', twoPhaseScraping: false, phase1Selectors: { name: '', dropdownTrigger: '' }, phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' } });
   };
 
   const handleCreateScraper = async (e: React.FormEvent) => {
@@ -118,7 +144,10 @@ export function ScrapersPage() {
         childSelectors: '', 
         engine: 'playwright', 
         frequency: 'manual', 
-        country: '' 
+        country: '', 
+        twoPhaseScraping: false,
+        phase1Selectors: { name: '', dropdownTrigger: '' },
+        phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' }
       });
       setShowForm(false);
       toast.success('Scraper created successfully');
@@ -303,43 +332,163 @@ export function ScrapersPage() {
                   />
                 </div>
               </div>
+
               <div className="space-y-2">
-                <label htmlFor="selector" className="text-sm font-medium">Sélecteurs CSS</label>
-                <Input 
-                  id="selector" 
-                  placeholder="Ex: .card, span.palmares-phone, a[href^='mailto:'], a[href^='http']"
-                  value={formData.selector}
-                  onChange={(e) => handleInputChange('selector', e.target.value)}
-                />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="twoPhaseScraping"
+                    checked={formData.twoPhaseScraping}
+                    onChange={(e) => handleInputChange('twoPhaseScraping', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <label htmlFor="twoPhaseScraping" className="text-sm font-medium">
+                    Scraping en deux phases (pour les données dans des dropdowns)
+                  </label>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Activez cette option si les données sont cachées derrière des dropdowns
+                </p>
               </div>
-              <div className="space-y-2">
-                <label htmlFor="paginationSelector" className="text-sm font-medium">Sélecteur de pagination (optionnel)</label>
-                <Input
-                  id="paginationSelector"
-                  placeholder="Ex: .pagination-next, .Pagination-link[rel=next]"
-                  value={formData.paginationSelector}
-                  onChange={(e) => handleInputChange('paginationSelector', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="dropdownClickSelector" className="text-sm font-medium">Sélecteur pour ouvrir les dropdowns (optionnel)</label>
-                <Input
-                  id="dropdownClickSelector"
-                  placeholder="Ex: .accordion-toggle, .dropdown-arrow"
-                  value={formData.dropdownClickSelector || ''}
-                  onChange={(e) => handleInputChange('dropdownClickSelector', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="childSelectors" className="text-sm font-medium">Sélecteurs enfants (JSON)</label>
-                <Textarea
-                  id="childSelectors"
-                  placeholder={`Exemple: {"name": "h1.title", "address": "span.address", "phone": "span.palmares-phone", "email": "a[href^='mailto:']", "website": "a[href^='http']"}`}
-                  value={formData.childSelectors || ''}
-                  onChange={(e) => handleInputChange('childSelectors', e.target.value)}
-                  rows={4}
-                />
-              </div>
+
+              {formData.twoPhaseScraping ? (
+                <>
+                  <div className="space-y-4 border rounded-lg p-4">
+                    <h3 className="font-medium">Phase 1 - Liste des entreprises</h3>
+                    <div className="space-y-2">
+                      <label htmlFor="phase1Name" className="text-sm font-medium">Sélecteur du nom de l'entreprise</label>
+                      <Input
+                        id="phase1Name"
+                        placeholder="Ex: .company-name"
+                        value={formData.phase1Selectors?.name}
+                        onChange={(e) => handleInputChange('phase1Selectors', {
+                          ...formData.phase1Selectors,
+                          name: e.target.value
+                        })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="phase1Dropdown" className="text-sm font-medium">Sélecteur du bouton dropdown</label>
+                      <Input
+                        id="phase1Dropdown"
+                        placeholder="Ex: .dropdown-toggle"
+                        value={formData.phase1Selectors?.dropdownTrigger}
+                        onChange={(e) => handleInputChange('phase1Selectors', {
+                          ...formData.phase1Selectors,
+                          dropdownTrigger: e.target.value
+                        })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 border rounded-lg p-4">
+                    <h3 className="font-medium">Phase 2 - Détails de l'entreprise</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label htmlFor="phase2Name" className="text-sm font-medium">Nom</label>
+                        <Input
+                          id="phase2Name"
+                          placeholder="Ex: .details-name"
+                          value={formData.phase2Selectors?.name}
+                          onChange={(e) => handleInputChange('phase2Selectors', {
+                            ...formData.phase2Selectors,
+                            name: e.target.value
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="phase2Phone" className="text-sm font-medium">Téléphone</label>
+                        <Input
+                          id="phase2Phone"
+                          placeholder="Ex: .details-phone"
+                          value={formData.phase2Selectors?.phone}
+                          onChange={(e) => handleInputChange('phase2Selectors', {
+                            ...formData.phase2Selectors,
+                            phone: e.target.value
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="phase2Email" className="text-sm font-medium">Email</label>
+                        <Input
+                          id="phase2Email"
+                          placeholder="Ex: .details-email"
+                          value={formData.phase2Selectors?.email}
+                          onChange={(e) => handleInputChange('phase2Selectors', {
+                            ...formData.phase2Selectors,
+                            email: e.target.value
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="phase2Website" className="text-sm font-medium">Site Web</label>
+                        <Input
+                          id="phase2Website"
+                          placeholder="Ex: .details-website"
+                          value={formData.phase2Selectors?.website}
+                          onChange={(e) => handleInputChange('phase2Selectors', {
+                            ...formData.phase2Selectors,
+                            website: e.target.value
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2 col-span-2">
+                        <label htmlFor="phase2Address" className="text-sm font-medium">Adresse</label>
+                        <Input
+                          id="phase2Address"
+                          placeholder="Ex: .details-address"
+                          value={formData.phase2Selectors?.address}
+                          onChange={(e) => handleInputChange('phase2Selectors', {
+                            ...formData.phase2Selectors,
+                            address: e.target.value
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <label htmlFor="selector" className="text-sm font-medium">Sélecteurs CSS</label>
+                    <Input 
+                      id="selector" 
+                      placeholder="Ex: .card, span.palmares-phone, a[href^='mailto:'], a[href^='http']"
+                      value={formData.selector}
+                      onChange={(e) => handleInputChange('selector', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="paginationSelector" className="text-sm font-medium">Sélecteur de pagination (optionnel)</label>
+                    <Input
+                      id="paginationSelector"
+                      placeholder="Ex: .pagination-next, .Pagination-link[rel=next]"
+                      value={formData.paginationSelector}
+                      onChange={(e) => handleInputChange('paginationSelector', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="dropdownClickSelector" className="text-sm font-medium">Sélecteur pour ouvrir les dropdowns (optionnel)</label>
+                    <Input
+                      id="dropdownClickSelector"
+                      placeholder="Ex: .accordion-toggle, .dropdown-arrow"
+                      value={formData.dropdownClickSelector || ''}
+                      onChange={(e) => handleInputChange('dropdownClickSelector', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="childSelectors" className="text-sm font-medium">Sélecteurs enfants (JSON)</label>
+                    <Textarea
+                      id="childSelectors"
+                      placeholder={`Exemple: {"name": "h1.title", "address": "span.address", "phone": "span.palmares-phone", "email": "a[href^='mailto:']", "website": "a[href^='http']"}`}
+                      value={formData.childSelectors || ''}
+                      onChange={(e) => handleInputChange('childSelectors', e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="space-y-2">
                 <label htmlFor="engine" className="text-sm font-medium">Moteur de scraping</label>
                 <Select
@@ -355,6 +504,7 @@ export function ScrapersPage() {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
                 <label htmlFor="frequency" className="text-sm font-medium">Fréquence</label>
                 <Select 
@@ -372,6 +522,7 @@ export function ScrapersPage() {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
                 <label htmlFor="country" className="text-sm font-medium">Pays</label>
                 <Select

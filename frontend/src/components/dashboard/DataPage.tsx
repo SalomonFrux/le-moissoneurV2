@@ -17,7 +17,7 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/ui/pagination';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { 
   Select,
   SelectContent,
@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight, Trash2, MoreVertical, FileSpreadsheet, FilePdf } from 'lucide-react';
+import { Download, Filter, Link as LinkIcon, Mail, Search, Edit2, ChevronDown, ChevronRight, Trash2, MoreVertical, FileSpreadsheet, FileText, Calendar, Globe, Building2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { dataService, type ScrapedEntry } from '@/services/dataService';
@@ -56,6 +56,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Company {
   id: string;
@@ -304,37 +306,43 @@ export function DataPage() {
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold font-heading tracking-tight">Données Extraites</h2>
-        <Button variant="default" className="bg-primary" onClick={handleExport} disabled={loading || filteredEntries.length === 0}>
-          <Download className="mr-2 h-4 w-4" /> Exporter Tout
-        </Button>
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Données Extraites</h2>
+          <p className="text-muted-foreground">
+            Gérez et explorez les données collectées par vos scrapers
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Exporter CSV
+          </Button>
+          <Button variant="outline" onClick={() => dataService.exportToPdf()}>
+            <FileText className="mr-2 h-4 w-4" />
+            Exporter PDF
+          </Button>
+        </div>
       </div>
 
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-1 items-center space-x-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 flex-1">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Rechercher par nom, secteur, pays..."
-                  className="pl-8"
+                  placeholder="Rechercher..."
                   value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setPage(1);
-                  }}
-                  disabled={loading}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
                 />
               </div>
               <Select
                 value={selectedCountry}
-                onValueChange={(value) => {
-                  setSelectedCountry(value);
-                  setPage(1);
-                }}
+                onValueChange={setSelectedCountry}
               >
                 <SelectTrigger className="w-[180px]">
+                  <Globe className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Filtrer par pays" />
                 </SelectTrigger>
                 <SelectContent>
@@ -346,167 +354,135 @@ export function DataPage() {
                   ))}
                 </SelectContent>
               </Select>
+              <Select
+                value={sortBy}
+                onValueChange={(value: 'name' | 'date' | 'count') => setSortBy(value)}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Trier par" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Nom</SelectItem>
+                  <SelectItem value="date">Date</SelectItem>
+                  <SelectItem value="count">Nombre d'entrées</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nom du Scraper</TableHead>
-              <TableHead>Secteur</TableHead>
-              <TableHead>Pays</TableHead>
-              <TableHead>Site Web</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Téléphone</TableHead>
-              <TableHead>Adresse</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-4">
-                  Chargement des données...
-                </TableCell>
-              </TableRow>
-            ) : Object.entries(groupedEntries).length > 0 ? (
-              Object.entries(groupedEntries).map(([scraperName, groupEntries]) => (
-                <React.Fragment key={scraperName}>
-                  <TableRow 
-                    className="bg-muted/50 cursor-pointer hover:bg-muted"
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[calc(100vh-300px)]">
+            <div className="space-y-4">
+              {Object.entries(groupedEntries).map(([scraperName, entries]) => (
+                <Card key={scraperName} className="overflow-hidden">
+                  <div 
+                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50"
                     onClick={() => toggleGroup(scraperName)}
                   >
-                    <TableCell colSpan={7}>
-                      <div className="flex items-center">
-                        {expandedGroups.has(scraperName) ? (
-                          <ChevronDown className="h-4 w-4 mr-2" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 mr-2" />
-                        )}
-                        <span className="font-medium">{scraperName}</span>
-                        <Badge variant="secondary" className="ml-2">
-                          {groupEntries.length}
-                        </Badge>
+                    <div className="flex items-center gap-4">
+                      <Building2 className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <h3 className="font-semibold">{scraperName}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {entries.length} entrées collectées
+                        </p>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {expandedGroups.has(scraperName) && (
-                        <Button
-                          variant="default"
-                          className="bg-primary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExportGroup(scraperName, groupEntries);
-                          }}
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Exporter
-                        </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">
+                        {entries[0]?.pays || 'Pays inconnu'}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExportGroup(scraperName, entries);
+                        }}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      {expandedGroups.has(scraperName) ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
                       )}
-                    </TableCell>
-                  </TableRow>
-                  {expandedGroups.has(scraperName) && groupEntries.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell>{entry.nom || '-'}</TableCell>
-                      <TableCell>{entry.secteur === 'Aucune donnée' ? '-' : (entry.secteur || '-')}</TableCell>
-                      <TableCell>{entry.pays === 'Aucune donnée' ? '-' : (entry.pays || '-')}</TableCell>
-                      <TableCell>
-                        {entry.site_web && entry.site_web !== 'Aucune donnée' ? (
-                          <a
-                            href={entry.site_web.startsWith('http') ? entry.site_web : `https://${entry.site_web}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-1"
-                          >
-                            <LinkIcon className="h-4 w-4" />
-                            {entry.site_web}
-                          </a>
-                        ) : '-'}
-                      </TableCell>
-                      <TableCell>
-                        {entry.email && entry.email !== 'Aucune donnée' ? (
-                          <a
-                            href={`mailto:${entry.email}`}
-                            className="text-blue-600 hover:underline flex items-center gap-1"
-                          >
-                            <Mail className="h-4 w-4" />
-                            {entry.email}
-                          </a>
-                        ) : '-'}
-                      </TableCell>
-                      <TableCell>{entry.telephone === 'Aucune donnée' ? '-' : (entry.telephone || '-')}</TableCell>
-                      <TableCell>{entry.adresse === 'Aucune donnée' ? '-' : (entry.adresse || '-')}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditClick(entry)}
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => handleDeleteClick(entry)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </React.Fragment>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-4">
-                  Aucune donnée trouvée
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {Object.keys(groupedEntries).length > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {entries.length} entrées trouvées
-          </p>
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => page > 1 && setPage(page - 1)}
-                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-              {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
+                    </div>
+                  </div>
+                  
+                  {expandedGroups.has(scraperName) && (
+                    <div className="border-t">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nom</TableHead>
+                            <TableHead>Secteur</TableHead>
+                            <TableHead>Pays</TableHead>
+                            <TableHead>Contact</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead className="w-[100px]">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {entries.map((entry) => (
+                            <TableRow key={entry.id}>
+                              <TableCell className="font-medium">
+                                {entry.nom || '-'}
+                              </TableCell>
+                              <TableCell>{entry.secteur || '-'}</TableCell>
+                              <TableCell>{entry.pays || '-'}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  {entry.email && (
+                                    <a href={`mailto:${entry.email}`} className="text-blue-500 hover:underline">
+                                      <Mail className="h-4 w-4" />
+                                    </a>
+                                  )}
+                                  {entry.site_web && (
+                                    <a href={entry.site_web} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                      <LinkIcon className="h-4 w-4" />
+                                    </a>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {new Date(entry.created_at).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleEditClick(entry)}>
+                                      <Edit2 className="mr-2 h-4 w-4" />
+                                      Modifier
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                      className="text-red-600"
+                                      onClick={() => handleDeleteClick(entry)}
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Supprimer
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </Card>
               ))}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => page < totalPages && setPage(page + 1)}
-                  className={page === totalPages ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
