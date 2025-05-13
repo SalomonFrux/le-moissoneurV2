@@ -170,65 +170,8 @@ async function getScraperData(req, res, next) {
       return res.status(500).json({ error: error.message });
     }
 
-    // Process and structure the data
-    const processedData = data.map(item => {
-      let structuredData = {
-        id: item.id,
-        scraper_id: item.scraper_id,
-        nom: item.nom,
-        created_at: item.created_at,
-        updated_at: item.updated_at
-      };
-
-      // Extract data from contenu using regex
-      if (item.contenu) {
-        const content = item.contenu;
-        
-        // Extract address
-        const addressMatch = content.match(/Address\s*:\s*([^\n]+)/i);
-        const address = addressMatch ? addressMatch[1].trim() : '';
-        
-        // Extract phone
-        const phoneMatch = content.match(/Tel\s*:\s*([^\n]+)/i);
-        const phone = phoneMatch ? phoneMatch[1].trim() : '';
-        
-        // Extract fax
-        const faxMatch = content.match(/Fax\s*:\s*([^\n]+)/i);
-        const fax = faxMatch ? faxMatch[1].trim() : '';
-        
-        // Extract email
-        const emailMatch = content.match(/E-mail\s*:\s*([^\n]+)/i);
-        const email = emailMatch ? emailMatch[1].trim() : '';
-        
-        // Extract website if present
-        const websiteMatch = content.match(/Site web\s*:\s*([^\n]+)/i);
-        const website = websiteMatch ? websiteMatch[1].trim() : '';
-
-        // Extract city from address
-        const cityMatch = address.match(/\s*-\s*([^-]+)$/);
-        const city = cityMatch ? cityMatch[1].trim() : '';
-
-        // Update structured data with extracted information
-        structuredData = {
-          ...structuredData,
-          adresse: address,
-          telephone: phone,
-          email: email,
-          site_web: website,
-          pays: 'Maroc', // Default to Morocco since all addresses are in Morocco
-          ville: city,
-          secteur: item.secteur || 'Non spécifié',
-          metadata: {
-            ...item.metadata,
-            fax: fax
-          }
-        };
-      }
-
-      return structuredData;
-    });
-    
-    return res.status(200).json(processedData);
+    // Return the data directly without transformation
+    return res.status(200).json(data);
   } catch (err) {
     logger.error(`Error in getScraperData: ${err.message}`);
     next(err);
@@ -434,6 +377,54 @@ async function updateScraper(req, res, next) {
   }
 }
 
+/**
+ * Delete a scraper
+ */
+async function deleteScraper(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    // First check if the scraper exists
+    const { data: existingScraper, error: fetchError } = await supabase
+      .from('scrapers')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingScraper) {
+      logger.error(`Scraper with ID ${id} not found`);
+      return res.status(404).json({ error: 'Scraper not found' });
+    }
+
+    // Delete associated scraped data first
+    const { error: dataDeleteError } = await supabase
+      .from('scraped_data')
+      .delete()
+      .eq('scraper_id', id);
+
+    if (dataDeleteError) {
+      logger.error(`Error deleting scraped data for scraper ${id}: ${dataDeleteError.message}`);
+      return res.status(500).json({ error: 'Error deleting scraped data' });
+    }
+
+    // Delete the scraper
+    const { error: scraperDeleteError } = await supabase
+      .from('scrapers')
+      .delete()
+      .eq('id', id);
+
+    if (scraperDeleteError) {
+      logger.error(`Error deleting scraper ${id}: ${scraperDeleteError.message}`);
+      return res.status(500).json({ error: 'Error deleting scraper' });
+    }
+
+    return res.status(200).json({ message: 'Scraper deleted successfully' });
+  } catch (err) {
+    logger.error(`Error in deleteScraper: ${err.message}`);
+    next(err);
+  }
+}
+
 module.exports = {
   getAllScrapers,
   createScraper,
@@ -444,5 +435,6 @@ module.exports = {
   updateScrapedData,
   deleteScrapedData,
   exportToPdf,
-  updateScraper
+  updateScraper,
+  deleteScraper
 };

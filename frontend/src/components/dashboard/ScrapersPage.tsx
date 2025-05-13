@@ -50,6 +50,7 @@ export function ScrapersPage() {
   const [scrapers, setScrapers] = useState<ScraperData[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const formRef = React.useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<ScraperConfig>({
     name: '',
     source: '',
@@ -102,6 +103,11 @@ export function ScrapersPage() {
   const handleNewScraper = () => {
     setShowForm(true);
     setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '', twoPhaseScraping: false, phase1Selectors: { name: '', dropdownTrigger: '' }, phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' } });
+    
+    // Add smooth scrolling
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleCancel = () => {
@@ -125,6 +131,11 @@ export function ScrapersPage() {
       phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' }
     });
     setShowForm(true);
+    
+    // Add smooth scrolling for edit
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleDeleteScraper = async (id: string) => {
@@ -195,17 +206,24 @@ export function ScrapersPage() {
       setLoading(true);
       await runScraper(id);
       const updatedScraper = await getScraperStatus(id);
+      console.log('Updated scraper data:', updatedScraper);
       
       setScrapers(prev =>
         prev.map(scraper =>
-          scraper.id === id ? { ...scraper, ...updatedScraper } : scraper
+          scraper.id === id ? { 
+            ...scraper, 
+            ...updatedScraper,
+            lastRun: new Date().toISOString()
+          } : scraper
         )
       );
       
       // Fetch the scraped data for this scraper
       const scrapedData = await dataService.fetchScrapedData(id);
+      console.log('Scraped data length:', scrapedData.length);
       toast.success(`${scrapedData.length} entrées collectées`);
     } catch (error) {
+      console.error('Error running scraper:', error);
       toast.error('Erreur lors du lancement du scraper');
     } finally {
       setLoading(false);
@@ -339,7 +357,7 @@ export function ScrapersPage() {
       </Card>
       
       {showForm && (
-        <Card>
+        <Card ref={formRef}>
           <form onSubmit={handleCreateScraper}>
             <CardHeader>
               <CardTitle>Créer un nouveau scraper</CardTitle>

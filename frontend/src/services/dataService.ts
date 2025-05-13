@@ -34,12 +34,15 @@ export interface Scraper {
   name: string;
   source: string;
   country: string;
-  frequency: string;
+  frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
   status: 'idle' | 'running' | 'completed' | 'error';
   data_count: number;
   last_run?: string;
   selectors: {
     main: string;
+    pagination?: string;
+    dropdownClick?: string;
+    child?: Record<string, any>;
     name: string;
     email: string;
     phone: string;
@@ -47,6 +50,7 @@ export interface Scraper {
     website: string;
     sector: string;
   };
+  type?: 'playwright' | 'puppeteer';
 }
 
 export interface CreateScraperData {
@@ -201,5 +205,24 @@ export const dataService = {
   async createScraper(data: CreateScraperData): Promise<Scraper> {
     const response = await axios.post<Scraper>('/api/scrapers', data);
     return response.data;
+  },
+
+  async updateScraper(id: string, data: Partial<Scraper>): Promise<Scraper> {
+    try {
+      const response = await axios.put<Scraper>(`${API_URL}/api/scrapers/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating scraper:', error);
+      throw error;
+    }
+  },
+
+  async deleteScraper(id: string): Promise<void> {
+    try {
+      await axios.delete(`${API_URL}/api/scrapers/${id}`);
+    } catch (error) {
+      console.error('Error deleting scraper:', error);
+      throw error;
+    }
   },
 }; 

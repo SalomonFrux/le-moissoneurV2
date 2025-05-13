@@ -1,5 +1,5 @@
 const express = require('express');
-const { runScraper, getScraperStatus, createScraper, getAllScrapers, getScraperData, exportToPdf, updateScraper } = require('../controllers/scraperController');
+const { runScraper, getScraperStatus, createScraper, getAllScrapers, getScraperData, exportToPdf, updateScraper, deleteScraper } = require('../controllers/scraperController');
 const { getCompaniesWithTitles } = require('../controllers/companyController');
 
 const router = express.Router();
@@ -12,6 +12,9 @@ router.post('/', createScraper);
 
 // Update a scraper
 router.put('/:id', updateScraper);
+
+// Delete a scraper
+router.delete('/:id', deleteScraper);
 
 // Run a scraper
 router.post('/run/:id', runScraper);

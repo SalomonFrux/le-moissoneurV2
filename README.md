@@ -18,6 +18,8 @@ A web application for managing and running web scrapers to collect data from Afr
    npm install in backend
    npm install in root
    cd backend && npm install pdfkit
+   cd backend && npm install @supabase/supabase-js dotenv winston
+   npm install @supabase/supabase-js dotenv winston
    And it will all work fine.
 
    ```

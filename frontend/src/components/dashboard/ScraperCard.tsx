@@ -43,10 +43,12 @@ interface ScraperCardProps {
   onViewData?: (id: string) => void;
   onEditScraper: (scraper: ScraperData) => void;
   onDeleteScraper: (id: string) => void;
-  showViewData?: boolean; // New prop to control visibility
+  showViewData?: boolean;
 }
 
-export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, onEditScraper, onDeleteScraper,showViewData = true }: ScraperCardProps) {
+export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, onEditScraper, onDeleteScraper, showViewData = true }: ScraperCardProps) {
+  console.log('Scraper data received:', scraper);
+
   const getStatusColor = (status: ScraperData['status']) => {
     switch (status) {
       case 'running':
@@ -73,13 +75,29 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
     }
   };
 
+  const formatDate = (dateString?: string) => {
+    console.log('Formatting date string:', dateString);
+    if (!dateString) return 'Jamais';
+    try {
+      const date = new Date(dateString);
+      console.log('Parsed date:', date);
+      if (isNaN(date.getTime())) return 'Jamais';
+      
+      const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+      return `${String(date.getDate()).padStart(2, '0')}/${months[date.getMonth()]}/${date.getFullYear()}`;
+    } catch (error) {
+      console.error('Error formatting date:', dateString, error);
+      return 'Jamais';
+    }
+  };
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <CardTitle className="text-base font-medium">{scraper.name}</CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -88,52 +106,33 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
               <Edit2 className="mr-2 h-4 w-4" />
               Modifier
             </DropdownMenuItem>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem className="text-red-600">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Supprimer
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Cette action ne peut pas être annulée. Ce scraper sera définitivement supprimé.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={() => onDeleteScraper(scraper.id)}
-                    className="bg-destructive text-destructive-foreground"
-                  >
-                    Supprimer
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <DropdownMenuItem onClick={() => onDeleteScraper(scraper.id)}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Supprimer
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
       <CardContent>
         <div className="text-sm text-muted-foreground mb-2">
           Source: <span className="font-medium">{scraper.source}</span>
-          {scraper.lastRun && (
-            <div className="text-xs mt-1">
-              Dernière exécution: {scraper.lastRun}
-            </div>
-          )}
         </div>
         
-        <div className="flex items-center justify-between text-sm mb-3">
-          <div className="flex items-center gap-1">
-            <Database className="h-4 w-4 text-africa-green-500" />
-            <span>{scraper.dataCount} entrées</span>
+        <div className="flex flex-col gap-2 text-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Database className="h-4 w-4 text-africa-green-500" />
+              <span>{scraper.dataCount} entrées</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <RotateCw className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">
+                {console.log('Last run before formatting:', scraper.lastRun)}
+                {formatDate(scraper.lastRun)}
+              </span>
+            </div>
           </div>
         </div>
-        
-
       </CardContent>
       <CardFooter className="flex justify-between">
         <div className="flex items-center gap-2">
@@ -160,7 +159,7 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
               <Play className="h-4 w-4" />
             </Button>
           )}
-          {showViewData && onViewData && ( // Conditionally render the button
+          {showViewData && onViewData && (
             <Button className="" variant="outline" size="sm" onClick={() => onViewData(scraper.id)}>
               <Eye className="h-4 w-4" />
             </Button>
