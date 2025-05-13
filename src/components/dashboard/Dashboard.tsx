@@ -4,9 +4,8 @@ import { ScraperCard } from './ScraperCard';
 import { DataTable } from './DataTable';
 import { Database, Globe, TrendingUp, Users } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchScrapers, deleteScrapedData } from '../../services/dataService';
+import { fetchScrapers, deleteScrapedData, dataService } from '../../services/dataService';
 import type { Scraper, ScrapedData } from '../../types';
-
 export interface ScraperCardProps {
   scraper: any;
   onStopScraper: (id: string) => void;
@@ -26,12 +25,25 @@ export function Dashboard() {
     async function fetchData() {
       setLoading(true);
       try {
-        const [scrapersRes, dataRes] = await Promise.all([
-          fetchScrapers(),
-          setScrapedData()
-        ]);
+        const scrapersRes = await fetchScrapers();
         setScrapers(scrapersRes);
-        setScrapedData(dataRes);
+        
+        // Get the scraped data for each scraper
+        const allScrapedData = await Promise.all(
+          scrapersRes.map(async (scraper) => {
+            try {
+              const data = await dataService.getScrapedDataByScraper(scraper.id);
+              return data;
+            } catch (error) {
+              console.error(`Error fetching data for scraper ${scraper.id}:`, error);
+              return [];
+            }
+          })
+        );
+        
+        // Flatten the array of arrays into a single array
+        const flattenedData = allScrapedData.flat();
+        setScrapedData(flattenedData);
       } catch (error) {
         toast.error('Erreur lors du chargement des données');
       } finally {
@@ -62,6 +74,8 @@ export function Dashboard() {
   const handleViewData = (id: string) => {
     // Logic to view data
   };
+
+
 
   return (
     <div className="space-y-8 p-6">

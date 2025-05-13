@@ -79,6 +79,7 @@ export function ScrapersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [editingScraperId, setEditingScraperId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchScrapers();
@@ -88,7 +89,13 @@ export function ScrapersPage() {
     try {
       setLoading(true);
       const data = await getAllScrapers();
-      setScrapers(data);
+      // Transform the data to include lastRun from the database
+      const transformedData = data.map(scraper => ({
+        ...scraper,
+        dataCount: scraper.data_count || 0,
+        lastRun: scraper.last_run || null // Map from database column
+      }));
+      setScrapers(transformedData);
     } catch (error) {
       toast.error('Failed to fetch scrapers');
     } finally {
@@ -100,22 +107,92 @@ export function ScrapersPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleNewScraper = () => {
-    setShowForm(true);
-    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '', twoPhaseScraping: false, phase1Selectors: { name: '', dropdownTrigger: '' }, phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' } });
-    
-    // Add smooth scrolling
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.source) {
+      toast.error('Le nom et l\'URL de la source sont requis');
+      return;
+    }
 
-  const handleCancel = () => {
-    setShowForm(false);
-    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '', twoPhaseScraping: false, phase1Selectors: { name: '', dropdownTrigger: '' }, phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' } });
+    try {
+      setLoading(true);
+      
+      // If editing, first fetch the current scraper data
+      let existingSelectors = {};
+      if (editingScraperId) {
+        const currentScraper = scrapers.find(s => s.id === editingScraperId);
+        existingSelectors = currentScraper?.selectors || {};
+      }
+
+      // Prepare the selectors object, merging with existing selectors if editing
+      const newSelectors = formData.selector || formData.paginationSelector || formData.dropdownClickSelector || formData.childSelectors ? {
+        main: formData.selector || (existingSelectors as any).main,
+        pagination: formData.paginationSelector || (existingSelectors as any).pagination,
+        dropdownClick: formData.dropdownClickSelector || (existingSelectors as any).dropdownClick,
+        child: formData.childSelectors ? 
+          {
+            ...(existingSelectors as any).child || {},  // Keep existing child selectors
+            ...JSON.parse(formData.childSelectors)      // Merge with new ones
+          } : 
+          (existingSelectors as any).child
+      } : undefined;
+
+      const scraperData = {
+        name: formData.name,
+        source: formData.source,
+        selectors: newSelectors,
+        frequency: formData.frequency,
+        status: 'idle' as const,
+        type: formData.engine,
+        country: formData.country || 'Unknown'
+      };
+
+      if (editingScraperId) {
+        // Only include fields that have changed
+        const currentScraper = scrapers.find(s => s.id === editingScraperId);
+        const updateData = Object.entries(scraperData).reduce((acc, [key, value]) => {
+          if (JSON.stringify(currentScraper?.[key as keyof typeof currentScraper]) !== JSON.stringify(value)) {
+            acc[key] = value;
+          }
+          return acc;
+        }, {} as any);
+
+        // Update existing scraper with only changed fields
+        await updateScraper(editingScraperId, updateData);
+        toast.success('Scraper mis à jour avec succès');
+      } else {
+        // Create new scraper
+        await createScraper(scraperData);
+        toast.success('Scraper créé avec succès');
+      }
+
+      await fetchScrapers(); // Refresh the list
+      setFormData({ 
+        name: '', 
+        source: '', 
+        selector: '', 
+        paginationSelector: '', 
+        dropdownClickSelector: '', 
+        childSelectors: '', 
+        engine: 'playwright', 
+        frequency: 'manual', 
+        country: '', 
+        twoPhaseScraping: false,
+        phase1Selectors: { name: '', dropdownTrigger: '' },
+        phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' }
+      });
+      setEditingScraperId(null);
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error submitting scraper:', error);
+      toast.error(editingScraperId ? 'Erreur lors de la mise à jour du scraper' : 'Erreur lors de la création du scraper');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditScraper = (scraper: ScraperData) => {
+    setEditingScraperId(scraper.id);
     setFormData({
       name: scraper.name,
       source: scraper.source,
@@ -131,11 +208,36 @@ export function ScrapersPage() {
       phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' }
     });
     setShowForm(true);
-    
-    // Add smooth scrolling for edit
     setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
+  };
+
+  const handleNewScraper = () => {
+    setEditingScraperId(null);
+    setFormData({
+      name: '',
+      source: '',
+      selector: '',
+      paginationSelector: '',
+      dropdownClickSelector: '',
+      childSelectors: '',
+      engine: 'playwright',
+      frequency: 'manual',
+      country: '',
+      twoPhaseScraping: false,
+      phase1Selectors: { name: '', dropdownTrigger: '' },
+      phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' }
+    });
+    setShowForm(true);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setFormData({ name: '', source: '', selector: '', paginationSelector: '', dropdownClickSelector: '', childSelectors: '', engine: 'playwright', frequency: 'manual', country: '', twoPhaseScraping: false, phase1Selectors: { name: '', dropdownTrigger: '' }, phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' } });
   };
 
   const handleDeleteScraper = async (id: string) => {
@@ -151,56 +253,6 @@ export function ScrapersPage() {
     }
   };
 
-  const handleCreateScraper = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.source) {
-      toast.error('Le nom et l\'URL de la source sont requis');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const scraperData = {
-        name: formData.name,
-        source: formData.source,
-        selectors: formData.selector || formData.paginationSelector || formData.dropdownClickSelector || formData.childSelectors ? {
-          main: formData.selector,
-          pagination: formData.paginationSelector,
-          dropdownClick: formData.dropdownClickSelector,
-          child: formData.childSelectors ? JSON.parse(formData.childSelectors) : undefined
-        } : undefined,
-        frequency: formData.frequency,
-        status: 'idle',
-        dataCount: 0,
-        type: formData.engine,
-        country: formData.country || 'Unknown'
-      };
-
-      const newScraper = await createScraper(scraperData);
-      setScrapers(prev => [...prev, newScraper]);
-      setFormData({ 
-        name: '', 
-        source: '', 
-        selector: '', 
-        paginationSelector: '', 
-        dropdownClickSelector: '', 
-        childSelectors: '', 
-        engine: 'playwright', 
-        frequency: 'manual', 
-        country: '', 
-        twoPhaseScraping: false,
-        phase1Selectors: { name: '', dropdownTrigger: '' },
-        phase2Selectors: { name: '', phone: '', email: '', website: '', address: '' }
-      });
-      setShowForm(false);
-      toast.success('Scraper créé avec succès');
-    } catch (error) {
-      toast.error('Erreur lors de la création du scraper');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleRunScraper = async (id: string) => {
     try {
       setLoading(true);
@@ -208,15 +260,8 @@ export function ScrapersPage() {
       const updatedScraper = await getScraperStatus(id);
       console.log('Updated scraper data:', updatedScraper);
       
-      setScrapers(prev =>
-        prev.map(scraper =>
-          scraper.id === id ? { 
-            ...scraper, 
-            ...updatedScraper,
-            lastRun: new Date().toISOString()
-          } : scraper
-        )
-      );
+      // Update scrapers with the new data from the database
+      await fetchScrapers(); // Refresh all scrapers to get updated lastRun
       
       // Fetch the scraped data for this scraper
       const scrapedData = await dataService.fetchScrapedData(id);
@@ -358,7 +403,7 @@ export function ScrapersPage() {
       
       {showForm && (
         <Card ref={formRef}>
-          <form onSubmit={handleCreateScraper}>
+          <form onSubmit={handleSubmit}>
             <CardHeader>
               <CardTitle>Créer un nouveau scraper</CardTitle>
               <CardDescription>

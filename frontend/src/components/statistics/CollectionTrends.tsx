@@ -91,68 +91,68 @@ export function CollectionTrends() {
     <div className="space-y-6">
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Évolution temporelle de la collecte</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
+          <div className="h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
               data={trends}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
+                  <YAxis />
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Line 
-                type="monotone" 
+                  <Legend />
+                  <Line 
+                    type="monotone" 
                 dataKey="total" 
                 name="Total entreprises"
                 stroke="#000000" 
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-              <Line 
-                type="monotone" 
+                    strokeWidth={2} 
+                    dot={{ r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
                 dataKey="new" 
                 name="Nouvelles entreprises"
                 stroke="#555555" 
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+                    strokeWidth={2} 
+                    dot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+          </div>
       </Card>
 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Taux d'enrichissement mensuel</h3>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
               data={trends}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis unit="%" />
+                <YAxis unit="%" />
               <Tooltip content={<CustomTooltip />} />
               <Bar 
                 dataKey="enrichmentRate" 
                 name="Taux d'enrichissement"
                 fill="#000000"
               />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
       </Card>
     </div>
   );

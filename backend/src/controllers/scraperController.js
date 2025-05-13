@@ -196,13 +196,27 @@ async function getAllScrapedData(req, res) {
 
     if (error) throw error;
 
-    // Transform the data to include scraper name
+    // Transform the data to keep both scraper name and company name
     const transformedData = data.map(item => ({
       ...item,
-      nom: item.scraper?.name || '-'
+      scraper_name: item.scraper?.name || '-',  // Keep scraper name separately
+      company_name: item.nom || '-'  // Keep the original company name
     }));
 
-    res.json(transformedData);
+    // Group the data by scraper name
+    const groupedData = transformedData.reduce((acc, item) => {
+      const scraperName = item.scraper_name;
+      if (!acc[scraperName]) {
+        acc[scraperName] = [];
+      }
+      acc[scraperName].push(item);
+      return acc;
+    }, {});
+
+    res.json(Object.entries(groupedData).map(([scraperName, entries]) => ({
+      scraper_name: scraperName,
+      entries: entries
+    })));
   } catch (error) {
     console.error('Error fetching all scraped data:', error);
     res.status(500).json({ error: error.message });

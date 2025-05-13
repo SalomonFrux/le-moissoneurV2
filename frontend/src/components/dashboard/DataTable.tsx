@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { ScrapedEntry } from '../../services/dataService';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
   TableRow,
 } from '../ui/table';
-import {
+import { 
   Dialog,
   DialogContent,
   DialogDescription,
@@ -177,7 +177,7 @@ export function DataTable({ data, loading, onDelete, onEdit, scraperId }: DataTa
                         onClick={() => setConfirmDelete(item.id)}
                       >
                         <Trash className="h-4 w-4" />
-                      </Button>
+                  </Button>
                     )}
                   </div>
                 </TableCell>
@@ -219,7 +219,7 @@ export function DataTable({ data, loading, onDelete, onEdit, scraperId }: DataTa
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-blue-500 hover:text-blue-700 flex items-center gap-1"
-                  >
+              >
                     {selectedData.site_web}
                     <ExternalLink size={14} />
                   </a>
@@ -263,7 +263,7 @@ export function DataTable({ data, loading, onDelete, onEdit, scraperId }: DataTa
                 </div>
               </div>
             )}
-          </div>
+    </div>
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setSelectedData(null)}>

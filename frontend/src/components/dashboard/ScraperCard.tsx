@@ -84,7 +84,14 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
       if (isNaN(date.getTime())) return 'Jamais';
       
       const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
-      return `${String(date.getDate()).padStart(2, '0')}/${months[date.getMonth()]}/${date.getFullYear()}`;
+      const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${months[date.getMonth()]}/${date.getFullYear()}`;
+      
+      // Format time
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const formattedTime = `${hours}:${minutes}`;
+      
+      return `${formattedDate} ${formattedTime}`; // Combine date and time
     } catch (error) {
       console.error('Error formatting date:', dateString, error);
       return 'Jamais';

@@ -6,6 +6,7 @@ export interface ScrapedEntry {
   id: string;
   scraper_id: string;
   nom: string;
+  company_name?: string;
   secteur: string;
   pays: string;
   source: string;
@@ -15,7 +16,13 @@ export interface ScrapedEntry {
   adresse: string;
   metadata: Record<string, any>;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
+  scraper_name?: string;
+}
+
+export interface ScrapedDataGroup {
+  scraper_name: string;
+  entries: ScrapedEntry[];
 }
 
 export interface Company {
@@ -134,9 +141,9 @@ export const dataService = {
     }
   },
 
-  async fetchAllScrapedData(): Promise<ScrapedEntry[]> {
+  async fetchAllScrapedData(): Promise<ScrapedDataGroup[]> {
     try {
-      const response = await axios.get<ScrapedEntry[]>(`${API_URL}/api/scraped-data`);
+      const response = await axios.get<ScrapedDataGroup[]>(`${API_URL}/api/scraped-data`);
       return response.data;
     } catch (error) {
       console.error('Error fetching all scraped data:', error);
@@ -183,19 +190,13 @@ export const dataService = {
     }
   },
 
-  async exportToPdf(): Promise<void> {
+  async exportToPdf(): Promise<Blob> {
     try {
-      const response = await axios.get(`${API_URL}/api/scrapers/export/pdf`, {
-        responseType: 'blob'
+      const response = await axios.get<ArrayBuffer>(`${API_URL}/api/scrapers/export/pdf`, {
+        responseType: 'arraybuffer'
       });
       
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `export-${new Date().toISOString()}.pdf`;
-      link.click();
-      window.URL.revokeObjectURL(url);
+      return new Blob([response.data], { type: 'application/pdf' });
     } catch (error) {
       console.error('Error exporting to PDF:', error);
       throw new Error('Failed to export to PDF');

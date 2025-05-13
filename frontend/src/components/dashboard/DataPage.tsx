@@ -58,6 +58,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Company {
   id: string;
@@ -72,7 +78,7 @@ interface Company {
 
 export function DataPage() {
   const [page, setPage] = useState(1);
-  const [entries, setEntries] = useState<ScrapedEntry[]>([]);
+  const [entries, setEntries] = useState<{scraper_name: string, entries: ScrapedEntry[]}[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -84,26 +90,48 @@ export function DataPage() {
   const [currentEntry, setCurrentEntry] = useState<ScrapedEntry | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<ScrapedEntry | null>(null);
-  const [data, setData] = useState<Record<string, ScrapedEntry[]>>({});
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'count'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-
-  // Get unique countries from entries
+  const [selectedSort, setSelectedSort] = useState<'name' | 'date' | 'count'>('name');
+  const [selectedCountFilter, setSelectedCountFilter] = useState<string>('all');
+  // Get unique countries from all entries
   const uniqueCountries = useMemo(() => {
-    const countries = new Set(entries.map(entry => entry.pays).filter(Boolean));
+    const countries = new Set(entries.flatMap(group => 
+      group.entries.map(entry => entry.pays)
+    ).filter(Boolean));
     return Array.from(countries).sort();
   }, [entries]);
 
   // Filter entries by search term and country
-  const filteredEntries = useMemo(() => {
-    return entries.filter(entry =>
-      (entry.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       entry.secteur?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       entry.pays?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       entry.adresse?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (!selectedCountry || selectedCountry === 'all' || entry.pays === selectedCountry)
-    );
+  const filteredGroups = useMemo(() => {
+    return entries.map(group => ({
+      scraper_name: group.scraper_name,
+      entries: group.entries.filter(entry =>
+        (entry.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         entry.secteur?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         entry.pays?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         entry.adresse?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (!selectedCountry || selectedCountry === 'all' || entry.pays === selectedCountry)
+      )
+    })).filter(group => group.entries.length > 0);
   }, [entries, searchTerm, selectedCountry]);
+
+
+  const sortedGroups = useMemo(() => {
+    return filteredGroups.sort((a, b) => {
+      if (sortBy === 'name') {
+        return a.scraper_name.localeCompare(b.scraper_name);
+      } else if (sortBy === 'date') {
+        const latestA = a.entries[0]?.created_at || '';
+        const latestB = b.entries[0]?.created_at || '';
+        return new Date(latestB).getTime() - new Date(latestA).getTime(); // Sort by latest date first
+      } else if (sortBy === 'count') {
+        return b.entries.length - a.entries.length; // Sort by count descending
+      }
+      return 0; // Default case
+    });
+  }, [filteredGroups, sortBy]);
+
 
   // Add this helper function near the top of the component
   const escapeCSVValue = (value: string): string => {
@@ -117,7 +145,7 @@ export function DataPage() {
     return value;
   };
 
-  // Handle export for a specific scraper group
+  // Handle export for a pecific scraper group
   const handleExportGroup = (scraperName: string, groupEntries: ScrapedEntry[]) => {
     const csvData = groupEntries.map(entry => ({
       'Nom du Scraper': entry.nom || '-',
@@ -155,8 +183,9 @@ export function DataPage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const data = await dataService.fetchAllScrapedData();
-        setEntries(data);
+        const response = await dataService.fetchAllScrapedData();
+        // The response is already grouped by scraper name from the backend
+        setEntries(response);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error("Erreur lors du chargement des données");
@@ -167,31 +196,19 @@ export function DataPage() {
     fetchData();
   }, []);
 
-  const paginatedEntries = filteredEntries.slice(
+  const paginatedEntries = filteredGroups.slice(
     (page - 1) * pageSize,
     page * pageSize
   );
 
-  const totalPages = Math.ceil(filteredEntries.length / pageSize);
-
-  // Group entries by scraper name
-  const groupedEntries = useMemo(() => {
-    const groups: { [key: string]: ScrapedEntry[] } = {};
-    filteredEntries.forEach(entry => {
-      const scraperName = entry.nom || '-';
-      if (!groups[scraperName]) {
-        groups[scraperName] = [];
-      }
-      groups[scraperName].push(entry);
-    });
-    return groups;
-  }, [filteredEntries]);
+  const totalPages = Math.ceil(filteredGroups.length / pageSize);
 
   const CHUNK_SIZE = 100000; // Number of rows per chunk
 
   const handleCsvExport = async () => {
     try {
-      const allData = await dataService.fetchAllScrapedData();
+      // Flatten the grouped data for export
+      const allData = entries.flatMap(group => group.entries);
       const totalChunks = Math.ceil(allData.length / CHUNK_SIZE);
       
       for (let i = 0; i < totalChunks; i++) {
@@ -231,20 +248,16 @@ export function DataPage() {
   const handleExportPdf = async () => {
     try {
       setLoading(true);
-      const response = await dataService.exportToPdf();
-      const blob = new Blob([response], { type: 'application/pdf' });
+      const blob = await dataService.exportToPdf();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'donnees_extraites.pdf';
-      document.body.appendChild(link);
+      link.download = `export-${new Date().toISOString()}.pdf`;
       link.click();
-      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success('Export PDF terminé');
     } catch (error) {
       console.error('Error exporting to PDF:', error);
-      toast.error('Erreur lors de l\'export PDF');
+      toast("Failed to export PDF");
     } finally {
       setLoading(false);
     }
@@ -275,9 +288,12 @@ export function DataPage() {
       });
       
       // Update the entries state with the edited entry
-      setEntries(prev => prev.map(entry => 
-        entry.id === updatedEntry.id ? updatedEntry : entry
-      ));
+      setEntries(prev => prev.map(group => ({
+        ...group,
+        entries: group.entries.map(entry => 
+          entry.id === updatedEntry.id ? updatedEntry : entry
+        )
+      })));
 
       setEditDialogOpen(false);
       setCurrentEntry(null);
@@ -320,7 +336,10 @@ export function DataPage() {
       await dataService.deleteScrapedEntry(entryToDelete.id);
       
       // Remove the deleted entry from the state
-      setEntries(prev => prev.filter(entry => entry.id !== entryToDelete.id));
+      setEntries(prev => prev.map(group => ({
+        ...group,
+        entries: group.entries.filter(e => e.id !== entryToDelete.id)
+      })));
       
       toast.success('Entrée supprimée avec succès');
     } catch (error) {
@@ -373,6 +392,7 @@ export function DataPage() {
                 onValueChange={setSelectedCountry}
                 disabled={loading}
               >
+                     
                 <SelectTrigger className="w-[180px]">
                   <Globe className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Filtrer par pays" />
@@ -415,36 +435,36 @@ export function DataPage() {
           ) : (
             <ScrollArea className="h-[calc(100vh-300px)]">
               <div className="space-y-4">
-                {Object.entries(groupedEntries).map(([scraperName, entries]) => (
-                  <Card key={scraperName} className="overflow-hidden">
+                {filteredGroups.map((group) => (
+                  <Card key={group.scraper_name} className="overflow-hidden">
                     <div 
                       className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50"
-                      onClick={() => toggleGroup(scraperName)}
+                      onClick={() => toggleGroup(group.scraper_name)}
                     >
                       <div className="flex items-center gap-4">
                         <Building2 className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <h3 className="font-semibold">{scraperName}</h3>
+                          <h3 className="font-semibold">{group.scraper_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {entries.length} entrées collectées
+                            {group.entries.length} entrées collectées
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">
-                          {entries[0]?.pays || 'Pays inconnu'}
+                          {group.entries[0]?.pays || 'Pays inconnu'}
                         </Badge>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleExportGroup(scraperName, entries);
+                            handleExportGroup(group.scraper_name, group.entries);
                           }}
                         >
                           <Download className="h-4 w-4" />
                         </Button>
-                        {expandedGroups.has(scraperName) ? (
+                        {expandedGroups.has(group.scraper_name) ? (
                           <ChevronDown className="h-4 w-4" />
                         ) : (
                           <ChevronRight className="h-4 w-4" />
@@ -452,38 +472,66 @@ export function DataPage() {
                       </div>
                     </div>
                     
-                    {expandedGroups.has(scraperName) && (
+                    {expandedGroups.has(group.scraper_name) && (
                       <div className="border-t">
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Nom</TableHead>
+                              <TableHead>Nom De L'Entreprise</TableHead>
                               <TableHead>Secteur</TableHead>
                               <TableHead>Pays</TableHead>
-                              <TableHead>Contact</TableHead>
+                              <TableHead>Numero</TableHead>
+                              <TableHead>Mail & Site Web</TableHead>
                               <TableHead>Date</TableHead>
                               <TableHead className="w-[100px]">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {entries.map((entry) => (
+                            {group.entries.map((entry) => (
                               <TableRow key={entry.id}>
                                 <TableCell className="font-medium">
                                   {entry.nom || '-'}
                                 </TableCell>
                                 <TableCell>{entry.secteur || '-'}</TableCell>
                                 <TableCell>{entry.pays || '-'}</TableCell>
+                                <TableCell>{entry.telephone || '-'}</TableCell>
                                 <TableCell>
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-4">
+                                 
                                     {entry.email && (
-                                      <a href={`mailto:${entry.email}`} className="text-blue-500 hover:underline">
-                                        <Mail className="h-4 w-4" />
-                                      </a>
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <a href={`mailto:${entry.email}`} className="flex items-center gap-2 text-blue-500 hover:underline">
+                                              <Mail className="h-4 w-4" />
+                                              <span className="truncate max-w-[200px]">{entry.email}</span>
+                                            </a>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>{entry.email}</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
                                     )}
                                     {entry.site_web && (
-                                      <a href={entry.site_web} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                                        <LinkIcon className="h-4 w-4" />
-                                      </a>
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <a 
+                                              href={entry.site_web} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer" 
+                                              className="flex items-center gap-2 text-blue-500 hover:underline"
+                                            >
+                                              <LinkIcon className="h-4 w-4" />
+                                              <span className="truncate max-w-[200px]"></span>
+                                            </a>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>{entry.site_web}</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
                                     )}
                                   </div>
                                 </TableCell>
@@ -537,13 +585,13 @@ export function DataPage() {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="nom" className="text-right">
-                Nom
+              <label htmlFor="company_name" className="text-right">
+                Nom de l'Entreprise
               </label>
               <Input
-                id="nom"
-                value={currentEntry?.nom || ''}
-                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, nom: e.target.value} : null)}
+                id="company_name"
+                value={currentEntry?.company_name || ''}
+                onChange={(e) => setCurrentEntry(prev => prev ? {...prev, company_name: e.target.value} : null)}
                 className="col-span-3"
               />
             </div>

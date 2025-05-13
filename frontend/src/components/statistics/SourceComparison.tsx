@@ -108,54 +108,54 @@ export function SourceComparison() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Comparaison des sources de données</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
               data={sources}
               layout="vertical"
-              margin={{
-                top: 20,
-                right: 30,
+                margin={{
+                  top: 20,
+                  right: 30,
                 left: 100,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
               <YAxis type="category" dataKey="name" />
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
+                <Legend />
               <Bar dataKey="companies" name="Entreprises" fill={COLORS.companies} />
               <Bar dataKey="completeness" name="Complétude (%)" fill={COLORS.completeness} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
       </Card>
 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Répartition des données par source</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
                 data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={120}
-                fill="#8884d8"
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={120}
+                  fill="#8884d8"
                 dataKey="value"
-              >
+                >
                 {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                ))}
-              </Pie>
+                  ))}
+                </Pie>
               <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
       </Card>
 
       <Card className="p-6 lg:col-span-2">
@@ -163,7 +163,7 @@ export function SourceComparison() {
         <div className="space-y-6">
           {sources.map((source, index) => (
             <div key={source.name} className="space-y-2">
-              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <div 
@@ -192,9 +192,9 @@ export function SourceComparison() {
               <div className="text-sm text-right">
                 {source.completeness}% complet
               </div>
-            </div>
-          ))}
-        </div>
+              </div>
+            ))}
+          </div>
       </Card>
     </div>
   );

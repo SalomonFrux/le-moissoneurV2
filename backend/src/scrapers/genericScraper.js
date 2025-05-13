@@ -242,7 +242,7 @@ async function handleBlockingScenarios(page) {
 async function genericScraper(browser, scraperConfig) {
   const page = await browser.newPage();
   await setupPage(page, scraperConfig.source);
-  
+
   try {
     await page.goto(scraperConfig.source, { waitUntil: 'networkidle0', timeout: 30000 });
     await handleBlockingScenarios(page);
@@ -266,10 +266,10 @@ async function genericScraper(browser, scraperConfig) {
         let node;
         while (node = walker.nextNode()) {
           // Only include text that is visible
-          const style = window.getComputedStyle(element);
+        const style = window.getComputedStyle(element);
           if (style.display !== 'none' && style.visibility !== 'hidden') {
             text += node.textContent.trim() + ' ';
-          }
+        }
         }
         
         return text.trim();
@@ -302,7 +302,7 @@ async function genericScraper(browser, scraperConfig) {
         country: extractInfo(data.text, /(?:country|pays)\s*:?\s*([^\n]+)/i)
       };
 
-      return data;
+    return data;
     }, selector);
 
     if (!content) {

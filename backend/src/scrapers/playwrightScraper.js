@@ -17,19 +17,19 @@ async function playwrightScraper(url, selectors) {
     while (true) {
       await page.goto(currentUrl, { timeout: 60000 });
 
-      // Click all dropdowns/arrows if a selector is provided
+// Click all dropdowns/arrows if a selector is provided
       if (selectors.dropdownClick) {
         const dropdowns = await page.$$(selectors.dropdownClick);
-        for (const dropdown of dropdowns) {
-          try {
-            await dropdown.click();
-            await page.waitForTimeout(200);
-          } catch (e) {}
-        }
-      }
+    for (const dropdown of dropdowns) {
+      try {
+        await dropdown.click();
+        await page.waitForTimeout(200);
+      } catch (e) {}
+    }
+  }
 
       // Wait for the main container to appear
-      try {
+        try {
         await page.waitForSelector(selectors.main, { timeout: 3000 });
       } catch (e) {
         console.error('Main container not found:', e);
@@ -59,15 +59,15 @@ async function playwrightScraper(url, selectors) {
                   data.metadata[key] = element.href;
                 } else if (key === 'phone' && element.href?.startsWith('tel:')) {
                   data.metadata[key] = element.href.replace('tel:', '');
-                } else {
+            } else {
                   data.metadata[key] = element.innerText.trim();
                 }
               }
             });
-          }
+            }
 
           results.push(data);
-        });
+          });
 
         return results;
       }, selectors);
@@ -86,11 +86,11 @@ async function playwrightScraper(url, selectors) {
         currentUrl = newUrl;
       } else {
         try {
-          await Promise.all([
-            page.waitForNavigation({ timeout: 60000 }),
-            nextLink.click()
-          ]);
-          currentUrl = page.url();
+        await Promise.all([
+          page.waitForNavigation({ timeout: 60000 }),
+          nextLink.click()
+        ]);
+        currentUrl = page.url();
         } catch (e) {
           console.error('Navigation failed:', e);
           break;

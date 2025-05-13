@@ -150,11 +150,29 @@ export function ScraperCard({ scraper, onDelete }: ScraperCardProps) {
     }
   };
 
+  //const formatDate = (dateString?: string) => {
+  //  if (!dateString) return 'Never';
+  //  const date = new Date(dateString);
+  //  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  //};
+
+
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Never';
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    if (!dateString) return 'Jamais';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Jamais';
+      
+      const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${String(date.getDate()).padStart(2, '0')}/${months[date.getMonth()]}/${date.getFullYear()} ${hours}:${minutes}`;
+    } catch (error) {
+      console.error('Error formatting date:', dateString, error);
+      return 'Jamais';
+    }
   };
+
 
   return (
     <Card>

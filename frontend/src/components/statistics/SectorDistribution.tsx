@@ -80,41 +80,41 @@ export function SectorDistribution() {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Répartition par secteur d'activité</h3>
         <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
                 data={sectors}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={120}
-                fill="#8884d8"
-                dataKey="value"
-              >
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={120}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
                 {sectors.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
                     fill={COLORS[entry.name as keyof typeof COLORS] || DEFAULT_COLORS[index % DEFAULT_COLORS.length]} 
                   />
-                ))}
-              </Pie>
+                  ))}
+                </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
       </Card>
 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Top 5 sous-secteurs Fintech</h3>
-        <div className="space-y-4">
+          <div className="space-y-4">
           {sectors.slice(0, 5).map((sector, index) => (
             <div key={sector.name} className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>{sector.name}</span>
                 <span className="font-medium">{sector.value} entreprises</span>
-              </div>
+                  </div>
               <div className="w-full bg-secondary rounded-full h-2">
                 <div
                   className="rounded-full h-2"
@@ -123,10 +123,10 @@ export function SectorDistribution() {
                     backgroundColor: COLORS[sector.name as keyof typeof COLORS] || DEFAULT_COLORS[index % DEFAULT_COLORS.length]
                   }}
                 />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
       </Card>
     </div>
   );
