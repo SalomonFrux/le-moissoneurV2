@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const scraperRoutes = require('./routes/scraperRoutes');
 const scrapedDataRoutes = require('./routes/scrapedDataRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-const { logger } = require('./utils/logger');
+const logger = require('./utils/logger');
 
 // Initialize Express app
 const app = express();
@@ -38,5 +38,5 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

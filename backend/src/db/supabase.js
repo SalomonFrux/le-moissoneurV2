@@ -1,5 +1,5 @@
+const logger = require('../utils/logger');
 const { createClient } = require('@supabase/supabase-js');
-const { logger } = require('../utils/logger');
 
 // Initialize Supabase client with service role key for backend operations
 const supabaseUrl = process.env.SUPABASE_URL;

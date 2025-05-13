@@ -1,4 +1,5 @@
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
+const { supabase } = require('../db/supabase');
 
 /**
  * Specialized scraper for news portals that extracts articles

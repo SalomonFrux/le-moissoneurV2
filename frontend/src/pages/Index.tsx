@@ -7,7 +7,7 @@ import { ScrapersPage } from '@/components/dashboard/ScrapersPage';
 import { DataPage } from '@/components/dashboard/DataPage';
 import { StatisticsPage } from '@/components/statistics/StatisticsPage';
 import { ParametersPage } from '@/components/settings/ParametersPage';
-import { EnrichmentPage } from '@/components/enrichment/EnrichmentPage';
+
 import axios from 'axios';
 import { dataService } from '@/services/dataService';
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, RotateCw, Database, Square, Eye, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Play, Pause, RotateCw, Database, Square, Eye, MoreVertical, Pencil, Trash } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
@@ -11,26 +11,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 export interface ScraperData {
   id: string;
   name: string;
   source: string;
   status: 'idle' | 'running' | 'error' | 'completed';
-  lastRun?: string;
+  last_run?: string;
+  created_at?: string;
   dataCount: number;
-  selectors?: { main: string };
+  selectors: {
+    main: string;
+    pagination?: string;
+    dropdownClick?: string;
+    child?: Record<string, any>;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    website: string;
+    sector: string;
+  };
   frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
   country: string;
   type: 'playwright' | 'puppeteer';
@@ -41,13 +42,23 @@ interface ScraperCardProps {
   onRunScraper: (id: string) => void;
   onStopScraper: (id: string) => void;
   onViewData?: (id: string) => void;
-  onEditScraper: (scraper: ScraperData) => void;
-  onDeleteScraper: (id: string) => void;
+  onEditScraper?: (scraper: ScraperData) => void;
+  onDeleteScraper?: (id: string) => void;
   showViewData?: boolean;
+  showEditOptions?: boolean;
 }
 
-export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, onEditScraper, onDeleteScraper, showViewData = true }: ScraperCardProps) {
-  console.log('Scraper data received:', scraper);
+export function ScraperCard({ 
+  scraper, 
+  onRunScraper, 
+  onStopScraper, 
+  onViewData, 
+  onEditScraper,
+  onDeleteScraper,
+  showViewData = true,
+  showEditOptions = false 
+}: ScraperCardProps) {
+  //console.log('Scraper data received:', scraper);
 
   const getStatusColor = (status: ScraperData['status']) => {
     switch (status) {
@@ -76,11 +87,11 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
   };
 
   const formatDate = (dateString?: string) => {
-    console.log('Formatting date string:', dateString);
+    //console.log('Formatting date string:', dateString);
     if (!dateString) return 'Jamais';
     try {
       const date = new Date(dateString);
-      console.log('Parsed date:', date);
+      //console.log('Parsed date:', date);
       if (isNaN(date.getTime())) return 'Jamais';
       
       const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
@@ -93,7 +104,7 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
       
       return `${formattedDate} ${formattedTime}`; // Combine date and time
     } catch (error) {
-      console.error('Error formatting date:', dateString, error);
+     // console.error('Error formatting date:', dateString, error);
       return 'Jamais';
     }
   };
@@ -102,23 +113,28 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <CardTitle className="text-base font-medium">{scraper.name}</CardTitle>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEditScraper(scraper)}>
-              <Edit2 className="mr-2 h-4 w-4" />
-              Modifier
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDeleteScraper(scraper.id)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Supprimer
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {showEditOptions && onEditScraper && onDeleteScraper && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEditScraper(scraper)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Modifier
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => onDeleteScraper(scraper.id)}
+                className="text-red-600 focus:text-red-600"
+              >
+                <Trash className="mr-2 h-4 w-4" />
+                Supprimer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
       <CardContent>
         <div className="text-sm text-muted-foreground mb-2">
@@ -134,8 +150,7 @@ export function ScraperCard({ scraper, onRunScraper, onStopScraper, onViewData, 
             <div className="flex items-center gap-1">
               <RotateCw className="h-4 w-4 text-muted-foreground" />
               <span className="text-muted-foreground">
-                {console.log('Last run before formatting:', scraper.lastRun)}
-                {formatDate(scraper.lastRun)}
+                {formatDate(scraper.last_run)}
               </span>
             </div>
           </div>

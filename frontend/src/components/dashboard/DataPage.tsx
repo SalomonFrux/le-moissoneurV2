@@ -187,7 +187,7 @@ export function DataPage() {
         // The response is already grouped by scraper name from the backend
         setEntries(response);
       } catch (error) {
-        console.error('Error fetching data:', error);
+      //  console.error('Error fetching data:', error);
         toast.error("Erreur lors du chargement des données");
       } finally {
         setLoading(false);
@@ -230,7 +230,7 @@ export function DataPage() {
       
       toast.success(`Export completed in ${totalChunks} parts`);
     } catch (error) {
-      console.error('Export error:', error);
+     // console.error('Export error:', error);
       toast.error('Failed to export data');
     }
   };
@@ -256,7 +256,7 @@ export function DataPage() {
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error exporting to PDF:', error);
+      //console.error('Error exporting to PDF:', error);
       toast("Failed to export PDF");
     } finally {
       setLoading(false);
@@ -299,7 +299,7 @@ export function DataPage() {
       setCurrentEntry(null);
       toast.success('Données mises à jour avec succès');
     } catch (error) {
-      console.error('Error updating entry:', error);
+      //console.error('Error updating entry:', error);
       toast.error('Erreur lors de la mise à jour des données');
     } finally {
       setLoading(false);
@@ -343,7 +343,7 @@ export function DataPage() {
       
       toast.success('Entrée supprimée avec succès');
     } catch (error) {
-      console.error('Error deleting entry:', error);
+     // console.error('Error deleting entry:', error);
       toast.error('Erreur lors de la suppression');
     } finally {
       setLoading(false);

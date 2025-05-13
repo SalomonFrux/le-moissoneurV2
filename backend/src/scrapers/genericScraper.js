@@ -1,8 +1,9 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const path = require('path');
 const fs = require('fs').promises;
+const { supabase } = require('../db/supabase');
 
 // Initialize stealth plugin
 puppeteer.use(StealthPlugin());

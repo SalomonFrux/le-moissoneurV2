@@ -11,28 +11,57 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Database, Globe, TrendingUp, Users, ChevronDown, ChevronRight, Download, Mail, Link as LinkIcon, Search, ChevronLeft, ChevronRight as ChevronRightIcon, ChevronUp } from 'lucide-react';
+import { Database, Globe, TrendingUp, Users, ChevronDown, ChevronRight as ChevronRightIcon, ChevronLeft, ChevronUp, Download, Mail, Link as LinkIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
-import { dataService, type Scraper, type Company, type ScrapedEntry } from '@/services/dataService';
+import { dataService, type Scraper, type ScrapedEntry } from '@/services/dataService';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination';
 
 interface ScraperData {
   id: string;
   name: string;
   source: string;
   status: 'idle' | 'running' | 'error' | 'completed';
-  lastRun?: string;
+  last_run?: string;
   dataCount: number;
   selectors: { main: string };
   frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
   country: string;
+  type?: 'playwright' | 'puppeteer';
+}
+
+interface ScraperCardProps {
+  scraper: ScraperData;
+  onRunScraper: (id: string) => Promise<void>;
+  onStopScraper: (id: string) => void;
+  onViewData: (id: string) => Promise<void>;
+  onEditScraper?: (id: string) => void;
+  onDeleteScraper?: (id: string) => void;
+}
+
+interface DashboardStats {
+  totalEntries: number;
+  uniqueCountries: number;
+  sourcesCount: number;
+  enrichmentRate: number;
+}
+
+interface ScrapedDataGroup {
+  scraper_name: string;
+  entries: ScrapedEntry[];
 }
 
 export function Dashboard() {
   const [scrapers, setScrapers] = useState<Scraper[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [scrapedData, setScrapedData] = useState<Record<string, ScrapedEntry[]>>({});
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -43,62 +72,85 @@ export function Dashboard() {
   const [selectedScraperId, setSelectedScraperId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(4);
-  const [sortBy, setSortBy] = useState<'name' | 'status' | 'dataCount'>('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const pageSizeOptions = [4, 8, 12, 20, 50, 100];
+  const [sortBy, setSortBy] = useState<'name' | 'status' | 'dataCount' | 'date'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [stats, setStats] = useState<DashboardStats>({
+    totalEntries: 0,
+    uniqueCountries: 0,
+    sourcesCount: 0,
+    enrichmentRate: 0
+  });
 
-  const calculateStats = (data: Record<string, ScrapedEntry[]>) => {
-    const allEntries = Object.values(data).flat();
-    const totalEntries = allEntries.length;
-    const uniqueCountries = new Set(allEntries.map(entry => entry.pays).filter(pays => pays && pays !== 'Aucune donnée')).size;
-    return { totalEntries, uniqueCountries };
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard stats');
+      }
+      const data = await response.json();
+      //console.log('Fetched dashboard stats:', data);
+      
+      // Calculate active sources (scrapers with data)
+      const activeSourcesCount = scrapers?.filter(s => s.data_count > 0)?.length || 0;
+      
+      if (data.stats) {
+        setStats({
+          totalEntries: data.stats.totalEntries || 0,
+          uniqueCountries: data.stats.uniqueCountries || 0,
+          sourcesCount: activeSourcesCount,
+          enrichmentRate: data.stats.enrichmentRate || 0
+        });
+      }
+    } catch (error) {
+     // console.error('Error fetching dashboard stats:', error);
+      toast.error('Erreur lors du chargement des statistiques');
+    }
   };
+
+  useEffect(() => {
+    if (scrapers.length > 0) {
+      const activeSourcesCount = scrapers.filter(s => s.data_count > 0).length;
+      setStats(prev => ({
+        ...prev,
+        sourcesCount: activeSourcesCount
+      }));
+    }
+  }, [scrapers]);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       try {
-        // Fetch scrapers
-        const scrapersRes = await dataService.getAllScrapers();
-        setScrapers(scrapersRes);
+        // First fetch the dashboard stats
+        await fetchDashboardStats();
+      //  console.log('Current stats after fetch:', stats);
 
-        // Fetch companies with their scraped data
-        const companiesRes = await dataService.fetchCompanies();
-        const companiesWithEntries = companiesRes.map((company: Company) => ({
-          ...company,
-          scraped_entries: company.scraped_entries || []
+        // Then fetch scrapers and data
+        const [scrapers, scrapedDataGroups] = await Promise.all([
+          dataService.getAllScrapers(),
+          dataService.fetchAllScrapedData()
+        ]);
+
+        // Format the scrapers data
+        const scrapersWithFormattedDate = scrapers.map(scraper => ({
+          ...scraper,
+          last_run: scraper.last_run ? new Date(scraper.last_run).toISOString() : undefined
         }));
-        setCompanies(companiesWithEntries);
-
-        // Fetch scraped data for each scraper
-        const scrapedDataMap: Record<string, ScrapedEntry[]> = {};
-        for (const scraper of scrapersRes) {
-          try {
-            const data = await dataService.fetchScrapedData(scraper.id);
-            scrapedDataMap[scraper.id] = data;
-          } catch (error) {
-            console.error(`Error fetching data for scraper ${scraper.id}:`, error);
-          }
-        }
-        setScrapedData(scrapedDataMap);
-
-        // Fetch all scraped data
-        const allData = await dataService.fetchAllScrapedData();
         
-        // Group data by scraper name
-        const grouped = allData.reduce((acc, entry) => {
-          const scraperName = entry.nom || 'Unknown';
-          if (!acc[scraperName]) {
-            acc[scraperName] = [];
-          }
-          acc[scraperName].push(entry);
+        setScrapers(scrapersWithFormattedDate);
+        
+        // Convert grouped data to flat structure
+        const grouped = scrapedDataGroups.reduce((acc: Record<string, ScrapedEntry[]>, group) => {
+          acc[group.scraper_name] = group.entries;
           return acc;
-        }, {} as Record<string, ScrapedEntry[]>);
+        }, {});
         
         setGroupedData(grouped);
-        setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+       // console.error('Error loading dashboard:', error);
         toast.error('Erreur lors du chargement des données');
+      } finally {
         setLoading(false);
       }
     }
@@ -147,46 +199,60 @@ export function Dashboard() {
 
   // Filter scrapers based on search query
   const filteredScrapers = scrapers.filter(scraper =>
-    scraper.name.toLowerCase().includes(searchQuery.toLowerCase())
+    scraper.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    scraper.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    scraper.country.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sort and filter scrapers
-  const filteredAndSortedScrapers = filteredScrapers
-    .sort((a, b) => {
-      const aValue = sortBy === 'name' ? a.name.toLowerCase() :
-                    sortBy === 'status' ? a.status :
-                    a.data_count;
-      const bValue = sortBy === 'name' ? b.name.toLowerCase() :
-                    sortBy === 'status' ? b.status :
-                    b.data_count;
-      
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      }
-      return aValue < bValue ? 1 : -1;
-    });
+  // Sort scrapers
+  const sortedScrapers = [...filteredScrapers].sort((a, b) => {
+    if (sortBy === 'date') {
+      const dateA = a.last_run ? new Date(a.last_run).getTime() : 0;
+      const dateB = b.last_run ? new Date(b.last_run).getTime() : 0;
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    }
+    
+    const aValue = sortBy === 'name' ? a.name.toLowerCase() :
+                  sortBy === 'status' ? a.status :
+                  a.data_count;
+    const bValue = sortBy === 'name' ? b.name.toLowerCase() :
+                  sortBy === 'status' ? b.status :
+                  b.data_count;
+    
+    return sortOrder === 'asc' ? 
+      (aValue > bValue ? 1 : -1) :
+      (aValue < bValue ? 1 : -1);
+  });
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredAndSortedScrapers.length / itemsPerPage);
+  const totalItems = sortedScrapers.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedScrapers = filteredAndSortedScrapers.slice(startIndex, startIndex + itemsPerPage);
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const paginatedScrapers = sortedScrapers
+    .slice(startIndex, endIndex)
+    .map(scraper => ({
+      ...scraper,
+      dataCount: scraper.data_count || 0,
+      selectors: { main: scraper.selectors?.main || '' },
+      type: scraper.type || 'playwright'
+    }));
 
-  // Get statistics
-  const stats = calculateStats(groupedData);
-
-  // Map scrapers to ScraperData format
-  const mappedScrapers: ScraperData[] = paginatedScrapers.map(scraper => ({
-    id: scraper.id,
-    name: scraper.name,
-    source: scraper.source,
-    status: scraper.status,
-    lastRun: scraper.last_run || undefined,
-    dataCount: scraper.data_count || 0,
-    selectors: { main: scraper.selectors?.main || '' },
-    frequency: scraper.frequency,
-    country: scraper.country,
-    type: scraper.type || 'playwright' 
-  }));
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Jamais';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Jamais';
+      
+      const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${String(date.getDate()).padStart(2, '0')}/${months[date.getMonth()]}/${date.getFullYear()} ${hours}:${minutes}`;
+    } catch (error) {
+      //console.error('Error formatting date:', dateString, error);
+      return 'Jamais';
+    }
+  };
 
   return (
     <div className="space-y-8 p-6">
@@ -218,13 +284,13 @@ export function Dashboard() {
             />
             <StatsCard
               title="Taux d'enrichissement"
-              value={`${((stats.totalEntries / (stats.totalEntries || 1)) * 100).toFixed(0)}%`}
+              value={`${stats.enrichmentRate}%`}
               icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
               description="données enrichies"
             />
             <StatsCard
               title="Sources de données"
-              value={Object.keys(groupedData).length.toString()}
+              value={stats.sourcesCount.toString()}
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
               description="sources actives"
             />
@@ -245,7 +311,7 @@ export function Dashboard() {
                 </div>
                 <Select
                   value={sortBy}
-                  onValueChange={(value: 'name' | 'status' | 'dataCount') => setSortBy(value)}
+                  onValueChange={(value: 'name' | 'status' | 'dataCount' | 'date') => setSortBy(value)}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Trier par" />
@@ -254,6 +320,7 @@ export function Dashboard() {
                     <SelectItem value="name">Nom</SelectItem>
                     <SelectItem value="status">Statut</SelectItem>
                     <SelectItem value="dataCount">Nombre de données</SelectItem>
+                    <SelectItem value="date">Date</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button
@@ -270,71 +337,79 @@ export function Dashboard() {
               <p>No scrapers available.</p>
             ) : (
               <>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
                   {paginatedScrapers.map((scraper) => (
                     <ScraperCard
                       key={scraper.id}
-                      scraper={{
-                        ...scraper,
-                        dataCount: scraper.data_count || 0,
-                        type: scraper.type || 'playwright'
-                      }}
+                      scraper={scraper}
                       onRunScraper={handleRunScraper}
                       onStopScraper={handleStopScraper}
                       onViewData={handleViewData}
+                      showEditOptions={false}
                     />
                   ))}
                 </div>
-                  
-                <div className="flex items-center justify-between border-t pt-4">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm text-muted-foreground">
-                      Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, filteredAndSortedScrapers.length)} sur {filteredAndSortedScrapers.length} scrapers
-                    </p>
-                    <Select
-                      value={itemsPerPage.toString()}
-                      onValueChange={(value) => setItemsPerPage(Number(value))}
-                    >
-                      <SelectTrigger className="w-[100px]">
-                        <SelectValue placeholder="Par page" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="8">8</SelectItem>
-                        <SelectItem value="16">16</SelectItem>
-                        <SelectItem value="32">32</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
+                
+                {/* Pagination Controls */}
+                {totalItems > 0 && (
+                  <div className="flex items-center justify-between mt-6">
+                    {/* Left section: Display info and page size selector */}
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-muted-foreground whitespace-nowrap">
+                        Affichage de {startIndex + 1} à {endIndex} sur {totalItems} scrapers
+                      </p>
+                      <Select
+                        value={itemsPerPage.toString()}
+                        onValueChange={(value) => {
+                          setItemsPerPage(Number(value));
+                          setCurrentPage(1);
+                        }}
+                      >
+                        <SelectTrigger className="w-[70px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {pageSizeOptions.map((size) => (
+                            <SelectItem key={size} value={size.toString()}>
+                              {size}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Middle section: Page numbers */}
                     <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(4, totalPages) }, (_, i) => {
-                        const pageNum = i + 1;
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else {
+                          if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                        }
                         return (
                           <Button
                             key={pageNum}
                             variant={currentPage === pageNum ? "default" : "outline"}
-                            size="icon"
+                            size="sm"
                             onClick={() => setCurrentPage(pageNum)}
                           >
                             {pageNum}
                           </Button>
                         );
                       })}
-                      {totalPages > 4 && (
+                      {totalPages > 5 && currentPage < totalPages - 2 && (
                         <>
-                          <span className="px-2">...</span>
+                          <span className="mx-1">...</span>
                           <Button
                             variant="outline"
-                            size="icon"
+                            size="sm"
                             onClick={() => setCurrentPage(totalPages)}
                           >
                             {totalPages}
@@ -342,16 +417,30 @@ export function Dashboard() {
                         </>
                       )}
                     </div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                    >
-                      <ChevronRightIcon className="h-4 w-4" />
-                    </Button>
+
+                    {/* Right section: Navigation buttons */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Précédent
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Suivant
+                        <ChevronRightIcon className="h-4 w-4 ml-1" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
           </div>
@@ -401,7 +490,7 @@ export function Dashboard() {
                             {item.secteur || '-'}
                           </span>
                         </TableCell>
-                        <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>{formatDate(item.created_at)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

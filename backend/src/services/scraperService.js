@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const { supabase } = require('../db/supabase');
 const { genericScraper } = require('../scrapers/genericScraper');
 const { newsPortalScraper } = require('../scrapers/newsPortalScraper');
