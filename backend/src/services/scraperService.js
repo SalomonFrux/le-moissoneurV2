@@ -138,10 +138,24 @@ async function executeScraper(scraper) {
   let browser;
   let scrapedData = [];
   
+  // Helper function to extract data using regex patterns
+  const extractInfo = (text, pattern) => {
+    if (!text) return null;
+    const match = text.match(new RegExp(pattern, 'i'));
+    return match ? match[1].trim() : null;
+  };
+
   try {
     await withRetry(async () => {
       // Use Playwright if type is 'playwright'
       if (scraper.type === 'playwright') {
+        // Get existing data before scraping
+        const { data: existingData } = await supabase
+          .from('scraped_data')
+          .select('*')
+          .eq('scraper_id', scraper.id);
+
+        // Scrape new data
         scrapedData = await playwrightScraper(
           scraper.source || scraper.url,
           {
@@ -152,13 +166,28 @@ async function executeScraper(scraper) {
           }
         );
         
-        // Map Playwright results to expected format
-        scrapedData = scrapedData.map(result => ({
-          title: scraper.name,
-          content: result.text,
-          url: scraper.source || scraper.url,
-          metadata: result.metadata || {}
-        }));
+        // Map Playwright results to expected format, preserving existing values
+        scrapedData = scrapedData.map((result, index) => {
+          const existing = existingData?.[index] || {};
+          const existingMetadata = existing.metadata || {};
+          
+          // Only update fields that have new selectors
+          const newMetadata = {
+            name: result.name || existingMetadata.name,
+            phone: result.phone || existingMetadata.phone,
+            email: result.email || existingMetadata.email,
+            website: result.website || existingMetadata.website,
+            address: result.address || existingMetadata.address,
+            category: result.category || existingMetadata.category
+          };
+
+          return {
+            title: newMetadata.name || scraper.name,
+            content: result.text,
+            url: scraper.source || scraper.url,
+            metadata: newMetadata
+          };
+        });
         return;
       }
       browser = await createBrowserInstance();
@@ -178,64 +207,21 @@ async function executeScraper(scraper) {
         const metadata = item.metadata || {};
         const content = item.content || '';
         
-        // Helper function to extract data from content if not in metadata
-        const extractFromContent = (pattern) => {
-          if (typeof content === 'string') {
-            const match = content.match(new RegExp(pattern, 'i'));
-            return match ? match[1].trim() : 'Aucune donnée';
-          }
-          return 'Aucune donnée';
-        };
-
-        // Prioritize metadata values, fallback to content extraction, then default value
+        // Use metadata values if available, otherwise try to extract from content
         const extractedData = {
-          name: (() => {
-            // First try to get from metadata
-            if (metadata.name && metadata.name !== 'Aucune donnée') return metadata.name;
-            // Then try to get from content's first line
-            if (typeof content === 'string') {
-              const firstLine = content.split('\n')[0].trim();
-              if (firstLine && firstLine !== 'Aucune donnée') return firstLine;
-            }
-            // Then try pattern matching
-            const nameFromPattern = extractFromContent(/Nom\s*:\s*([^\n]+)/i);
-            if (nameFromPattern && nameFromPattern !== 'Aucune donnée') return nameFromPattern;
-            // Finally use title or default
-            return item.title || 'Aucune donnée';
-          })(),
-          phone: (() => {
-            if (metadata.phone && metadata.phone !== 'Aucune donnée') return metadata.phone;
-            // Look for phone-like patterns in content
-            if (typeof content === 'string') {
-              const phoneMatch = content.match(/(?:\+?\d{1,3}[-\s]?)?\d{2}[-\s]?\d{2}[-\s]?\d{2}[-\s]?\d{2}/);
-              if (phoneMatch) return phoneMatch[0].trim();
-            }
-            return extractFromContent(/(?:Téléphone|Tel)\s*:\s*([^\n]+)/i) || 'Aucune donnée';
-          })(),
-          email: metadata.email || extractFromContent(/(?:E-mail|Email)\s*:\s*([^\n]+)/i) || 'Aucune donnée',
-          website: metadata.website || extractFromContent(/(?:Site\s*Web|Website)\s*:\s*([^\n]+)/i) || 'Aucune donnée',
-          address: (() => {
-            if (metadata.address && metadata.address !== 'Aucune donnée') return metadata.address;
-            // Look for address in content (after the first line, before phone/email)
-            if (typeof content === 'string') {
-              const lines = content.split('\n');
-              if (lines.length > 1) {
-                const addressLine = lines[1].trim();
-                if (addressLine && !addressLine.match(/^(?:Tel|Email|Site)/i)) return addressLine;
-              }
-            }
-            return extractFromContent(/(?:Adresse|Address)\s*:\s*([^\n]+)/i) || 'Aucune donnée';
-          })(),
-          sector: (() => {
-            // First try to get from metadata (this will include the category from selectors)
-            if (metadata.category && metadata.category !== 'Aucune donnée') return metadata.category;
-            if (metadata.sector && metadata.sector !== 'Aucune donnée') return metadata.sector;
-            return extractFromContent(/(?:Secteur|Sector)\s*:\s*([^\n]+)/i) || 'Aucune donnée';
-          })()
+          name: metadata.name || item.title || 'Unknown',
+          sector: metadata.category || 'Unknown',
+          country: scraper.country || 'Unknown',
+          website: metadata.website || extractInfo(content, /Site web\s*:\s*([^\n]+)/i),
+          email: metadata.email || extractInfo(content, /E-mail\s*:\s*([^\n]+)/i),
+          phone: metadata.phone || extractInfo(content, /Tel\s*:\s*([^\n]+)/i),
+          address: metadata.address || extractInfo(content, /Address\s*:\s*([^\n]+)/i),
+          source: scraper.source,
+          last_updated: new Date().toISOString()
         };
 
         // Clean up website URL if it exists and isn't already formatted
-        if (extractedData.website && extractedData.website !== 'Aucune donnée' && !extractedData.website.toLowerCase().startsWith('http')) {
+        if (extractedData.website && !extractedData.website.toLowerCase().startsWith('http')) {
           extractedData.website = `https://${extractedData.website}`;
         }
 
@@ -248,7 +234,7 @@ async function executeScraper(scraper) {
           email: extractedData.email,
           telephone: extractedData.phone,
           adresse: extractedData.address,
-          contenu: item.content, // Keep original content
+          contenu: item.content,
           lien: item.url || scraper.source || null,
           metadata: {
             ...metadata,
@@ -260,6 +246,17 @@ async function executeScraper(scraper) {
       });
 
       await withRetry(async () => {
+        // First, delete existing entries for this scraper
+        const { error: deleteError } = await supabase
+          .from('scraped_data')
+          .delete()
+          .eq('scraper_id', scraper.id);
+
+        if (deleteError) {
+          throw new Error(`Failed to delete existing data: ${deleteError.message}`);
+        }
+
+        // Then insert the new data
         const { error: insertError } = await supabase
           .from('scraped_data')
           .insert(dataToInsert);
@@ -290,11 +287,6 @@ async function executeScraper(scraper) {
         const text = content.text || '';
         
         // Extract data using regex patterns
-        const extractInfo = (text, pattern) => {
-          const match = text.match(new RegExp(pattern, 'i'));
-          return match ? match[1].trim() : null;
-        };
-
         const extractedData = {
           name: item.title || 'Unknown',
           sector: 'Unknown',
