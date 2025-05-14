@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { 
   BarChart3, 
   Globe, 
@@ -17,9 +17,10 @@ import { SectorDistribution } from './SectorDistribution';
 import { GeographicDistribution } from './GeographicDistribution';
 import { CollectionTrends } from './CollectionTrends';
 import { SourceComparison } from './SourceComparison';
-import { dataService } from '@/services/dataService';
+import { dataService, type ScrapedEntry } from '@/services/dataService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import gsap from 'gsap';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,27 +52,49 @@ export function StatisticsPage() {
     sectors: 0,
     completeness: 0
   });
+  const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchStats() {
       try {
         const data = await dataService.fetchAllScrapedData();
-        const sources = new Set(data.map(d => d.source));
-        const sectors = new Set(data.map(d => d.secteur));
+        // Flatten the data structure to get all entries
+        const allEntries = data.flatMap(group => group.entries);
+        
+        // Calculate unique sources and sectors
+        const sources = new Set(allEntries.map(d => d.source));
+        const sectors = new Set(allEntries.map(d => d.secteur));
         
         // Calculate completeness
         const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
-        const totalFields = data.length * fields.length;
-        const filledFields = data.reduce((acc, entry) => {
+        const totalFields = allEntries.length * fields.length;
+        const filledFields = allEntries.reduce((acc, entry) => {
           return acc + fields.filter(field => entry[field] && entry[field] !== 'Aucune donnée').length;
         }, 0);
         
         setStats({
-          total: data.length,
+          total: allEntries.length,
           sources: sources.size,
           sectors: sectors.size,
           completeness: Math.round((filledFields / totalFields) * 100)
         });
+
+        // Animate stats cards
+        if (statsRef.current) {
+          gsap.fromTo(statsRef.current.children,
+            { 
+              opacity: 0,
+              y: 20
+            },
+            { 
+              opacity: 1,
+              y: 0,
+              duration: 0.5,
+              stagger: 0.1,
+              ease: 'power2.out'
+            }
+          );
+        }
       } catch (error) {
         console.error('Error fetching stats:', error);
         toast.error('Erreur lors du chargement des statistiques');
@@ -86,22 +109,23 @@ export function StatisticsPage() {
   const handleExport = async (format: 'excel' | 'pdf') => {
     try {
       const data = await dataService.fetchAllScrapedData();
+      const allEntries = data.flatMap(group => group.entries);
       
       if (format === 'excel') {
         await dataService.exportToExcel({
-          data,
+          data: allEntries,
           sheets: [
             {
               name: 'Résumé',
               data: [
                 ['Statistiques Générales'],
-                ['Total des entreprises', data.length],
-                ['Sources uniques', new Set(data.map(d => d.source)).size],
-                ['Secteurs uniques', new Set(data.map(d => d.secteur)).size],
+                ['Total des entreprises', allEntries.length],
+                ['Sources uniques', new Set(allEntries.map(d => d.source)).size],
+                ['Secteurs uniques', new Set(allEntries.map(d => d.secteur)).size],
                 [''],
                 ['Distribution par secteur'],
                 ...Object.entries(
-                  data.reduce((acc, curr) => {
+                  allEntries.reduce((acc, curr) => {
                     acc[curr.secteur] = (acc[curr.secteur] || 0) + 1;
                     return acc;
                   }, {} as Record<string, number>)
@@ -112,7 +136,7 @@ export function StatisticsPage() {
               name: 'Données détaillées',
               data: [
                 ['Nom', 'Email', 'Téléphone', 'Adresse', 'Secteur', 'Source', 'Date de collecte'],
-                ...data.map(item => [
+                ...allEntries.map(item => [
                   item.nom,
                   item.email,
                   item.telephone,
@@ -128,14 +152,14 @@ export function StatisticsPage() {
         toast.success('Export Excel réussi');
       } else {
         await dataService.exportToPdf({
-          data,
+          data: allEntries,
           sections: [
             {
               title: 'Résumé',
               content: [
-                { type: 'text', text: `Total des entreprises: ${data.length}` },
-                { type: 'text', text: `Sources uniques: ${new Set(data.map(d => d.source)).size}` },
-                { type: 'text', text: `Secteurs uniques: ${new Set(data.map(d => d.secteur)).size}` }
+                { type: 'text', text: `Total des entreprises: ${allEntries.length}` },
+                { type: 'text', text: `Sources uniques: ${new Set(allEntries.map(d => d.source)).size}` },
+                { type: 'text', text: `Secteurs uniques: ${new Set(allEntries.map(d => d.secteur)).size}` }
               ]
             },
             {
@@ -143,7 +167,7 @@ export function StatisticsPage() {
               type: 'table',
               headers: ['Secteur', 'Nombre'],
               data: Object.entries(
-                data.reduce((acc, curr) => {
+                allEntries.reduce((acc, curr) => {
                   acc[curr.secteur] = (acc[curr.secteur] || 0) + 1;
                   return acc;
                 }, {} as Record<string, number>)
@@ -153,7 +177,7 @@ export function StatisticsPage() {
               title: 'Données détaillées',
               type: 'table',
               headers: ['Nom', 'Email', 'Téléphone', 'Adresse', 'Secteur', 'Source', 'Date'],
-              data: data.map(item => [
+              data: allEntries.map(item => [
                 item.nom,
                 item.email,
                 item.telephone,
@@ -210,7 +234,7 @@ export function StatisticsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div ref={statsRef} className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
           <div className="flex items-center gap-4">
             <Database className="h-8 w-8 text-blue-600 dark:text-blue-400" />

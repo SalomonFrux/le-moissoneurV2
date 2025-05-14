@@ -94,15 +94,6 @@ const Index = () => {
           {activePage === 'data' && <DataPage />}
           {activePage === 'statistics' && <StatisticsPage />}
           {activePage === 'settings' && <ParametersPage />}
-          {activePage === 'enrichment' && <EnrichmentPage />}
-          {activePage === 'performance' && (
-            <div className="p-6">
-              <h2 className="text-3xl font-bold font-heading tracking-tight">Performance</h2>
-              <p className="mt-2 text-muted-foreground">
-                Cette fonctionnalité sera disponible prochainement.
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </div>

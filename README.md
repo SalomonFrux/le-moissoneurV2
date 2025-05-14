@@ -20,6 +20,15 @@ A web application for managing and running web scrapers to collect data from Afr
    cd backend && npm install pdfkit
    cd backend && npm install @supabase/supabase-js dotenv winston
    npm install @supabase/supabase-js dotenv winston
+   cd frontend && npm install framer-motion
+   npm install axios
+   rm -rf node_modules/.vite
+   npm run dev
+   iF ERROR PERSISTANT, TRY THIS:
+  rm -rf node_modules package-lock.json
+  npm install
+  npm run dev
+
    And it will all work fine.
 
    ```

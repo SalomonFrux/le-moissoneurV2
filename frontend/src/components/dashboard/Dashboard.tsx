@@ -11,10 +11,10 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Database, Globe, TrendingUp, Users, ChevronDown, ChevronRight as ChevronRightIcon, ChevronLeft, ChevronUp, Download, Mail, Link as LinkIcon, Search } from 'lucide-react';
+import { Database, Globe, TrendingUp, Users, ChevronDown, ChevronRight as ChevronRightIcon, ChevronLeft, ChevronUp, Download, Mail, Link as LinkIcon, Search, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { dataService, type Scraper, type ScrapedEntry } from '@/services/dataService';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -33,10 +33,21 @@ interface ScraperData {
   status: 'idle' | 'running' | 'error' | 'completed';
   last_run?: string;
   dataCount: number;
-  selectors: { main: string };
+  selectors: {
+    main: string;
+    pagination?: string;
+    dropdownClick?: string;
+    child?: Record<string, any>;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    website: string;
+    sector: string;
+  };
   frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
   country: string;
-  type?: 'playwright' | 'puppeteer';
+  type: 'playwright' | 'puppeteer';
 }
 
 interface ScraperCardProps {
@@ -60,6 +71,30 @@ interface ScrapedDataGroup {
   entries: ScrapedEntry[];
 }
 
+interface ScraperConfig {
+  name: string;
+  source: string;
+  selector: string;
+  paginationSelector: string;
+  dropdownClickSelector: string;
+  childSelectors: string;
+  engine: 'playwright' | 'puppeteer';
+  frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
+  country: string;
+  twoPhaseScraping: string;
+  phase1Selectors: {
+    name: string;
+    dropdownTrigger: string;
+  };
+  phase2Selectors: {
+    name: string;
+    phone: string;
+    email: string;
+    website: string;
+    address: string;
+  };
+}
+
 export function Dashboard() {
   const [scrapers, setScrapers] = useState<Scraper[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,8 +106,8 @@ export function Dashboard() {
   const [selectedScraperData, setSelectedScraperData] = useState<ScrapedEntry[]>([]);
   const [selectedScraperId, setSelectedScraperId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(4);
-  const pageSizeOptions = [4, 8, 12, 20, 50, 100];
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+  const pageSizeOptions = [4, 6, 8, 12, 20, 50, 100];
   const [sortBy, setSortBy] = useState<'name' | 'status' | 'dataCount' | 'date'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [stats, setStats] = useState<DashboardStats>({
@@ -80,6 +115,30 @@ export function Dashboard() {
     uniqueCountries: 0,
     sourcesCount: 0,
     enrichmentRate: 0
+  });
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState<ScraperConfig>({
+    name: '',
+    source: '',
+    selector: '',
+    paginationSelector: '',
+    dropdownClickSelector: '',
+    childSelectors: '',
+    engine: 'playwright',
+    frequency: 'manual',
+    country: '',
+    twoPhaseScraping: 'false',
+    phase1Selectors: {
+      name: '',
+      dropdownTrigger: ''
+    },
+    phase2Selectors: {
+      name: '',
+      phone: '',
+      email: '',
+      website: '',
+      address: ''
+    }
   });
 
   const fetchDashboardStats = async () => {
@@ -187,8 +246,17 @@ export function Dashboard() {
   const handleViewData = async (id: string) => {
     try {
       const data = await dataService.fetchScrapedData(id);
-      setSelectedScraperData(data);
+      setSelectedScraperData(data.slice(0, 5)); // Limit to 5 items
       setSelectedScraperId(id);
+      
+      // Simple scroll to the data table
+      setTimeout(() => {
+        const tableElement = document.querySelector('[data-scraper-table]');
+        if (tableElement) {
+          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+
       toast.info("Affichage des données", {
         description: `${data.length} entrées trouvées`
       });
@@ -234,7 +302,18 @@ export function Dashboard() {
     .map(scraper => ({
       ...scraper,
       dataCount: scraper.data_count || 0,
-      selectors: { main: scraper.selectors?.main || '' },
+      selectors: {
+        main: scraper.selectors?.main || '',
+        pagination: scraper.selectors?.pagination,
+        dropdownClick: scraper.selectors?.dropdownClick,
+        child: scraper.selectors?.child,
+        name: scraper.selectors?.name || '',
+        email: scraper.selectors?.email || '',
+        phone: scraper.selectors?.phone || '',
+        address: scraper.selectors?.address || '',
+        website: scraper.selectors?.website || '',
+        sector: scraper.selectors?.sector || ''
+      },
       type: scraper.type || 'playwright'
     }));
 
@@ -269,31 +348,26 @@ export function Dashboard() {
         </div>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
             <StatsCard
-              title="Total Entreprises"
+              title="Total Entrées"
               value={stats.totalEntries.toString()}
               icon={<Database className="h-4 w-4 text-muted-foreground" />}
-              description="entreprises collectées"
+              description="Nombre total d'entrées collectées"
             />
             <StatsCard
-              title="Pays Couverts"
+              title="Pays Uniques"
               value={stats.uniqueCountries.toString()}
               icon={<Globe className="h-4 w-4 text-muted-foreground" />}
-              description="pays différents"
+              description="Nombre de pays couverts"
             />
             <StatsCard
-              title="Taux d'enrichissement"
-              value={`${stats.enrichmentRate}%`}
-              icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-              description="données enrichies"
-            />
-            <StatsCard
-              title="Sources de données"
+              title="Sources Actives"
               value={stats.sourcesCount.toString()}
-              icon={<Users className="h-4 w-4 text-muted-foreground" />}
-              description="sources actives"
+              icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+              description="Sources de données actives"
             />
+     
           </div>
 
           <div className="space-y-4">
@@ -337,7 +411,7 @@ export function Dashboard() {
               <p>No scrapers available.</p>
             ) : (
               <>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {paginatedScrapers.map((scraper) => (
                     <ScraperCard
                       key={scraper.id}
@@ -345,158 +419,147 @@ export function Dashboard() {
                       onRunScraper={handleRunScraper}
                       onStopScraper={handleStopScraper}
                       onViewData={handleViewData}
-                      showEditOptions={false}
+                      showViewData={true}
                     />
                   ))}
                 </div>
                 
-                {/* Pagination Controls */}
-                {totalItems > 0 && (
-                  <div className="flex items-center justify-between mt-6">
-                    {/* Left section: Display info and page size selector */}
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm text-muted-foreground whitespace-nowrap">
-                        Affichage de {startIndex + 1} à {endIndex} sur {totalItems} scrapers
-                      </p>
-                      <Select
-                        value={itemsPerPage.toString()}
-                        onValueChange={(value) => {
-                          setItemsPerPage(Number(value));
-                          setCurrentPage(1);
-                        }}
-                      >
-                        <SelectTrigger className="w-[70px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {pageSizeOptions.map((size) => (
-                            <SelectItem key={size} value={size.toString()}>
-                              {size}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Middle section: Page numbers */}
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else {
-                          if (currentPage <= 3) {
-                            pageNum = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNum = totalPages - 4 + i;
-                          } else {
-                            pageNum = currentPage - 2 + i;
-                          }
-                        }
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={currentPage === pageNum ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCurrentPage(pageNum)}
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      })}
-                      {totalPages > 5 && currentPage < totalPages - 2 && (
-                        <>
-                          <span className="mx-1">...</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setCurrentPage(totalPages)}
-                          >
-                            {totalPages}
-                          </Button>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Right section: Navigation buttons */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                        disabled={currentPage === 1}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                        Précédent
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                        disabled={currentPage === totalPages}
-                      >
-                        Suivant
-                        <ChevronRightIcon className="h-4 w-4 ml-1" />
-                      </Button>
-                    </div>
+                {/* Scraped Data Table */}
+                {selectedScraperId && (
+                  <div data-scraper-table>
+                    <Card className="mt-4">
+                      <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                          <CardTitle>Données du scraper</CardTitle>
+                          <CardDescription>{selectedScraperData.length} entrées affichées</CardDescription>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedScraperId(null);
+                            setSelectedScraperData([]);
+                          }}
+                        >
+                          Fermer
+                        </Button>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="rounded-md border overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Nom</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Téléphone</TableHead>
+                                <TableHead>Adresse</TableHead>
+                                <TableHead>Site Web</TableHead>
+                                <TableHead>Secteur</TableHead>
+                                <TableHead>Date de collecte</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {selectedScraperData.map((entry) => (
+                                <TableRow key={entry.id}>
+                                  <TableCell className="font-medium">{entry.nom || '-'}</TableCell>
+                                  <TableCell>
+                                    {entry.email ? (
+                                      <a href={`mailto:${entry.email}`} className="text-blue-500 hover:underline flex items-center gap-1">
+                                        <Mail className="h-4 w-4" />
+                                        {entry.email}
+                                      </a>
+                                    ) : '-'}
+                                  </TableCell>
+                                  <TableCell>{entry.telephone || '-'}</TableCell>
+                                  <TableCell>{entry.adresse || '-'}</TableCell>
+                                  <TableCell>
+                                    {entry.site_web ? (
+                                      <a href={entry.site_web} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline flex items-center gap-1">
+                                        <LinkIcon className="h-4 w-4" />
+                                        {entry.site_web}
+                                      </a>
+                                    ) : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-muted-foreground">{entry.secteur || '-'}</TableCell>
+                                  <TableCell>{formatDate(entry.created_at)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 )}
               </>
             )}
           </div>
 
-          {selectedScraperData.length > 0 && (
-            <Card className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">
-                  Données du scraper: {scrapers.find(s => s.id === selectedScraperId)?.name}
-                </h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedScraperData([])}
+          {/* Pagination */}
+          {totalItems > 0 && (
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">
+                  Affichage de {startIndex + 1} à {endIndex} sur {totalItems} scrapers
+                </p>
+                <Select
+                  value={itemsPerPage.toString()}
+                  onValueChange={(value) => {
+                    setItemsPerPage(Number(value));
+                    setCurrentPage(1);
+                  }}
                 >
-                  Fermer
-                </Button>
-              </div>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead>Nom</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Téléphone</TableHead>
-                      <TableHead>Adresse</TableHead>
-                      <TableHead>Secteur</TableHead>
-                      <TableHead>Date de collecte</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedScraperData.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.nom || '-'}</TableCell>
-                        <TableCell>
-                          {item.email ? (
-                            <a href={`mailto:${item.email}`} className="text-blue-500 hover:underline flex items-center gap-1">
-                              <Mail className="h-4 w-4" />
-                              {item.email}
-                            </a>
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>{item.telephone || '-'}</TableCell>
-                        <TableCell>{item.adresse || '-'}</TableCell>
-                        <TableCell>
-                          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                            {item.secteur || '-'}
-                          </span>
-                        </TableCell>
-                        <TableCell>{formatDate(item.created_at)}</TableCell>
-                      </TableRow>
+                  <SelectTrigger className="w-[70px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pageSizeOptions.map((size) => (
+                      <SelectItem key={size} value={size.toString()}>
+                        {size}
+                      </SelectItem>
                     ))}
-                  </TableBody>
-                </Table>
+                  </SelectContent>
+                </Select>
               </div>
-            </Card>
+
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Précédent
+                    </Button>
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <PaginationItem key={page}>
+                      <Button
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </Button>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Suivant
+                      <ChevronRightIcon className="h-4 w-4 ml-1" />
+                    </Button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           )}
         </>
       )}

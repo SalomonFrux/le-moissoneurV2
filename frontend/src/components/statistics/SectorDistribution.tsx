@@ -2,49 +2,85 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { dataService } from '@/services/dataService';
 import { toast } from 'sonner';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 interface SectorData {
   name: string;
   value: number;
   percentage: number;
+  subsectors: {
+    name: string;
+    value: number;
+    percentage: number;
+  }[];
 }
 
-const COLORS = {
-  Fintech: '#15616D',
-  'E-commerce': '#FF7D00',
-  Edtech: '#78290F',
-  Agritech: '#001524',
-  Santé: '#FFECD1',
-  Autres: '#A83E32'
-};
-
-const DEFAULT_COLORS = ['#15616D', '#FF7D00', '#78290F', '#001524', '#FFECD1', '#A83E32'];
+const COLORS = ['#2D8B61', '#56BC82', '#8ED6AF', '#BDECD3', '#DCF1E7', '#9C6B22', '#C4A484', '#E5D3B3'];
+const MAX_SECTORS = 5;
 
 export function SectorDistribution() {
   const [sectors, setSectors] = useState<SectorData[]>([]);
+  const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchSectorData() {
       try {
         const data = await dataService.fetchAllScrapedData();
+        const allEntries = data.flatMap(group => group.entries);
         
-        // Count entries by sector
-        const sectorCounts = data.reduce((acc, entry) => {
-          const sector = entry.secteur === 'Aucune donnée' ? 'Autres' : (entry.secteur || 'Autres');
-          acc[sector] = (acc[sector] || 0) + 1;
+        // Process sector data
+        const sectorData = allEntries.reduce((acc, entry) => {
+          if (!entry.secteur || entry.secteur === 'Aucune donnée') return acc;
+          
+          // Split sector into main sector and subsector
+          const [mainSector, subsector] = entry.secteur.split(' > ').map(s => s.trim());
+          
+          if (!acc[mainSector]) {
+            acc[mainSector] = {
+              name: mainSector,
+              value: 0,
+              percentage: 0,
+              subsectors: {} // Use object for counting, will convert to array later
+            };
+          }
+          
+          acc[mainSector].value++;
+          
+          // Track subsectors
+          if (subsector) {
+            if (!acc[mainSector].subsectors[subsector]) {
+              acc[mainSector].subsectors[subsector] = {
+                name: subsector,
+                value: 0,
+                percentage: 0
+              };
+            }
+            acc[mainSector].subsectors[subsector].value++;
+          }
+          
           return acc;
-        }, {} as Record<string, number>);
+        }, {} as Record<string, Omit<SectorData, 'subsectors'> & { subsectors: Record<string, { name: string; value: number; percentage: number }> }>);
 
-        // Convert to array and calculate percentages
-        const total = Object.values(sectorCounts).reduce((sum, count) => sum + count, 0);
-        const sectorArray = Object.entries(sectorCounts)
-          .map(([name, count]) => ({
-            name,
-            value: count,
-            percentage: (count / total) * 100
-          }))
+        // Calculate percentages and convert to arrays
+        const total = Object.values(sectorData).reduce((sum, sector) => sum + sector.value, 0);
+        
+        const sectorArray = Object.values(sectorData)
+          .map(sector => {
+            const subsectorArray = Object.values(sector.subsectors)
+              .map(subsector => ({
+                ...subsector,
+                percentage: (subsector.value / sector.value) * 100
+              }))
+              .sort((a, b) => b.value - a.value);
+
+            return {
+              ...sector,
+              percentage: (sector.value / total) * 100,
+              subsectors: subsectorArray
+            };
+          })
           .sort((a, b) => b.value - a.value);
 
         setSectors(sectorArray);
@@ -58,13 +94,23 @@ export function SectorDistribution() {
     fetchSectorData();
   }, []);
 
+  // Only show top N sectors, group the rest as 'Autres' for the chart/legend
+  const topSectors = sectors.slice(0, MAX_SECTORS);
+  const otherSectors = sectors.slice(MAX_SECTORS);
+  const autresValue = otherSectors.reduce((sum, s) => sum + s.value, 0);
+  const autresPercentage = otherSectors.reduce((sum, s) => sum + s.percentage, 0);
+  const chartData = autresValue > 0
+    ? [...topSectors, { name: `Autres (${otherSectors.length})`, value: autresValue, percentage: autresPercentage, subsectors: [] }]
+    : topSectors;
+
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload;
       return (
         <div className="bg-white p-2 border rounded shadow">
-          <p className="font-medium">{payload[0].name}</p>
-          <p>{payload[0].value} entreprises</p>
-          <p>{payload[0].payload.percentage.toFixed(1)}%</p>
+          <p className="font-medium">{data.name}</p>
+          <p>{data.value} entreprises</p>
+          <p>{data.percentage.toFixed(1)}%</p>
         </div>
       );
     }
@@ -80,53 +126,113 @@ export function SectorDistribution() {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Répartition par secteur d'activité</h3>
         <div className="h-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                data={sectors}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={120}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                {sectors.map((entry, index) => (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                outerRadius={120}
+                fill="#8884d8"
+                dataKey="value"
+                onClick={(data) => {
+                  if (data.name.startsWith('Autres')) return;
+                  setSelectedSector(data.name);
+                }}
+              >
+                {chartData.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={COLORS[entry.name as keyof typeof COLORS] || DEFAULT_COLORS[index % DEFAULT_COLORS.length]} 
+                    fill={COLORS[index % COLORS.length]}
+                    style={{ 
+                      cursor: entry.name.startsWith('Autres') ? 'not-allowed' : 'pointer',
+                      opacity: selectedSector ? (selectedSector === entry.name ? 1 : 0.5) : 1
+                    }}
                   />
-                  ))}
-                </Pie>
+                ))}
+              </Pie>
               <Tooltip content={<CustomTooltip />} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {chartData.map((sector, idx) => (
+            <button
+              key={sector.name}
+              className={`px-2 py-1 rounded text-xs ${selectedSector === sector.name ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} ${sector.name.startsWith('Autres') ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+              onClick={() => {
+                if (!sector.name.startsWith('Autres')) setSelectedSector(sector.name);
+              }}
+              disabled={sector.name.startsWith('Autres')}
+            >
+              {sector.name}
+            </button>
+          ))}
+        </div>
       </Card>
 
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Top 5 sous-secteurs Fintech</h3>
-          <div className="space-y-4">
-          {sectors.slice(0, 5).map((sector, index) => (
-            <div key={sector.name} className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>{sector.name}</span>
-                <span className="font-medium">{sector.value} entreprises</span>
+        <h3 className="text-lg font-semibold mb-4">
+          {selectedSector ? `Sous-secteurs de ${selectedSector}` : 'Sélectionnez un secteur'}
+        </h3>
+        <div className="mb-4">
+          <Select
+            value={selectedSector || ''}
+            onValueChange={setSelectedSector}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Sélectionnez un secteur" />
+            </SelectTrigger>
+            <SelectContent>
+              {sectors.map(sector => (
+                <SelectItem key={sector.name} value={sector.name}>{sector.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-6">
+          {selectedSector ? (
+            sectors
+              .find(s => s.name === selectedSector)
+              ?.subsectors.map((subsector, index) => (
+                <div key={subsector.name} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        />
+                        <span className="font-medium">{subsector.name}</span>
+                      </div>
+                    </div>
+                    <div className="text-sm">
+                      {subsector.value} entreprises
+                    </div>
                   </div>
-              <div className="w-full bg-secondary rounded-full h-2">
-                <div
-                  className="rounded-full h-2"
-                  style={{ 
-                    width: `${sector.percentage}%`,
-                    backgroundColor: COLORS[sector.name as keyof typeof COLORS] || DEFAULT_COLORS[index % DEFAULT_COLORS.length]
-                  }}
-                />
+                  <div className="w-full bg-secondary rounded-full h-2">
+                    <div
+                      className="rounded-full h-2"
+                      style={{ 
+                        width: `${subsector.percentage}%`,
+                        backgroundColor: COLORS[index % COLORS.length]
+                      }}
+                    />
+                  </div>
+                  <div className="text-sm text-right">
+                    {subsector.percentage.toFixed(1)}% du secteur
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))
+          ) : (
+            <div className="text-center text-muted-foreground">
+              Cliquez sur un secteur pour voir ses sous-secteurs
+            </div>
+          )}
+        </div>
       </Card>
     </div>
   );
