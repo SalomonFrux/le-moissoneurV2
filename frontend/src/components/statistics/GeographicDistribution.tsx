@@ -28,7 +28,6 @@ const REGION_COLORS = ['#2D8B61', '#56BC82', '#8ED6AF', '#BDECD3', '#DCF1E7'];
 export function GeographicDistribution() {
   const [countries, setCountries] = useState<CountryData[]>([]);
   const [regions, setRegions] = useState<RegionData[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,7 +44,7 @@ export function GeographicDistribution() {
               pays: country,
               entreprises: 0,
               completeness: 0,
-              mainSectors: new Set() // Use Set for deduplication
+              mainSectors: new Set<string>()
             };
           }
           acc[country].entreprises++;
@@ -61,14 +60,14 @@ export function GeographicDistribution() {
           }
           
           return acc;
-        }, {} as Record<string, { pays: string; entreprises: number; completeness: number; mainSectors: Set<string> }>);
+        }, {} as Record<string, CountryData>);
 
         // Convert to array and calculate averages
         const countryArray = Object.values(countryData)
           .map(country => ({
             ...country,
             completeness: Math.round(country.completeness / country.entreprises),
-            mainSectors: Array.from(country.mainSectors).slice(0, 3) // Convert Set to array
+            mainSectors: Array.from(country.mainSectors).slice(0, 3) // Keep top 3 sectors
           }))
           .sort((a, b) => b.entreprises - a.entreprises);
 
@@ -121,18 +120,6 @@ export function GeographicDistribution() {
     fetchGeographicData();
   }, []);
 
-  // Filter countries by selected region
-  const regionMapping: Record<string, string[]> = {
-    'Ouest': ['Sénégal', 'Mali', 'Guinée', 'Guinée-Bissau', 'Mauritanie'],
-    'Est': ['Tchad', 'Soudan', 'Éthiopie', 'Djibouti', 'Érythrée'],
-    'Sud': ['Congo', 'RDC', 'Angola', 'Namibie', 'Afrique du Sud'],
-    'Nord': ['Maroc', 'Algérie', 'Tunisie', 'Libye', 'Égypte'],
-    'Centre': ['Cameroun', 'Gabon', 'RCA', 'Guinée équatoriale', 'São Tomé-et-Principe']
-  };
-  const filteredCountries = selectedRegion
-    ? countries.filter(country => regionMapping[selectedRegion]?.some(c => country.pays.toLowerCase().includes(c.toLowerCase())))
-    : countries;
-
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -157,25 +144,11 @@ export function GeographicDistribution() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="p-6 lg:col-span-2">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">Répartition géographique des entreprises</h3>
-          <div>
-            <select
-              className="border rounded px-2 py-1 text-sm"
-              value={selectedRegion || ''}
-              onChange={e => setSelectedRegion(e.target.value || null)}
-            >
-              <option value="">Toutes les régions</option>
-              {Object.keys(regionMapping).map(region => (
-                <option key={region} value={region}>{region}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <h3 className="text-lg font-semibold mb-4">Répartition géographique des entreprises</h3>
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={filteredCountries}
+              data={countries}
               margin={{
                 top: 20,
                 right: 30,
@@ -209,93 +182,55 @@ export function GeographicDistribution() {
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"
-                onClick={data => setSelectedRegion(data.name)}
               >
                 {regions.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={REGION_COLORS[index % REGION_COLORS.length]}
-                    style={{
-                      cursor: 'pointer',
-                      opacity: selectedRegion ? (selectedRegion === entry.name ? 1 : 0.5) : 1,
-                      stroke: selectedRegion === entry.name ? '#222' : undefined,
-                      strokeWidth: selectedRegion === entry.name ? 3 : 1
-                    }}
-                  />
+                  <Cell key={`cell-${index}`} fill={REGION_COLORS[index % REGION_COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-          {selectedRegion && (
-            <button
-              className="mt-2 text-xs underline text-blue-600"
-              onClick={() => setSelectedRegion(null)}
-            >
-              Réinitialiser le filtre région
-            </button>
-          )}
         </div>
       </Card>
 
       <Card className="p-6 lg:col-span-3">
         <h3 className="text-lg font-semibold mb-4">Détails par région</h3>
         <div className="space-y-6">
-          {regions
-            .slice() // copy
-            .sort((a, b) => b.value - a.value) // sort by number of companies
-            .map((region, index) => {
-              // Get top 3 countries for this region
-              const topCountries = countries
-                .filter(country => regionMapping[region.name]?.some(c => country.pays.toLowerCase().includes(c.toLowerCase())))
-                .slice(0, 3);
-              return (
-                <div key={region.name} className={`space-y-2 ${selectedRegion === region.name ? 'bg-primary/10 border-primary border rounded p-2' : ''}`}> 
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: REGION_COLORS[index % REGION_COLORS.length] }}
-                        />
-                        <span className="font-medium">{region.name}</span>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Secteurs principaux: {region.mainSectors.join(', ')}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Top pays: {topCountries.map(c => `${c.pays} (${c.entreprises})`).join(', ')}
-                      </div>
-                    </div>
-                    <div className="text-sm">
-                      {region.value} entreprises
-                    </div>
-                  </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
-                    <div
-                      className="rounded-full h-2"
-                      style={{ 
-                        width: `${region.percentage}%`,
-                        backgroundColor: REGION_COLORS[index % REGION_COLORS.length]
-                      }}
+          {regions.map((region, index) => (
+            <div key={region.name} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: REGION_COLORS[index % REGION_COLORS.length] }}
                     />
+                    <span className="font-medium">{region.name}</span>
                   </div>
-                  <div className="text-sm text-right">
-                    {region.percentage.toFixed(1)}% du total
+                  <div className="text-sm text-muted-foreground">
+                    Secteurs principaux: {region.mainSectors.join(', ')}
                   </div>
                 </div>
-              );
-            })}
+                <div className="text-sm">
+                  {region.value} entreprises
+                </div>
+              </div>
+              <div className="w-full bg-secondary rounded-full h-2">
+                <div
+                  className="rounded-full h-2"
+                  style={{ 
+                    width: `${region.percentage}%`,
+                    backgroundColor: REGION_COLORS[index % REGION_COLORS.length]
+                  }}
+                />
+              </div>
+              <div className="text-sm text-right">
+                {region.percentage.toFixed(1)}% du total
+              </div>
+            </div>
+          ))}
         </div>
-        {selectedRegion && (
-          <button
-            className="mt-4 text-xs underline text-blue-600"
-            onClick={() => setSelectedRegion(null)}
-          >
-            Réinitialiser le filtre région
-          </button>
-        )}
       </Card>
     </div>
   );

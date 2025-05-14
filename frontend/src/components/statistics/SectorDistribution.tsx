@@ -5,6 +5,9 @@ import { toast } from 'sonner';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
+// Importing Google Font
+import './styles.css'; // Ensure this file contains the font import
+
 interface SectorData {
   name: string;
   value: number;
@@ -16,8 +19,17 @@ interface SectorData {
   }[];
 }
 
-const COLORS = ['#2D8B61', '#56BC82', '#8ED6AF', '#BDECD3', '#DCF1E7', '#9C6B22', '#C4A484', '#E5D3B3'];
-const MAX_SECTORS = 5;
+// Mise à jour des couleurs
+const COLORS = [
+    '#15616D', // Caribbean Current
+    '#FF7D00', // Orange Wheel
+    '#78290F', // Sienna
+    '#001524', // Rich Black
+    '#FFECD1'  // Papaya Whip
+];
+
+// ... code existant pour le graphique ...
+const MAX_SECTORS = 4; // Nombre maximum de secteurs à afficher avant de grouper en 'Autres'
 
 export function SectorDistribution() {
   const [sectors, setSectors] = useState<SectorData[]>([]);
@@ -124,7 +136,7 @@ export function SectorDistribution() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Répartition par secteur d'activité</h3>
+        <h3 className="modern-font text-lg font-semibold mb-4">Répartition par secteur d'activité - Top {MAX_SECTORS} secteurs</h3>
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -154,7 +166,12 @@ export function SectorDistribution() {
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
+              <Legend 
+                wrapperStyle={{ fontSize: '12px' }} // Smaller font for legend
+                layout="vertical"
+                verticalAlign="middle"
+                align="right"
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -175,7 +192,7 @@ export function SectorDistribution() {
       </Card>
 
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">
+        <h3 className="modern-font text-lg font-semibold mb-4">
           {selectedSector ? `Sous-secteurs de ${selectedSector}` : 'Sélectionnez un secteur'}
         </h3>
         <div className="mb-4">

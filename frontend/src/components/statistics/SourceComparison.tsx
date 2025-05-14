@@ -34,6 +34,7 @@ const COLORS = {
 export function SourceComparison() {
   const [sources, setSources] = useState<SourceData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false); // State to track if cards are expanded
 
   useEffect(() => {
     async function fetchSourceData() {
@@ -41,68 +42,68 @@ export function SourceComparison() {
         const data = await dataService.fetchAllScrapedData();
         
         // Process source data
-        const sourceData = data.reduce((acc, group) => {
-          const sourceName = group.source || 'Source inconnue';
+        const sourceData = await Promise.all(data.map(async (group) => {
+          const sourceId = group.entries[0].scraper_id || 'Source inconnue';
           
-          if (!acc[sourceName]) {
-            acc[sourceName] = {
-              name: sourceName,
-              entries: 0,
-              completeness: 0,
-              mainSectors: {},
-              quality: {
-                email: 0,
-                phone: 0,
-                address: 0,
-                website: 0
-              }
-            };
-          }
-          
+          // Fetch the scraper name using the sourceId
+          const scraper = await dataService.fetchScraperById(sourceId); // Assuming this function exists
+          const sourceName = scraper ? scraper.name : 'Source inconnue'; // Use the fetched name or default
+
+          const acc = {
+            name: sourceName,
+            entries: 0,
+            completeness: 0,
+            mainSectors: {},
+            quality: {
+              email: 0,
+              phone: 0,
+              address: 0,
+              website: 0
+            }
+          };
+
           group.entries.forEach(entry => {
-            acc[sourceName].entries++;
+            acc.entries++;
             
             // Calculate completeness
             const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
             const filledFields = fields.filter(field => entry[field] && entry[field] !== 'Aucune donnée').length;
-            acc[sourceName].completeness += (filledFields / fields.length) * 100;
+            acc.completeness += (filledFields / fields.length) * 100;
             
             // Track sectors
             if (entry.secteur && entry.secteur !== 'Aucune donnée') {
               const mainSector = entry.secteur.split(' > ')[0].trim();
-              if (!acc[sourceName].mainSectors[mainSector]) {
-                acc[sourceName].mainSectors[mainSector] = 0;
+              if (!acc.mainSectors[mainSector]) {
+                acc.mainSectors[mainSector] = 0;
               }
-              acc[sourceName].mainSectors[mainSector]++;
+              acc.mainSectors[mainSector]++;
             }
             
             // Track quality metrics
-            if (entry.email && entry.email !== 'Aucune donnée') acc[sourceName].quality.email++;
-            if (entry.telephone && entry.telephone !== 'Aucune donnée') acc[sourceName].quality.phone++;
-            if (entry.adresse && entry.adresse !== 'Aucune donnée') acc[sourceName].quality.address++;
-            if (entry.site_web && entry.site_web !== 'Aucune donnée') acc[sourceName].quality.website++;
+            if (entry.email && entry.email !== 'Aucune donnée') acc.quality.email++;
+            if (entry.telephone && entry.telephone !== 'Aucune donnée') acc.quality.phone++;
+            if (entry.adresse && entry.adresse !== 'Aucune donnée') acc.quality.address++;
+            if (entry.site_web && entry.site_web !== 'Aucune donnée') acc.quality.website++;
           });
           
           return acc;
-        }, {} as Record<string, SourceData>);
+        }));
 
         // Convert to array and calculate averages
-        const sourceArray = Object.values(sourceData)
-          .map(source => ({
-            ...source,
-            completeness: Math.round(source.completeness / source.entries),
-            mainSectors: Object.entries(source.mainSectors)
-              .map(([name, count]) => ({ name, count }))
-              .sort((a, b) => b.count - a.count)
-              .slice(0, 3),
-            quality: {
-              email: (source.quality.email / source.entries) * 100,
-              phone: (source.quality.phone / source.entries) * 100,
-              address: (source.quality.address / source.entries) * 100,
-              website: (source.quality.website / source.entries) * 100
-            }
-          }))
-          .sort((a, b) => b.entries - a.entries);
+        const sourceArray = sourceData.map(source => ({
+          ...source,
+          completeness: Math.round(source.completeness / source.entries),
+          mainSectors: Object.entries(source.mainSectors)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 3), // Keep only the top 3 sectors
+          quality: {
+            email: (source.quality.email / source.entries) * 100,
+            phone: (source.quality.phone / source.entries) * 100,
+            address: (source.quality.address / source.entries) * 100,
+            website: (source.quality.website / source.entries) * 100
+          }
+        })).sort((a, b) => b.entries - a.entries);
 
         setSources(sourceArray);
       } catch (error) {
@@ -112,6 +113,7 @@ export function SourceComparison() {
         setLoading(false);
       }
     }
+
     fetchSourceData();
   }, []);
 
@@ -161,15 +163,15 @@ export function SourceComparison() {
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Bar dataKey="entries" name="Entreprises" fill={COLORS.entries} />
-              <Bar dataKey="completeness" name="Complétude (%)" fill={COLORS.completeness} />
+              <Bar dataKey="entries" name="Entreprises" fill="#15616D" />
+              <Bar dataKey="completeness" name="Complétude (%)" fill="#FF7D00" />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6">
+        <Card className="p-6 h-40 overflow-hidden transition-all duration-300 ease-in-out" style={{ height: expanded ? 'auto' : '50%' }}>
           <h3 className="text-lg font-semibold mb-4">Qualité des données par source</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -187,26 +189,26 @@ export function SourceComparison() {
                 <YAxis unit="%" />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar dataKey="quality.email" name="Emails" fill={COLORS.quality.email} />
-                <Bar dataKey="quality.phone" name="Téléphones" fill={COLORS.quality.phone} />
-                <Bar dataKey="quality.address" name="Adresses" fill={COLORS.quality.address} />
-                <Bar dataKey="quality.website" name="Sites web" fill={COLORS.quality.website} />
+                <Bar dataKey="quality.email" name="Emails" fill="#15616D" />
+                <Bar dataKey="quality.phone" name="Téléphones" fill="#FF7D00" />
+                <Bar dataKey="quality.address" name="Adresses" fill="#78290F" />
+                <Bar dataKey="quality.website" name="Sites web" fill="#001524" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 h-40 overflow-hidden transition-all duration-300 ease-in-out" style={{ height: expanded ? 'auto' : '50%' }}>
           <h3 className="text-lg font-semibold mb-4">Secteurs principaux par source</h3>
           <div className="space-y-6">
-            {sources.map((source, index) => (
+            {sources.map((source) => (
               <div key={source.name} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <div 
                         className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: COLORS.entries }}
+                        style={{ backgroundColor: "#15616D" }} // Consistent color
                       />
                       <span className="font-medium">{source.name}</span>
                     </div>
@@ -216,13 +218,19 @@ export function SourceComparison() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  {source.mainSectors.map((sector, sectorIndex) => (
+                  {source.mainSectors.slice(0, 5).map((sector) => ( // Limit to top 5 sectors
                     <div key={sector.name} className="flex justify-between text-sm">
                       <span>{sector.name}</span>
                       <span className="font-medium">{sector.count} entreprises</span>
                     </div>
                   ))}
                 </div>
+                <button 
+                  className="mt-2 text-blue-500 hover:underline"
+                  onClick={() => setExpanded(!expanded)} // Toggle expanded state
+                >
+                  {expanded ? 'Voir moins' : 'Voir plus'}
+                </button>
               </div>
             ))}
           </div>
@@ -231,3 +239,5 @@ export function SourceComparison() {
     </div>
   );
 }
+
+export default SourceComparison;

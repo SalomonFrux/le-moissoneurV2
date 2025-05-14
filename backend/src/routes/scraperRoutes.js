@@ -1,5 +1,15 @@
 const express = require('express');
-const { runScraper, getScraperStatus, createScraper, getAllScrapers, getScraperData, exportToPdf, updateScraper, deleteScraper } = require('../controllers/scraperController');
+const { 
+  runScraper, 
+  getScraperStatus, 
+  createScraper, 
+  getAllScrapers, 
+  getScraperData, 
+  exportToPdf, 
+  updateScraper, 
+  deleteScraper, 
+  getScraperById // Ensure this is imported
+} = require('../controllers/scraperController');
 const { getCompaniesWithTitles } = require('../controllers/companyController');
 
 const router = express.Router();
@@ -30,5 +40,8 @@ router.get('/companies', getCompaniesWithTitles);
 
 // Export data to PDF
 router.get('/export/pdf', exportToPdf);
+
+// Get scraper by ID
+router.get('/:id', getScraperById); // Correctly defined route for getting a scraper by ID
 
 module.exports = router;

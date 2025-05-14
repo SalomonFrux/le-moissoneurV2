@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/scrapers', scraperRoutes);
+app.use('/api/scrapers', scraperRoutes); // This will handle all routes prefixed with /api/scrapers
 app.use('/api/scraped-data', scrapedDataRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 

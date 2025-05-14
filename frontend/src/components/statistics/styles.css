@@ -1,0 +1,35 @@
+/* styles.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+.modern-font {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600; /* Adjust weight as needed */
+    color: #333; /* Change color if needed */
+}
+
+.modern-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.modern-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.icon-container {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    opacity: 0.1;
+    font-size: 5rem;
+    pointer-events: none;
+}
+
+.icon {
+    height: 5rem;
+    width: 5rem;
+    color: inherit; /* Inherit color from parent */
+}

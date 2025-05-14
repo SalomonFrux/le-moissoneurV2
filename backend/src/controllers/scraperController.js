@@ -112,6 +112,40 @@ async function getAllScrapers(req, res, next) {
   }
 }
 
+
+
+
+/**
+ * Get a scraper by ID
+ */
+async function getScraperById(req, res, next) {
+  const { id } = req.params; // Get the ID from the request parameters
+
+  try {
+    const { data, error } = await supabase
+      .from('scrapers')
+      .select('*')
+      .eq('id', id) // Filter by the provided ID
+      .single(); // Fetch a single record
+
+    if (error) {
+      logger.error(`Error fetching scraper with ID ${id}: ${error.message}`);
+      return res.status(500).json({ error: error.message });
+    }
+
+    if (!data) {
+      return res.status(404).json({ message: 'Scraper not found' });
+    }
+
+    return res.status(200).json(data); // Return the scraper data
+  } catch (err) {
+    logger.error(`Error in getScraperById: ${err.message}`);
+    next(err);
+  }
+}
+
+
+
 /**
  * Create a new scraper
  */
@@ -421,6 +455,13 @@ async function deleteScraper(req, res, next) {
       return res.status(500).json({ error: 'Error deleting scraped data' });
     }
 
+
+
+
+
+
+
+    
     // Delete the scraper
     const { error: scraperDeleteError } = await supabase
       .from('scrapers')
@@ -450,5 +491,6 @@ module.exports = {
   deleteScrapedData,
   exportToPdf,
   updateScraper,
-  deleteScraper
+  deleteScraper,
+  getScraperById
 };

@@ -18,6 +18,7 @@ export interface ScrapedEntry {
   created_at: string;
   updated_at?: string;
   scraper_name?: string;
+  lien?: string;
 }
 
 export interface ScrapedDataGroup {
@@ -90,6 +91,10 @@ interface ExportOptions {
     data?: string[][];
   }[];
 }
+
+
+
+
 
 export const dataService = {
   async getAllScrapers(): Promise<Scraper[]> {
@@ -217,6 +222,16 @@ export const dataService = {
       throw error;
     }
   },
+
+async fetchScraperById(id: string): Promise<any> {
+  try {
+    const response = await axios.get(`${API_URL}/api/scrapers/${id}`);
+    return response.data; // Assuming the API returns the scraper data in the response body
+  } catch (error) {
+    console.error('Error fetching scraper by ID:', error);
+    throw error; // Rethrow the error for handling in the calling function
+  }
+},
 
   async deleteScraper(id: string): Promise<void> {
     try {

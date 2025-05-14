@@ -16,6 +16,7 @@ async function getDashboardData(req, res) {
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '');
       const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      
       if (authError) {
         logger.error('Auth error:', authError);
       } else {
@@ -35,57 +36,54 @@ async function getDashboardData(req, res) {
       error: scrapersError
     });
 
-    // Get all scraped data (limit to 10k for perf, adjust as needed)
-    const { data: scrapedData, error: scrapedError } = await supabase
-      .from('scraped_data')
-      .select('*')
-      .limit(10000);
-    if (scrapedError) {
-      logger.error('Error fetching scraped_data:', scrapedError);
-    }
+    // Try different approaches to get scraped data
+    const queries = {
+      // Try with service role key
+      withServiceRole: await supabase
+        .from('scraped_data')
+        .select('count'),
 
-    // Helper to extract country from various possible places
-    function extractCountry(item) {
-      if (item.pays) return item.pays;
-      if (item.country) return item.country;
-      if (item.metadata && (item.metadata.country || item.metadata.pays)) {
-        return item.metadata.country || item.metadata.pays;
-      }
-      if (item.content) {
-        try {
-          const parsed = typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
-          if (parsed && (parsed.country || parsed.pays)) return parsed.country || parsed.pays;
-        } catch (e) {}
-      }
-      return null;
-    }
+      // Try with explicit schema and RLS bypass
+      withBypass: await supabase
+        .from('scraped_data')
+        .select('*')
+        .limit(1),
 
-    // Calculate unique countries
-    const uniqueCountries = new Set(
-      (scrapedData || [])
-        .map(extractCountry)
-        .filter(pays => pays && pays.trim() !== '' && pays !== 'Aucune donnée')
-    ).size;
+      // Try with statistics function
+      withStats: await supabase
+        .rpc('get_statistics_summary')
+    };
 
-    // Calculate total entries
-    const totalEntries = scrapedData?.length || 0;
+    // Log query results
+    Object.entries(queries).forEach(([name, result]) => {
+      logger.info(`${name} query result:`, {
+        data: result.data,
+        count: result.count,
+        error: result.error
+      });
+    });
 
-    // Calculate sources count - only count active scrapers with data
-    const sourcesCount = scrapers?.filter(s => s.data_count > 0)?.length || 0;
+    // If we still can't get data, try a direct count through RPC
+    const { data: directCount, error: directError } = await supabase
+      .rpc('get_total_records');
 
-    // Calculate enrichment rate
-    let enrichmentRate = 0;
-    if (sourcesCount > 0) {
-      enrichmentRate = parseFloat(((totalEntries / sourcesCount) * 100).toFixed(2));
-    }
+    logger.info('Direct count result:', { count: directCount, error: directError });
+
+    // Calculate total entries from scrapers as fallback
+    const totalFromScrapers = scrapers?.reduce((sum, s) => sum + (s.data_count || 0), 0) || 0;
 
     // Create stats using the best available data
     const stats = {
-      totalEntries,
-      uniqueCountries,
-      sourcesCount,
-      enrichmentRate
+      totalEntries: directCount || totalFromScrapers || 0,
+      uniqueCountries: queries.withStats.data?.[0]?.total_countries || 0,
+      sourcesCount: scrapers?.length || 0,
+      enrichmentRate: 0
     };
+
+    // Calculate enrichment rate if we have data
+    if (stats.sourcesCount > 0) {
+      stats.enrichmentRate = parseFloat(((stats.totalEntries / stats.sourcesCount) * 100).toFixed(2));
+    }
 
     // Log final results
     logger.info('Final calculated stats:', stats);
@@ -93,12 +91,11 @@ async function getDashboardData(req, res) {
     // Send response
     res.json({ 
       stats,
+      dbStats: queries.withStats.data?.[0],
       _debug: {
         scrapersCount: scrapers?.length,
-        totalEntries,
-        uniqueCountries,
-        sourcesCount,
-        enrichmentRate,
+        totalFromScrapers,
+        directCount,
         hasAuth: !!authHeader
       }
     });
@@ -294,4 +291,4 @@ async function getDebugData(req, res) {
 module.exports = {
   getDashboardData,
   getDebugData
-};
+}; 

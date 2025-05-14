@@ -11,7 +11,7 @@ import {
   FileSpreadsheet,
   Filter
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SectorDistribution } from './SectorDistribution';
 import { GeographicDistribution } from './GeographicDistribution';
@@ -34,6 +34,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+// Importing Google Font
+import './styles.css'; // Ensure this file contains the font import
 
 interface StatisticsData {
   total: number;
@@ -58,14 +61,11 @@ export function StatisticsPage() {
     async function fetchStats() {
       try {
         const data = await dataService.fetchAllScrapedData();
-        // Flatten the data structure to get all entries
         const allEntries = data.flatMap(group => group.entries);
         
-        // Calculate unique sources and sectors
         const sources = new Set(allEntries.map(d => d.source));
         const sectors = new Set(allEntries.map(d => d.secteur));
         
-        // Calculate completeness
         const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
         const totalFields = allEntries.length * fields.length;
         const filledFields = allEntries.reduce((acc, entry) => {
@@ -79,7 +79,6 @@ export function StatisticsPage() {
           completeness: Math.round((filledFields / totalFields) * 100)
         });
 
-        // Animate stats cards
         if (statsRef.current) {
           gsap.fromTo(statsRef.current.children,
             { 
@@ -200,7 +199,7 @@ export function StatisticsPage() {
   return (
     <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Statistiques</h1>
+        <h1 className="modern-font text-3xl font-bold">Statistiques</h1>
         <div className="flex gap-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-[180px]">
@@ -235,43 +234,44 @@ export function StatisticsPage() {
       </div>
 
       <div ref={statsRef} className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-          <div className="flex items-center gap-4">
-            <Database className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            <div>
-              <h3 className="text-sm font-medium text-blue-600 dark:text-blue-400">Total des données</h3>
-              <p className="text-2xl font-bold">{loading ? '...' : stats.total}</p>
-            </div>
+        <Card className="modern-card">
+          <div className="icon-container">
+            <Database className="icon" />
+          </div>
+          <div className="flex flex-col gap-2 items-start p-6 z-10 relative">
+            <span className="text-xs font-semibold uppercase tracking-widest text-gray-700">Total des données</span>
+            <span className="text-4xl font-extrabold text-gray-900 dark:text-gray-200 drop-shadow">{loading ? '...' : stats.total}</span>
+            <span className="text-xs text-muted-foreground">Entreprises collectées</span>
           </div>
         </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-          <div className="flex items-center gap-4">
-            <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
-            <div>
-              <h3 className="text-sm font-medium text-green-600 dark:text-green-400">Sources</h3>
-              <p className="text-2xl font-bold">{loading ? '...' : stats.sources}</p>
-            </div>
+        <Card className="modern-card">
+          <div className="icon-container">
+            <FileText className="icon" />
+          </div>
+          <div className="flex flex-col gap-2 items-start p-6 z-10 relative">
+            <span className="text-xs font-semibold uppercase tracking-widest text-gray-700">Sources</span>
+            <span className="text-4xl font-extrabold text-gray-900 dark:text-gray-200 drop-shadow">{loading ? '...' : stats.sources}</span>
+            <span className="text-xs text-muted-foreground">Sources de données</span>
           </div>
         </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
-          <div className="flex items-center gap-4">
-            <BarChart2 className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-            <div>
-              <h3 className="text-sm font-medium text-purple-600 dark:text-purple-400">Secteurs</h3>
-              <p className="text-2xl font-bold">{loading ? '...' : stats.sectors}</p>
-            </div>
+        <Card className="modern-card">
+          <div className="icon-container">
+            <BarChart2 className="icon" />
+          </div>
+          <div className="flex flex-col gap-2 items-start p-6 z-10 relative">
+            <span className="text-xs font-semibold uppercase tracking-widest text-gray-700">Secteurs</span>
+            <span className="text-4xl font-extrabold text-gray-900 dark:text-gray-200 drop-shadow">{loading ? '...' : stats.sectors}</span>
+            <span className="text-xs text-muted-foreground">Secteurs uniques</span>
           </div>
         </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
-          <div className="flex items-center gap-4">
-            <Filter className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-            <div>
-              <h3 className="text-sm font-medium text-orange-600 dark:text-orange-400">Taux de complétude</h3>
-              <p className="text-2xl font-bold">{loading ? '...' : `${stats.completeness}%`}</p>
-            </div>
+        <Card className="modern-card">
+          <div className="icon-container">
+            <Filter className="icon" />
+          </div>
+          <div className="flex flex-col gap-2 items-start p-6 z-10 relative">
+            <span className="text-xs font-semibold uppercase tracking-widest text-gray-700">Taux de complétude</span>
+            <span className="text-4xl font-extrabold text-gray-900 dark:text-gray-200 drop-shadow">{loading ? '...' : `${stats.completeness}%`}</span>
+            <span className="text-xs text-muted-foreground">Champs complétés</span>
           </div>
         </Card>
       </div>
@@ -280,19 +280,19 @@ export function StatisticsPage() {
         <TabsList>
           <TabsTrigger value="sectors" className="flex items-center gap-2">
             <BarChart2 className="h-4 w-4" />
-            Secteurs
+            <span className="modern-font">Secteurs</span>
           </TabsTrigger>
           <TabsTrigger value="geography" className="flex items-center gap-2">
             <Database className="h-4 w-4" />
-            Géographie
+            <span className="modern-font">Géographie</span>
           </TabsTrigger>
           <TabsTrigger value="trends" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            Tendances
+            <span className="modern-font">Tendances</span>
           </TabsTrigger>
           <TabsTrigger value="sources" className="flex items-center gap-2">
             <Database className="h-4 w-4" />
-            Sources
+            <span className="modern-font">Sources</span>
           </TabsTrigger>
         </TabsList>
 
