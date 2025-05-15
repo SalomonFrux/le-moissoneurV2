@@ -126,8 +126,8 @@ export function ScrapersPage() {
           }
         }))
         .sort((a, b) => {
-          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          const dateA = a.last_run && !isNaN(new Date(a.last_run).getTime()) ? new Date(a.last_run).getTime() : 0;
+          const dateB = b.last_run && !isNaN(new Date(b.last_run).getTime()) ? new Date(b.last_run).getTime() : 0;
           return dateB - dateA; // Sort by newest first
         });
       setScrapers(transformedData);

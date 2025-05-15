@@ -34,6 +34,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Importing Google Font
 import './styles.css'; // Ensure this file contains the font import
@@ -109,7 +111,6 @@ export function StatisticsPage() {
     try {
       const data = await dataService.fetchAllScrapedData();
       const allEntries = data.flatMap(group => group.entries);
-      
       if (format === 'excel') {
         await dataService.exportToExcel({
           data: allEntries,
@@ -128,49 +129,8 @@ export function StatisticsPage() {
                     acc[curr.secteur] = (acc[curr.secteur] || 0) + 1;
                     return acc;
                   }, {} as Record<string, number>)
-                ).map(([sector, count]) => [sector, count])
+                ).map(([sector, count]) => [sector, count.toString()])
               ]
-            },
-            {
-              name: 'Données détaillées',
-              data: [
-                ['Nom', 'Email', 'Téléphone', 'Adresse', 'Secteur', 'Source', 'Date de collecte'],
-                ...allEntries.map(item => [
-                  item.nom,
-                  item.email,
-                  item.telephone,
-                  item.adresse,
-                  item.secteur,
-                  item.source,
-                  new Date(item.created_at).toLocaleDateString()
-                ])
-              ]
-            }
-          ]
-        });
-        toast.success('Export Excel réussi');
-      } else {
-        await dataService.exportToPdf({
-          data: allEntries,
-          sections: [
-            {
-              title: 'Résumé',
-              content: [
-                { type: 'text', text: `Total des entreprises: ${allEntries.length}` },
-                { type: 'text', text: `Sources uniques: ${new Set(allEntries.map(d => d.source)).size}` },
-                { type: 'text', text: `Secteurs uniques: ${new Set(allEntries.map(d => d.secteur)).size}` }
-              ]
-            },
-            {
-              title: 'Distribution par secteur',
-              type: 'table',
-              headers: ['Secteur', 'Nombre'],
-              data: Object.entries(
-                allEntries.reduce((acc, curr) => {
-                  acc[curr.secteur] = (acc[curr.secteur] || 0) + 1;
-                  return acc;
-                }, {} as Record<string, number>)
-              ).map(([sector, count]) => [sector, count.toString()])
             },
             {
               title: 'Données détaillées',
@@ -188,11 +148,115 @@ export function StatisticsPage() {
             }
           ]
         });
+        toast.success('Export Excel réussi');
+      } else {
+        // PDF export: use GET, no options
+        const blob = await dataService.exportToPdf();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `export-${new Date().toISOString()}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
         toast.success('Export PDF réussi');
       }
     } catch (error) {
       console.error('Export error:', error);
       toast.error('Erreur lors de l\'export');
+    }
+  };
+
+  // Chunked CSV export for large datasets
+  const CHUNK_SIZE = 100000;
+  const handleCsvExport = async () => {
+    try {
+      const data = await dataService.fetchAllScrapedData();
+      const allEntries = data.flatMap(group => group.entries);
+      if (allEntries.length === 0) {
+        toast.error('Aucune donnée à exporter');
+        return;
+      }
+      const headers = ['Nom', 'Email', 'Téléphone', 'Adresse', 'Secteur', 'Source', 'Date'];
+      const totalChunks = Math.ceil(allEntries.length / CHUNK_SIZE);
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min((i + 1) * CHUNK_SIZE, allEntries.length);
+        const chunk = allEntries.slice(start, end);
+        const rows = chunk.map(item => [
+          item.nom,
+          item.email,
+          item.telephone,
+          item.adresse,
+          item.secteur,
+          item.source,
+          new Date(item.created_at).toLocaleDateString()
+        ]);
+        const csvContent = [headers, ...rows]
+          .map(row => row.map(val => {
+            if (val == null) return '';
+            const str = String(val).replace(/"/g, '""');
+            return /[",\n]/.test(str) ? `"${str}"` : str;
+          }).join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `export-part${i + 1}-${new Date().toISOString()}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        // Add delay between chunks to prevent browser overload
+        if (totalChunks > 1) await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      toast.success(`Export CSV terminé (${totalChunks} fichier(s))`);
+    } catch (error) {
+      console.error('Export CSV error:', error);
+      toast.error('Erreur lors de l\'export CSV');
+    }
+  };
+
+  // PDF export of dashboard charts (visible content)
+  const handlePdfExportCharts = async () => {
+    try {
+      const dashboardNode = document.querySelector('.space-y-6.p-6'); // Main dashboard container
+      if (!dashboardNode) {
+        toast.error('Impossible de trouver le contenu à exporter');
+        return;
+      }
+      toast('Génération du PDF en cours...');
+      // Use html2canvas to capture the dashboard as an image
+      const canvas = await html2canvas(dashboardNode as HTMLElement, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+      // Calculate image size to fit A4
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = canvas.height * (pageWidth / canvas.width);
+      let y = 0;
+      // If the image is taller than one page, split it
+      if (imgHeight < pageHeight) {
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      } else {
+        let position = 0;
+        let remainingHeight = imgHeight;
+        while (remainingHeight > 0) {
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          remainingHeight -= pageHeight;
+          if (remainingHeight > 0) {
+            pdf.addPage();
+            position -= pageHeight;
+          }
+        }
+      }
+      pdf.save(`dashboard-charts-${new Date().toISOString()}.pdf`);
+      toast.success('Export PDF des graphiques réussi');
+    } catch (error) {
+      console.error('Export PDF charts error:', error);
+      toast.error('Erreur lors de l\'export PDF des graphiques');
     }
   };
 
@@ -220,13 +284,13 @@ export function StatisticsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleExport('excel')}>
+              <DropdownMenuItem onClick={handleCsvExport}>
                 <FileSpreadsheet className="h-4 w-4 mr-2" />
-                Excel
+                Exporter CSV
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('pdf')}>
+              <DropdownMenuItem onClick={handlePdfExportCharts}>
                 <FileSpreadsheet className="h-4 w-4 mr-2" />
-                PDF
+                PDF (graphiques)
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -197,10 +197,9 @@ export const dataService = {
 
   async exportToPdf(): Promise<Blob> {
     try {
-      const response = await axios.get<ArrayBuffer>(`${API_URL}/api/scrapers/export/pdf`, {
+      const response = await axios.get(`${API_URL}/api/scrapers/export/pdf`, {
         responseType: 'arraybuffer'
       });
-      
       return new Blob([response.data], { type: 'application/pdf' });
     } catch (error) {
       console.error('Error exporting to PDF:', error);
@@ -241,4 +240,4 @@ async fetchScraperById(id: string): Promise<any> {
       throw error;
     }
   },
-}; 
+};

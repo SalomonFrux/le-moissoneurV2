@@ -22,6 +22,7 @@ A web application for managing and running web scrapers to collect data from Afr
    npm install @supabase/supabase-js dotenv winston
    cd frontend && npm install framer-motion
    npm install axios
+   npm install jspdf html2canvas
    rm -rf node_modules/.vite
    npm run dev
    iF ERROR PERSISTANT, TRY THIS:

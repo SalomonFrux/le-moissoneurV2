@@ -148,7 +148,7 @@ export function DataPage() {
   // Handle export for a pecific scraper group
   const handleExportGroup = (scraperName: string, groupEntries: ScrapedEntry[]) => {
     const csvData = groupEntries.map(entry => ({
-      'Nom du Scraper': entry.nom || '-',
+      'Nom de la compagnie': entry.nom || '-',
       Secteur: entry.secteur === 'Aucune donnée' ? '-' : (entry.secteur || '-'),
       Pays: entry.pays === 'Aucune donnée' ? '-' : (entry.pays || '-'),
       'Site Web': entry.site_web === 'Aucune donnée' ? '-' : (entry.site_web || '-'),
@@ -366,10 +366,7 @@ export function DataPage() {
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             Exporter CSV
           </Button>
-          <Button variant="outline" onClick={handleExportPdf} disabled={loading}>
-            <FileText className="mr-2 h-4 w-4" />
-            Exporter PDF
-          </Button>
+        
         </div>
       </div>
 

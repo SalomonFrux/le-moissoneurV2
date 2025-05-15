@@ -4,6 +4,8 @@
     "@supabase/supabase-js": "^2.49.4",
     "2captcha": "^3.0.5-2",
     "captcha-solver": "^0.0.6",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "lucide-react": "^0.508.0",
     "pdfkit": "^0.17.1",
     "proxy-chain": "^2.5.8",

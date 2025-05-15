@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { dataService } from '@/services/dataService';
 import { toast } from 'sonner';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface CountryData {
   pays: string;
@@ -23,12 +23,61 @@ const COLORS = {
   completeness: '#9C6B22'
 };
 
-const REGION_COLORS = ['#2D8B61', '#56BC82', '#8ED6AF', '#BDECD3', '#DCF1E7'];
+// Updated color mapping for regions
+const REGION_COLORS = {
+  'Ouest Afrique': '#FF5733',
+  'Nord Afrique': '#33FF57',
+  'Centre Afrique': '#3357FF',
+  'Est Afrique': '#F1C40F',
+  'Sud Afrique': '#8E44AD',
+  'Ouest Europe': '#2D8B61',
+  'Europe Centrale': '#56BC82',
+  'Europe du Sud': '#8ED6AF',
+  'Europe du Nord': '#BDECD3',
+  'Europe de l’Est': '#DCF1E7',
+  'USA': '#FF8C00',
+  'Autre': '#A9A9A9'
+};
+
+// Utility to normalize country names for mapping
+function normalizeCountryName(country: string): string {
+  return country
+    .toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '') // Remove accents
+    .replace(/[’‘`´]/g, "'") // Normalize apostrophes
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Dynamic country-to-region mapping based on scraped countries
+const getRegionForCountry = (country: string): string => {
+  if (!country || country === 'Non spécifié') return 'Autre';
+  const c = normalizeCountryName(country);
+  // Africa
+  if (["cote d'ivoire", "côte d'ivoire", 'ivory coast', 'senegal', 'mali', 'burkina faso', 'guinee', 'togo', 'benin', 'niger', 'ghana', 'nigeria', 'liberia', 'sierra leone', 'gambie', 'gambia', 'cap-vert', 'cape verde'].includes(c)) return 'Ouest Afrique';
+  if (['maroc', 'morocco', 'algerie', 'algeria', 'tunisie', 'tunisia', 'libye', 'libya', 'egypte', 'egypt'].includes(c)) return 'Nord Afrique';
+  if (['cameroun', 'cameroon', 'gabon', 'centrafrique', 'central african republic', 'rca', 'guinee equatoriale', 'equatorial guinea', 'congo', 'congo-brazzaville', 'congo republic', 'sao tome-et-principe', 'sao tome and principe', 'tchad', 'chad'].includes(c)) return 'Centre Afrique';
+  if (['rdc', 'republique democratique du congo', 'democratic republic of the congo', 'angola', 'namibie', 'namibia', 'afrique du sud', 'south africa', 'botswana', 'zambie', 'zambia', 'zimbabwe', 'malawi', 'mozambique', 'lesotho', 'swaziland', 'eswatini'].includes(c)) return 'Sud Afrique';
+  if (['kenya', 'tanzanie', 'tanzania', 'ouganda', 'uganda', 'rwanda', 'burundi', 'ethiopie', 'ethiopia', 'somalie', 'somalia', 'soudan', 'sudan', 'soudan du sud', 'south sudan', 'djibouti', 'erythree', 'eritrea'].includes(c)) return 'Est Afrique';
+  // Europe
+  if (['france', 'espagne', 'spain', 'portugal', 'belgique', 'belgium', 'royaume-uni', 'united kingdom', 'angleterre', 'england', 'irlande', 'ireland', 'pays-bas', 'netherlands'].includes(c)) return 'Ouest Europe';
+  if (['allemagne', 'germany', 'autriche', 'austria', 'pologne', 'poland', 'suisse', 'switzerland', 'hongrie', 'hungary', 'tchequie', 'czech republic', 'slovaquie', 'slovakia'].includes(c)) return 'Europe Centrale';
+  if (['italie', 'italy', 'espagne', 'spain', 'grece', 'greece', 'croatie', 'croatia', 'slovenie', 'slovenia', 'malte', 'malta'].includes(c)) return 'Europe du Sud';
+  if (['norvege', 'norway', 'suede', 'sweden', 'finlande', 'finland', 'danemark', 'denmark', 'islande', 'iceland'].includes(c)) return 'Europe du Nord';
+  if (['roumanie', 'romania', 'bulgarie', 'bulgaria', 'serbie', 'serbia', 'ukraine', 'moldavie', 'moldova', 'russie', 'russia'].includes(c)) return 'Europe de l’Est';
+  // USA
+  if (['etats-unis', 'united states', 'usa', 'us'].includes(c)) return 'USA';
+  // Default
+  return 'Autre';
+};
 
 export function GeographicDistribution() {
   const [countries, setCountries] = useState<CountryData[]>([]);
   const [regions, setRegions] = useState<RegionData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [regionDetails, setRegionDetails] = useState<Record<string, { entreprises: number; mainSectors: Set<string> }>>({});
+  const [expandedSectors, setExpandedSectors] = useState<{ [key: string]: boolean }>({}); // State to manage expansion of sectors
+  const [expandedRegion, setExpandedRegion] = useState<string | null>(null); // Track the expanded region
 
   useEffect(() => {
     async function fetchGeographicData() {
@@ -44,32 +93,47 @@ export function GeographicDistribution() {
               pays: country,
               entreprises: 0,
               completeness: 0,
-              mainSectors: new Set<string>()
+              mainSectors: []
             };
           }
           acc[country].entreprises++;
-          
           // Calculate completeness
           const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
           const filledFields = fields.filter(field => entry[field] && entry[field] !== 'Aucune donnée').length;
           acc[country].completeness += (filledFields / fields.length) * 100;
-          
           // Track sectors
           if (entry.secteur && entry.secteur !== 'Aucune donnée') {
-            acc[country].mainSectors.add(entry.secteur);
+            acc[country]._sectorSet = acc[country]._sectorSet || new Set();
+            acc[country]._sectorSet.add(entry.secteur);
           }
-          
           return acc;
-        }, {} as Record<string, CountryData>);
-
+        }, {} as Record<string, any>);
         // Convert to array and calculate averages
         const countryArray = Object.values(countryData)
-          .map(country => ({
-            ...country,
-            completeness: Math.round(country.completeness / country.entreprises),
-            mainSectors: Array.from(country.mainSectors).slice(0, 3) // Keep top 3 sectors
-          }))
+          .map(country => {
+            const mainSectors = country._sectorSet ? Array.from(country._sectorSet).slice(0, 3) : [];
+            return {
+              ...country,
+              completeness: Math.round(country.completeness / country.entreprises),
+              mainSectors
+            };
+          })
           .sort((a, b) => b.entreprises - a.entreprises);
+
+        // --- Dynamic region aggregation ---
+        const dynamicRegionDetails: Record<string, { entreprises: number; mainSectors: Set<string> }> = {};
+        allEntries.forEach(entry => {
+          const country = entry.pays === 'Aucune donnée' ? 'Non spécifié' : (entry.pays || 'Non spécifié');
+          const region = getRegionForCountry(country);
+          if (!dynamicRegionDetails[region]) {
+            dynamicRegionDetails[region] = { entreprises: 0, mainSectors: new Set() };
+          }
+          dynamicRegionDetails[region].entreprises++;
+          if (entry.secteur && entry.secteur !== 'Aucune donnée') {
+            dynamicRegionDetails[region].mainSectors.add(entry.secteur.split(' > ')[0].trim());
+          }
+        });
+        setRegionDetails(dynamicRegionDetails);
 
         // Process region data based on countries
         const regionMapping: Record<string, string[]> = {
@@ -105,7 +169,7 @@ export function GeographicDistribution() {
         const totalRegions = Object.values(regionData).reduce((sum, region) => sum + region.value, 0);
         const regionArray = Object.values(regionData).map(region => ({
           ...region,
-          percentage: (region.value / totalRegions) * 100
+          percentage: totalRegions > 0 ? (region.value / totalRegions) * 100 : 0
         }));
 
         setCountries(countryArray);
@@ -126,9 +190,9 @@ export function GeographicDistribution() {
         <div className="bg-white p-2 border rounded shadow">
           <p className="font-medium">{label}</p>
           {payload.map((p: any) => (
-            <p key={p.name} style={{ color: p.color }}>
-              {p.name === 'entreprises' ? 'Entreprises: ' : 'Complétude: '}
-              {p.value}{p.name === 'completeness' ? '%' : ''}
+            <p key={p.dataKey} style={{ color: p.color }}>
+              {p.dataKey === 'entreprises' ? 'Entreprises: ' : p.dataKey === 'completeness' ? 'Complétude: ' : p.dataKey}
+              {typeof p.value === 'number' ? p.value.toFixed(1) : p.value}{p.dataKey === 'completeness' ? '%' : ''}
             </p>
           ))}
         </div>
@@ -141,97 +205,142 @@ export function GeographicDistribution() {
     return <div>Chargement des données géographiques...</div>;
   }
 
+  // List of all possible regions to display (in preferred order)
+  const allDynamicRegions = [
+    'Ouest Afrique',
+    'Nord Afrique',
+    'Centre Afrique',
+    'Est Afrique',
+    'Sud Afrique',
+    'Ouest Europe',
+    'Europe Centrale',
+    'Europe du Sud',
+    'Europe du Nord',
+    'Europe de l’Est',
+    'USA',
+    'Autre',
+  ];
+
+  const toggleSectorExpansion = (region: string) => {
+    setExpandedSectors((prev) => ({
+      ...prev,
+      [region]: !prev[region],
+    }));
+  };
+
+  const toggleRegionDetails = () => {
+    setExpandedRegion(expandedRegion ? null : 'Détails par région'); // Toggle the expanded region
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <Card className="p-6 lg:col-span-2">
-        <h3 className="text-lg font-semibold mb-4">Répartition géographique des entreprises</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={countries}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="pays" />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Bar dataKey="entreprises" name="Entreprises" fill={COLORS.enterprises} />
-              <Bar dataKey="completeness" name="Complétude (%)" fill={COLORS.completeness} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Répartition régionale</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={regions}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={120}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {regions.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={REGION_COLORS[index % REGION_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
-      <Card className="p-6 lg:col-span-3">
-        <h3 className="text-lg font-semibold mb-4">Détails par région</h3>
-        <div className="space-y-6">
-          {regions.map((region, index) => (
-            <div key={region.name} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: REGION_COLORS[index % REGION_COLORS.length] }}
-                    />
-                    <span className="font-medium">{region.name}</span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Secteurs principaux: {region.mainSectors.join(', ')}
-                  </div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full"> {/* Ensure the grid takes full width */}
+      
+      {/* Card for Détails par région */}
+      {expandedRegion ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:col-span-3 transition-all duration-300">
+          {allDynamicRegions.map((region) => {
+            const details = regionDetails[region] || { entreprises: 0, mainSectors: new Set() };
+            const total = Object.values(regionDetails).reduce((a, b) => a + b.entreprises, 0);
+            return (
+              <Card key={region} className="p-6 overflow-hidden transition-all duration-300 ease-in-out">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{region}</h3>
+                  <button 
+                    className="text-blue-500 hover:underline"
+                    onClick={() => toggleSectorExpansion(region)} // Toggle sector expansion
+                  >
+                    {expandedSectors[region] ? 'Voir moins' : 'Voir plus'}
+                  </button>
                 </div>
-                <div className="text-sm">
-                  {region.value} entreprises
+                <div className="mt-2">
+                  <p>{details.entreprises} entreprises</p>
+                  <p>Complétude: {total > 0 ? ((details.entreprises / total) * 100).toFixed(1) : '0'}%</p>
                 </div>
-              </div>
-              <div className="w-full bg-secondary rounded-full h-2">
-                <div
-                  className="rounded-full h-2"
-                  style={{ 
-                    width: `${region.percentage}%`,
-                    backgroundColor: REGION_COLORS[index % REGION_COLORS.length]
+                {expandedSectors[region] && (
+                  <div className="mt-4">
+                    <h4 className="font-semibold">Secteurs principaux:</h4>
+                    <ul className="list-disc pl-5">
+                      {[...details.mainSectors].slice(0, 3).map((sector, sectorIndex) => (
+                        <li key={sector} className="flex justify-between">
+                          <span className="flex items-center">
+                            <div 
+                              className="w-3 h-3 rounded-full mr-2"
+                              style={{ backgroundColor: REGION_COLORS[region.name] }} // Color for the sector
+                            />
+                            {sector}
+                          </span>
+                          <span>{details.entreprises} entreprises</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <>
+          {/* Card for Répartition géographique des entreprises */}
+          <Card className="p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold mb-4">Répartition géographique des entreprises</h3>
+            <div className="h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={countries}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
                   }}
-                />
-              </div>
-              <div className="text-sm text-right">
-                {region.percentage.toFixed(1)}% du total
-              </div>
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="pays" />
+                  <YAxis />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                  <Bar dataKey="entreprises" name="Entreprises" fill={COLORS.enterprises} />
+                  <Bar dataKey="completeness" name="Complétude (%)" fill={COLORS.completeness} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          ))}
-        </div>
-      </Card>
+          </Card>
+
+          {/* Card for Legend of Répartition régionale */}
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Légende de la Répartition régionale</h3>
+            <div className="flex flex-col">
+              {regions.map((region) => (
+                <div key={region.name} className="flex items-center mb-2">
+                  <div 
+                    className="w-3 h-3 rounded-full mr-2"
+                    style={{ backgroundColor: REGION_COLORS[region.name] }} // Color for the region
+                  />
+                  <span className="font-medium">{region.name}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </>
+      )}
+
+      {/* Button to toggle Détails par région */}
+      <div className="lg:col-span-3 mb-2 flex justify-end">
+        <button 
+           className="px-4 py-2 border border-grey bg-[#] text-black rounded hover:bg-[#FF6F20] hover:text-white transition flex items-center"
+          onClick={toggleRegionDetails}
+        >
+          {expandedRegion ? 'Cacher -' : 'Voir Plus +'}
+        </button>
+      </div>
+
+
+
+
+
     </div>
   );
 }
+
+export default GeographicDistribution;

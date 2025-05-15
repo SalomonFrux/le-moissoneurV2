@@ -325,25 +325,28 @@ const exportToPdf = async (req, res) => {
   try {
     const PDFDocument = require('pdfkit');
     const doc = new PDFDocument();
-    
-    // Set response headers
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=export-${new Date().toISOString()}.pdf`);
-    
-    // Pipe the PDF document to the response
+
     doc.pipe(res);
-    
+
     // Get all scraped data
-    const data = await supabase
+    const { data: rows, error } = await supabase
       .from('scraped_data')
       .select('*')
       .order('created_at', { ascending: false });
-    
-    // Add content to PDF
+
+    if (error) {
+      console.error('Error fetching data:', error);
+      doc.text('Erreur lors de la récupération des données.');
+      doc.end();
+      return;
+    }
+
     doc.fontSize(25).text('Données Extraites', { align: 'center' });
     doc.moveDown();
-    
-    // Add table headers
+
     doc.fontSize(12);
     const headers = ['Nom', 'Secteur', 'Pays', 'Email', 'Téléphone', 'Adresse'];
     let y = doc.y;
@@ -351,9 +354,8 @@ const exportToPdf = async (req, res) => {
       doc.text(header, 50 + (i * 90), y);
     });
     doc.moveDown();
-    
-    // Add data rows
-    data.forEach(entry => {
+
+    (rows || []).forEach(entry => {
       y = doc.y;
       doc.text(entry.nom || '-', 50, y);
       doc.text(entry.secteur || '-', 140, y);
@@ -362,14 +364,9 @@ const exportToPdf = async (req, res) => {
       doc.text(entry.telephone || '-', 410, y);
       doc.text(entry.adresse || '-', 500, y);
       doc.moveDown();
-      
-      // Add a new page if we're near the bottom
-      if (doc.y > 700) {
-        doc.addPage();
-      }
+      if (doc.y > 700) doc.addPage();
     });
-    
-    // Finalize the PDF
+
     doc.end();
   } catch (error) {
     console.error('Error generating PDF:', error);
@@ -455,13 +452,6 @@ async function deleteScraper(req, res, next) {
       return res.status(500).json({ error: 'Error deleting scraped data' });
     }
 
-
-
-
-
-
-
-    
     // Delete the scraper
     const { error: scraperDeleteError } = await supabase
       .from('scrapers')

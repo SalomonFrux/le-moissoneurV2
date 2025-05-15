@@ -34,7 +34,7 @@ const COLORS = {
 export function SourceComparison() {
   const [sources, setSources] = useState<SourceData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState(false); // State to track if cards are expanded
+  const [expandedSectors, setExpandedSectors] = useState<{ [key: string]: boolean }>({}); // State to manage expansion of sectors
 
   useEffect(() => {
     async function fetchSourceData() {
@@ -93,10 +93,12 @@ export function SourceComparison() {
         const sourceArray = sourceData.map(source => ({
           ...source,
           completeness: Math.round(source.completeness / source.entries),
-          mainSectors: Object.entries(source.mainSectors)
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 3), // Keep only the top 3 sectors
+          mainSectors: Array.isArray(source.mainSectors)
+            ? source.mainSectors.sort((a, b) => Number(b.count) - Number(a.count)).slice(0, 3)
+            : Object.entries(source.mainSectors)
+                .map(([name, count]) => ({ name, count: Number(count) }))
+                .sort((a, b) => Number(b.count) - Number(a.count))
+                .slice(0, 3),
           quality: {
             email: (source.quality.email / source.entries) * 100,
             phone: (source.quality.phone / source.entries) * 100,
@@ -123,14 +125,15 @@ export function SourceComparison() {
         <div className="bg-white p-2 border rounded shadow">
           <p className="font-medium">{label}</p>
           {payload.map((p: any) => (
-            <p key={p.name} style={{ color: p.color }}>
-              {p.name === 'entries' ? 'Entreprises: ' : 
-               p.name === 'completeness' ? 'Complétude: ' : 
-               p.name === 'email' ? 'Emails: ' :
-               p.name === 'phone' ? 'Téléphones: ' :
-               p.name === 'address' ? 'Adresses: ' :
-               'Sites web: '}
-              {p.value.toFixed(1)}{p.name !== 'entries' ? '%' : ''}
+            <p key={p.dataKey} style={{ color: p.color }}>
+              {p.dataKey === 'quality.email' ? 'Emails: ' :
+               p.dataKey === 'quality.phone' ? 'Téléphones: ' :
+               p.dataKey === 'quality.address' ? 'Adresses: ' :
+               p.dataKey === 'quality.website' ? 'Sites web: ' :
+               p.dataKey === 'entries' ? 'Entreprises: ' :
+               p.dataKey === 'completeness' ? 'Complétude: ' :
+               p.dataKey}
+              {typeof p.value === 'number' ? p.value.toFixed(1) : p.value}{p.dataKey !== 'entries' && p.dataKey !== 'name' ? '%' : ''}
             </p>
           ))}
         </div>
@@ -143,101 +146,81 @@ export function SourceComparison() {
     return <div>Chargement des données des sources...</div>;
   }
 
-  return (
-    <div className="space-y-6">
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Comparaison des sources de données</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={sources}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Bar dataKey="entries" name="Entreprises" fill="#15616D" />
-              <Bar dataKey="completeness" name="Complétude (%)" fill="#FF7D00" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+  const toggleSectorExpansion = (sourceName: string) => {
+    setExpandedSectors((prev) => ({
+      ...prev,
+      [sourceName]: !prev[sourceName],
+    }));
+  };
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6 h-40 overflow-hidden transition-all duration-300 ease-in-out" style={{ height: expanded ? 'auto' : '50%' }}>
-          <h3 className="text-lg font-semibold mb-4">Qualité des données par source</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={sources}
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis unit="%" />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Bar dataKey="quality.email" name="Emails" fill="#15616D" />
-                <Bar dataKey="quality.phone" name="Téléphones" fill="#FF7D00" />
-                <Bar dataKey="quality.address" name="Adresses" fill="#78290F" />
-                <Bar dataKey="quality.website" name="Sites web" fill="#001524" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card className="p-6 h-40 overflow-hidden transition-all duration-300 ease-in-out" style={{ height: expanded ? 'auto' : '50%' }}>
-          <h3 className="text-lg font-semibold mb-4">Secteurs principaux par source</h3>
-          <div className="space-y-6">
-            {sources.map((source) => (
-              <div key={source.name} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: "#15616D" }} // Consistent color
-                      />
-                      <span className="font-medium">{source.name}</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {source.entries} entreprises
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  {source.mainSectors.slice(0, 5).map((sector) => ( // Limit to top 5 sectors
-                    <div key={sector.name} className="flex justify-between text-sm">
-                      <span>{sector.name}</span>
-                      <span className="font-medium">{sector.count} entreprises</span>
-                    </div>
-                  ))}
-                </div>
-                <button 
-                  className="mt-2 text-blue-500 hover:underline"
-                  onClick={() => setExpanded(!expanded)} // Toggle expanded state
-                >
-                  {expanded ? 'Voir moins' : 'Voir plus'}
-                </button>
-              </div>
-            ))}
-          </div>
-        </Card>
+return (
+  <div className="space-y-6">
+    <Card className="p-6">
+      <h3 className="text-lg font-semibold mb-4">Qualité des données par source - 6 Meilleurs sources</h3>
+      <div className="h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={sources
+              .sort((a, b) => b.quality.email - a.quality.email) // Sort by email quality (or any other criterion)
+              .slice(0, 6)} // Get the top 6 sources
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis unit="%" />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Bar dataKey="quality.email" name="Emails" fill="#15616D" />
+            <Bar dataKey="quality.phone" name="Téléphones" fill="#FF7D00" />
+            <Bar dataKey="quality.address" name="Adresses" fill="#78290F" />
+            <Bar dataKey="quality.website" name="Sites web" fill="#001524" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
+    </Card>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {sources
+        .sort((a, b) => b.entries - a.entries) // Sort by entries (or any other criterion)
+        .slice(0, 6) // Get the top 6 sources
+        .map((source) => (
+          <Card key={source.name} className="p-6 overflow-hidden transition-all duration-300 ease-in-out">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">{source.name}</h3>
+              <button 
+                className="text-blue-500 hover:underline"
+                onClick={() => toggleSectorExpansion(source.name)} // Toggle sector expansion
+              >
+                {expandedSectors[source.name] ? 'Voir moins' : 'Voir plus'}
+              </button>
+            </div>
+            <div className="mt-2">
+              <p>{source.entries} entreprises</p>
+              <p>Complétude: {source.completeness}%</p>
+            </div>
+            {expandedSectors[source.name] && (
+              <div className="mt-4">
+                <h4 className="font-semibold">Secteurs principaux:</h4>
+                <ul className="list-disc pl-5">
+                  {source.mainSectors.map((sector) => (
+                    <li key={sector.name} className="flex justify-between">
+                      <span>{sector.name}</span>
+                      <span>{sector.count} entreprises</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Card>
+        ))}
     </div>
-  );
+  </div>
+);
 }
 
 export default SourceComparison;
