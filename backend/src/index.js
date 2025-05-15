@@ -1,25 +1,12 @@
 require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
 const morgan = require('morgan');
-const scraperRoutes = require('./routes/scraperRoutes');
-const scrapedDataRoutes = require('./routes/scrapedDataRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes');
 const logger = require('./utils/logger');
+const app = require('./app');
 
-// Initialize Express app
-const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Add morgan middleware
 app.use(morgan('dev'));
-
-// Routes
-app.use('/api/scrapers', scraperRoutes);
-app.use('/api/scraped-data', scrapedDataRoutes);
-app.use('/api/dashboard', dashboardRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -24,6 +24,7 @@ A web application for managing and running web scrapers to collect data from Afr
    npm install axios
    npm install jspdf html2canvas
    rm -rf node_modules/.vite
+  cd frontend && npm install file-saver @types/file-saver
    npm run dev
    iF ERROR PERSISTANT, TRY THIS:
   rm -rf node_modules package-lock.json
