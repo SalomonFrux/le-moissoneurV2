@@ -567,10 +567,10 @@ export function ScrapersPage() {
                             <TableCell>{entry.telephone || '-'}</TableCell>
                             <TableCell>{entry.adresse || '-'}</TableCell>
                             <TableCell>
-                              {entry.website ? (
-                                <a href={entry.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline flex items-center gap-1">
+                              {entry.site_web ? (
+                                <a href={entry.site_web} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline flex items-center gap-1">
                                   <LinkIcon className="h-4 w-4" />
-                                  {entry.website}
+                                  {entry.site_web}
                                 </a>
                               ) : '-'}
                             </TableCell>
