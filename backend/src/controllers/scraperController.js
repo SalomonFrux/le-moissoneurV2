@@ -403,8 +403,7 @@ async function updateScraper(req, res, next) {
         selectors,
         frequency: frequency || existingScraper.frequency,
         type: type || existingScraper.type,
-        country: country || existingScraper.country,
-        updated_at: new Date().toISOString()
+        country: country || existingScraper.country
       })
       .eq('id', id)
       .select()

@@ -25,6 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/ui/pagination';
+import axios from 'axios';
 
 interface ScraperData {
   id: string;
@@ -107,7 +108,7 @@ export function Dashboard() {
   const [selectedScraperId, setSelectedScraperId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
-  const pageSizeOptions = [4, 6, 8, 12, 20, 50, 100];
+  const pageSizeOptions = [4, 6, 8, 12, 20, 50, 100, 200, 500, 1000];
   const [sortBy, setSortBy] = useState<'name' | 'status' | 'dataCount' | 'date'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [stats, setStats] = useState<DashboardStats>({
@@ -183,13 +184,18 @@ export function Dashboard() {
       try {
         // First fetch the dashboard stats
         await fetchDashboardStats();
-      //  console.log('Current stats after fetch:', stats);
+        console.log('Dashboard stats fetched');
 
         // Then fetch scrapers and data
         const [scrapers, scrapedDataGroups] = await Promise.all([
           dataService.getAllScrapers(),
           dataService.fetchAllScrapedData()
         ]);
+
+        console.log('Fetched data:', {
+          scrapers: scrapers.length,
+          scrapedDataGroups: scrapedDataGroups.length
+        });
 
         // Format the scrapers data
         const scrapersWithFormattedDate = scrapers.map(scraper => ({
@@ -206,8 +212,22 @@ export function Dashboard() {
         }, {});
         
         setGroupedData(grouped);
+
+        // Update stats with active sources
+        const activeSourcesCount = scrapers.filter(s => s.data_count > 0).length;
+        setStats(prev => ({
+          ...prev,
+          sourcesCount: activeSourcesCount
+        }));
       } catch (error) {
-       // console.error('Error loading dashboard:', error);
+        console.error('Error loading dashboard:', error);
+        if (axios.isAxiosError(error)) {
+          console.error('Axios error details:', {
+            status: error.response?.status,
+            data: error.response?.data,
+            headers: error.response?.headers
+          });
+        }
         toast.error('Erreur lors du chargement des données');
       } finally {
         setLoading(false);
@@ -245,22 +265,42 @@ export function Dashboard() {
 
   const handleViewData = async (id: string) => {
     try {
-      const data = await dataService.fetchScrapedData(id);
-      setSelectedScraperData(data.slice(0, 5)); // Limit to 5 items
-      setSelectedScraperId(id);
-      
-      // Simple scroll to the data table
-      setTimeout(() => {
-        const tableElement = document.querySelector('[data-scraper-table]');
-        if (tableElement) {
-          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-
-      toast.info("Affichage des données", {
-        description: `${data.length} entrées trouvées`
+      const response = await dataService.fetchScrapedData({
+        page: currentPage,
+        limit: itemsPerPage,
+        scraper_id: id
       });
+      
+      console.log('View data response:', response);
+      
+      if (response.data) {
+        setSelectedScraperData(response.data);
+        setSelectedScraperId(id);
+        
+        setTimeout(() => {
+          const tableElement = document.querySelector('[data-scraper-table]');
+          if (tableElement) {
+            tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+
+        if (response.data.length === 0) {
+          toast.info("Aucune donnée disponible pour ce scraper");
+        } else {
+          toast.info("Affichage des données", {
+            description: `${response.data.length} entrées trouvées`
+          });
+        }
+      }
     } catch (error) {
+      console.error('Error loading data:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+      }
       toast.error('Erreur lors du chargement des données');
     }
   };

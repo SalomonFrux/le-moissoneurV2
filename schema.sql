@@ -20,6 +20,7 @@ CREATE TABLE scrapers (
     last_run TIMESTAMP WITH TIME ZONE,
     data_count INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     CONSTRAINT valid_frequency CHECK (frequency IN ('manual', 'daily', 'weekly', 'monthly'))
 );
 
@@ -112,6 +113,11 @@ CREATE TRIGGER update_scraped_data_updated_at
 
 CREATE TRIGGER update_companies_updated_at
     BEFORE UPDATE ON companies
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_scrapers_updated_at
+    BEFORE UPDATE ON scrapers
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
@@ -217,3 +223,4 @@ $$ LANGUAGE plpgsql;
 
 -- Grant execute permission on the function
 GRANT EXECUTE ON FUNCTION get_statistics_summary() TO authenticated; 
+

@@ -62,23 +62,14 @@ export function StatisticsPage() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const data = await dataService.fetchAllScrapedData();
-        const allEntries = data.flatMap(group => group.entries);
-        
-        const sources = new Set(allEntries.map(d => d.source));
-        const sectors = new Set(allEntries.map(d => d.secteur));
-        
-        const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
-        const totalFields = allEntries.length * fields.length;
-        const filledFields = allEntries.reduce((acc, entry) => {
-          return acc + fields.filter(field => entry[field] && entry[field] !== 'Aucune donnée').length;
-        }, 0);
+        // Fetch statistics using database aggregation
+        const stats = await dataService.fetchDashboardStats();
         
         setStats({
-          total: allEntries.length,
-          sources: sources.size,
-          sectors: sectors.size,
-          completeness: Math.round((filledFields / totalFields) * 100)
+          total: stats.totalEntries,
+          sources: stats.uniqueScrapers,
+          sectors: stats.uniqueSectors,
+          completeness: stats.completeness
         });
 
         if (statsRef.current) {
@@ -133,7 +124,7 @@ export function StatisticsPage() {
               ]
             },
             {
-              title: 'Données détaillées',
+              name: 'Données détaillées',
               type: 'table',
               headers: ['Nom', 'Email', 'Téléphone', 'Adresse', 'Secteur', 'Source', 'Date'],
               data: allEntries.map(item => [

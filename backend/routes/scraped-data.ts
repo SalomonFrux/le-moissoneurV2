@@ -1,18 +1,18 @@
-const express = require('express');
-const { supabase } = require('../db');
+import express from 'express';
+import { supabase } from '../db';
 
 const router = express.Router();
 
 // Get paginated and filtered scraped data
 router.get('/', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = Math.min(parseInt(req.query.limit) || 5000, 5000); // Cap at 5000 rows per page
-    const search = req.query.search;
-    const country = req.query.country;
-    const sortBy = req.query.sortBy;
-    const sortOrder = req.query.sortOrder || 'asc';
-    const scraper_id = req.query.scraper_id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 5000, 5000); // Cap at 5000 rows per page
+    const search = req.query.search as string;
+    const country = req.query.country as string;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'asc';
+    const scraper_id = req.query.scraper_id as string;
 
     // Start building the query
     let query = supabase
@@ -28,8 +28,23 @@ router.get('/', async (req, res) => {
       query = query.eq('pays', country);
     }
 
-    if (scraper_id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(scraper_id)) {
-      query = query.eq('scraper_id', scraper_id);
+    // Handle scraper filtering - try both scraper_id and source
+    if (scraper_id) {
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(scraper_id)) {
+        // If it's a UUID, try to match scraper_id
+        query = query.eq('scraper_id', scraper_id);
+      } else {
+        // If not a UUID, try to match source
+        const { data: scraperData } = await supabase
+          .from('scrapers')
+          .select('source')
+          .eq('id', scraper_id)
+          .single();
+        
+        if (scraperData?.source) {
+          query = query.eq('source', scraperData.source);
+        }
+      }
     }
 
     // Apply sorting
@@ -81,7 +96,7 @@ router.get('/all', async (req, res) => {
     }
 
     // Group data by scraper
-    const groupedData = data.reduce((acc, entry) => {
+    const groupedData = data.reduce((acc: any[], entry) => {
       const group = acc.find(g => g.scraper_name === entry.source);
       if (group) {
         group.entries.push(entry);
@@ -155,4 +170,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-module.exports = router; 
+export default router; 

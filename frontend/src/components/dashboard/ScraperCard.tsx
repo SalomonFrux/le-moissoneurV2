@@ -11,38 +11,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-export interface ScraperData {
-  id: string;
-  name: string;
-  source: string;
-  status: 'idle' | 'running' | 'error' | 'completed';
-  last_run?: string;
-  created_at?: string;
-  dataCount: number;
-  selectors: {
-    main: string;
-    pagination?: string;
-    dropdownClick?: string;
-    child?: Record<string, any>;
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    website: string;
-    sector: string;
-  };
-  frequency: 'daily' | 'weekly' | 'monthly' | 'manual';
-  country: string;
-  type: 'playwright' | 'puppeteer';
-}
+import { type Scraper } from '@/services/dataService';
 
 interface ScraperCardProps {
-  scraper: ScraperData;
+  scraper: Scraper;
   onRunScraper: (id: string) => void;
   onStopScraper: (id: string) => void;
   onViewData?: (id: string) => void;
-  onEditScraper?: (scraper: ScraperData) => void;
+  onEditScraper?: (scraper: Scraper) => void;
   onDeleteScraper?: (id: string) => void;
   showViewData?: boolean;
   showEditOptions?: boolean;
@@ -60,7 +36,7 @@ export function ScraperCard({
 }: ScraperCardProps) {
   //console.log('Scraper data received:', scraper);
 
-  const getStatusColor = (status: ScraperData['status']) => {
+  const getStatusColor = (status: Scraper['status']) => {
     switch (status) {
       case 'running':
         return 'bg-blue-500';
@@ -73,7 +49,7 @@ export function ScraperCard({
     }
   };
 
-  const getStatusText = (status: ScraperData['status']) => {
+  const getStatusText = (status: Scraper['status']) => {
     switch (status) {
       case 'running':
         return 'En cours';
@@ -145,7 +121,7 @@ export function ScraperCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
               <Database className="h-4 w-4 text-africa-green-500" />
-              <span>{scraper.dataCount} entrées</span>
+              <span>{scraper.data_count} entrées</span>
             </div>
             <div className="flex items-center gap-1">
               <RotateCw className="h-4 w-4 text-muted-foreground" />

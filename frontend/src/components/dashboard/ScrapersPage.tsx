@@ -14,10 +14,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Code, Save, RefreshCw, Search, Filter, MoreVertical, Globe, Mail, LinkIcon } from 'lucide-react';
 import { ScraperCard } from './ScraperCard';
-import type { ScraperData } from './ScraperCard';
 import { toast } from 'sonner';
 import { getAllScrapers, runScraper, getScraperStatus, createScraper, deleteScraper, updateScraper } from '@/services/scraperService';
-import { dataService } from '@/services/dataService';
+import { dataService, type Scraper, type ScrapedEntry, type PaginatedResponse, type FetchDataParams } from '@/services/dataService';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +26,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import axios from 'axios';
 
 const countries = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic of the", "Congo, Republic of the", "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
@@ -56,9 +56,20 @@ interface ScraperConfig {
   };
 }
 
+interface ScraperCardProps {
+  scraper: Scraper;
+  onRunScraper: (id: string) => Promise<void>;
+  onStopScraper: (id: string) => void;
+  onViewData: (id: string) => Promise<void>;
+  onEditScraper?: (scraper: Scraper) => void;
+  onDeleteScraper?: (id: string) => void;
+  showEditOptions?: boolean;
+  showViewData?: boolean;
+}
+
 export function ScrapersPage() {
-  const [scrapers, setScrapers] = useState<ScraperData[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [scrapers, setScrapers] = useState<Scraper[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const formRef = React.useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<ScraperConfig>({
@@ -85,7 +96,7 @@ export function ScrapersPage() {
     }
   });
   const [expandedScrapers, setExpandedScrapers] = useState<Set<string>>(new Set());
-  const [scrapedData, setScrapedData] = useState<Record<string, any[]>>({});
+  const [scrapedData, setScrapedData] = useState<Record<string, ScrapedEntry[]>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -97,6 +108,7 @@ export function ScrapersPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedScraperId, setSelectedScraperId] = useState<string | null>(null);
+  const [scrapedDataResponse, setScrapedDataResponse] = useState<{ total: number; page: number; limit: number } | null>(null);
 
   useEffect(() => {
     fetchScrapers();
@@ -104,37 +116,22 @@ export function ScrapersPage() {
 
   const fetchScrapers = async () => {
     try {
-      setIsRefreshing(true);
-      const data = await getAllScrapers();
-      // Transform and sort data to show newest first
-      const transformedData: ScraperData[] = data
-        .map(scraper => ({
-          ...scraper,
-          dataCount: scraper.data_count || 0,
-          type: scraper.type || 'playwright',
-          selectors: {
-            main: scraper.selectors?.main || '',
-            pagination: scraper.selectors?.pagination,
-            dropdownClick: scraper.selectors?.dropdownClick,
-            child: scraper.selectors?.child,
-            name: scraper.selectors?.name || '',
-            email: scraper.selectors?.email || '',
-            phone: scraper.selectors?.phone || '',
-            address: scraper.selectors?.address || '',
-            website: scraper.selectors?.website || '',
-            sector: scraper.selectors?.sector || ''
-          }
-        }))
-        .sort((a, b) => {
-          const dateA = a.last_run && !isNaN(new Date(a.last_run).getTime()) ? new Date(a.last_run).getTime() : 0;
-          const dateB = b.last_run && !isNaN(new Date(b.last_run).getTime()) ? new Date(b.last_run).getTime() : 0;
-          return dateB - dateA; // Sort by newest first
-        });
-      setScrapers(transformedData);
+      setLoading(true);
+      const data = await dataService.getAllScrapers();
+      console.log('Fetched scrapers:', data);
+      setScrapers(data);
     } catch (error) {
-      toast.error('Failed to fetch scrapers');
+      console.error('Error fetching scrapers:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+      }
+      toast.error('Erreur lors du chargement des scrapers');
     } finally {
-      setIsRefreshing(false);
+      setLoading(false);
     }
   };
 
@@ -180,7 +177,7 @@ export function ScrapersPage() {
       }
 
       // Prepare the selectors object
-      const newSelectors: ScraperData['selectors'] = {
+      const newSelectors: Scraper['selectors'] = {
         main: formData.selector || '',
         pagination: formData.paginationSelector || '',
         dropdownClick: formData.dropdownClickSelector || '',
@@ -246,7 +243,7 @@ export function ScrapersPage() {
     }
   };
 
-  const handleEditScraper = (scraper: ScraperData) => {
+  const handleEditScraper = (scraper: Scraper) => {
     setEditingScraperId(scraper.id);
     setFormData({
       name: scraper.name,
@@ -313,17 +310,19 @@ export function ScrapersPage() {
       setLoading(true);
       await runScraper(id);
       const updatedScraper = await getScraperStatus(id);
-     // console.log('Updated scraper data:', updatedScraper);
       
       // Update scrapers with the new data from the database
       await fetchScrapers(); // Refresh all scrapers to get updated lastRun
       
       // Fetch the scraped data for this scraper
-      const scrapedData = await dataService.fetchScrapedData(id);
-      console.log('Scraped data length:', scrapedData.length);
-      toast.success(`${scrapedData.length} entrées collectées`);
+      const response = await dataService.fetchScrapedData({
+        page: 1,
+        limit: 10,
+        search: id
+      });
+      
+      toast.success(`${response.total} entrées collectées`);
     } catch (error) {
-     // console.error('Error running scraper:', error);
       toast.error('Erreur lors du lancement du scraper');
     } finally {
       setLoading(false);
@@ -342,21 +341,47 @@ export function ScrapersPage() {
     });
   };
   
-  const handleViewData = async (id: string) => {
+  const handleViewData = async (scraperId: string) => {
     try {
       setLoading(true);
-      const data = await dataService.fetchScrapedData(id);
-      setSelectedScraperId(id);
-      setScrapedData({ [id]: data }); // Only keep the current scraper's data
+      const response = await dataService.fetchScrapedData({
+        page: currentPage,
+        limit: itemsPerPage,
+        scraper_id: scraperId
+      });
       
-      // Scroll to the data table after a short delay to ensure it's rendered
-      setTimeout(() => {
-        const tableElement = document.querySelector('[data-scraper-table]');
-        if (tableElement) {
-          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      console.log('View data response:', response);
+      
+      setSelectedScraperId(scraperId);
+      setScrapedDataResponse(response);
+      
+      if (response.data) {
+        setScrapedData({ [scraperId]: response.data });
+        
+        setTimeout(() => {
+          const tableElement = document.querySelector('[data-scraper-table]');
+          if (tableElement) {
+            tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+
+        if (response.data.length === 0) {
+          toast.info("Aucune donnée disponible pour ce scraper");
+        } else {
+          toast.info("Affichage des données", {
+            description: `${response.total} entrées trouvées`
+          });
         }
-      }, 100);
+      }
     } catch (error) {
+      console.error('Error loading data:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+      }
       toast.error('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
@@ -525,18 +550,40 @@ export function ScrapersPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>Données de {scraper.name}</CardTitle>
-                    <CardDescription>{entries.length} entrées collectées</CardDescription>
+                    <CardDescription>{entries.length} entrées affichées sur {scrapedDataResponse?.total || 0} au total</CardDescription>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedScraperId(null);
-                      setScrapedData({});
-                    }}
-                  >
-                    Fermer
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={itemsPerPage.toString()}
+                      onValueChange={(value) => {
+                        setItemsPerPage(Number(value));
+                        setCurrentPage(1);
+                        handleViewData(scraperId);
+                      }}
+                    >
+                      <SelectTrigger className="w-[70px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[5, 10, 20, 50, 100].map((size) => (
+                          <SelectItem key={size} value={size.toString()}>
+                            {size}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedScraperId(null);
+                        setScrapedData({});
+                        setScrapedDataResponse(null);
+                      }}
+                    >
+                      Fermer
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="rounded-md border overflow-x-auto">
@@ -582,6 +629,39 @@ export function ScrapersPage() {
                     </Table>
                   </div>
                 </CardContent>
+                <CardFooter className="flex items-center justify-between mt-4">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground">
+                      Page {currentPage} sur {Math.ceil((scrapedDataResponse?.total || 0) / itemsPerPage)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const newPage = Math.max(1, currentPage - 1);
+                        setCurrentPage(newPage);
+                        handleViewData(scraperId);
+                      }}
+                      disabled={currentPage === 1}
+                    >
+                      Précédent
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const newPage = currentPage + 1;
+                        setCurrentPage(newPage);
+                        handleViewData(scraperId);
+                      }}
+                      disabled={currentPage >= Math.ceil((scrapedDataResponse?.total || 0) / itemsPerPage)}
+                    >
+                      Suivant
+                    </Button>
+                  </div>
+                </CardFooter>
               </Card>
             );
           })}

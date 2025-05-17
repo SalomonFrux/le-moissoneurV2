@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -81,6 +82,8 @@ interface ExportOptions {
   data: ScrapedEntry[];
   sheets?: {
     name: string;
+    type?: 'table' | 'text';
+    headers?: string[];
     data: (string | number)[][];
   }[];
   sections?: {
@@ -92,9 +95,22 @@ interface ExportOptions {
   }[];
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
 
-
-
+export interface FetchDataParams {
+  page: number;
+  limit: number;
+  search?: string;
+  country?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  scraper_id?: string;
+}
 
 export const dataService = {
   async getAllScrapers(): Promise<Scraper[]> {
@@ -136,19 +152,57 @@ export const dataService = {
     }
   },
 
-  async fetchScrapedData(scraperId: string): Promise<ScrapedEntry[]> {
+  async fetchScrapedData(params: FetchDataParams): Promise<PaginatedResponse<ScrapedEntry>> {
     try {
-      const response = await axios.get<ScrapedEntry[]>(`${API_URL}/api/scrapers/${scraperId}/data`);
+      // Ensure required parameters have default values
+      const page = params?.page ?? 1;
+      const limit = params?.limit ?? 5000; // Use a larger default limit
+      
+      const queryParams = new URLSearchParams();
+      
+      // Add required parameters with defaults
+      queryParams.append('page', page.toString());
+      queryParams.append('limit', limit.toString());
+      
+      // Add optional parameters if they exist
+      if (params?.search) queryParams.append('search', params.search);
+      if (params?.country) queryParams.append('country', params.country);
+      if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+      if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+      if (params?.scraper_id) queryParams.append('scraper_id', params.scraper_id);
+
+      console.log('Fetching data with params:', {
+        url: `${API_URL}/api/scraped-data`,
+        queryParams: queryParams.toString()
+      });
+
+      const response = await axios.get<PaginatedResponse<ScrapedEntry>>(
+        `${API_URL}/api/scraped-data?${queryParams.toString()}`
+      );
+
+      console.log('Response data:', response.data);
+
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
+
       return response.data;
     } catch (error) {
       console.error('Error fetching scraped data:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+      }
       throw error;
     }
   },
 
   async fetchAllScrapedData(): Promise<ScrapedDataGroup[]> {
     try {
-      const response = await axios.get<ScrapedDataGroup[]>(`${API_URL}/api/scraped-data`);
+      const response = await axios.get<ScrapedDataGroup[]>(`${API_URL}/api/scraped-data/all`);
       return response.data;
     } catch (error) {
       console.error('Error fetching all scraped data:', error);
@@ -222,21 +276,92 @@ export const dataService = {
     }
   },
 
-async fetchScraperById(id: string): Promise<any> {
-  try {
-    const response = await axios.get(`${API_URL}/api/scrapers/${id}`);
-    return response.data; // Assuming the API returns the scraper data in the response body
-  } catch (error) {
-    console.error('Error fetching scraper by ID:', error);
-    throw error; // Rethrow the error for handling in the calling function
-  }
-},
+  async fetchScraperById(id: string): Promise<any> {
+    try {
+      const response = await axios.get(`${API_URL}/api/scrapers/${id}`);
+      return response.data; // Assuming the API returns the scraper data in the response body
+    } catch (error) {
+      console.error('Error fetching scraper by ID:', error);
+      throw error; // Rethrow the error for handling in the calling function
+    }
+  },
 
   async deleteScraper(id: string): Promise<void> {
     try {
       await axios.delete(`${API_URL}/api/scrapers/${id}`);
     } catch (error) {
       console.error('Error deleting scraper:', error);
+      throw error;
+    }
+  },
+
+  async fetchDashboardStats() {
+    try {
+      // Get total entries count with correct table name
+      const { count: totalEntries } = await supabase
+        .from('scraped_data')
+        .select('*', { count: 'exact', head: true });
+
+      // Get unique scrapers count
+      const { data: scraperStats } = await supabase
+        .from('scraped_data')
+        .select('source')  // Using source instead of scraper relationship
+        .not('source', 'is', null)
+        .not('source', 'eq', 'Aucune donnée')
+        .not('source', 'ilike', 'unknown');
+
+      // Count unique sources
+      const uniqueScrapers = new Set(scraperStats?.map(item => item.source)).size;
+
+      // Get unique sectors
+      const { data: sectors } = await supabase
+        .from('scraped_data')
+        .select('secteur')
+        .not('secteur', 'is', null)
+        .not('secteur', 'eq', 'Aucune donnée')
+        .not('secteur', 'ilike', 'unknown');
+
+      const uniqueSectors = new Set(sectors?.map(s => s.secteur.split(' > ')[0])).size;
+
+      // Calculate completeness
+      const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
+      const { data: completenessData } = await supabase
+        .from('scraped_data')
+        .select(fields.join(', '));
+
+      let totalFields = 0;
+      let filledFields = 0;
+
+      completenessData?.forEach(entry => {
+        fields.forEach(field => {
+          totalFields++;
+          if (entry[field] && entry[field] !== 'Aucune donnée' && entry[field].toLowerCase() !== 'unknown') {
+            filledFields++;
+          }
+        });
+      });
+
+      // Get source counts for verification - using a different approach without group
+      const { data: sourceData } = await supabase
+        .from('scraped_data')
+        .select('source');
+
+      const scraperCounts = {};
+      sourceData?.forEach(item => {
+        if (item.source) {
+          scraperCounts[item.source] = (scraperCounts[item.source] || 0) + 1;
+        }
+      });
+
+      return {
+        totalEntries,
+        scraperCounts,
+        uniqueScrapers,
+        uniqueSectors,
+        completeness: Math.round((filledFields / totalFields) * 100)
+      };
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
       throw error;
     }
   },
