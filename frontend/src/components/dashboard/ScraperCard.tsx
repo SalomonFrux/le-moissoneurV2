@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"; // Ensure this import is correct
 import { type Scraper } from '@/services/dataService';
 
 interface ScraperCardProps {
@@ -34,7 +42,7 @@ export function ScraperCard({
   showViewData = true,
   showEditOptions = false 
 }: ScraperCardProps) {
-  //console.log('Scraper data received:', scraper);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const getStatusColor = (status: Scraper['status']) => {
     switch (status) {
@@ -63,26 +71,31 @@ export function ScraperCard({
   };
 
   const formatDate = (dateString?: string) => {
-    //console.log('Formatting date string:', dateString);
     if (!dateString) return 'Jamais';
     try {
       const date = new Date(dateString);
-      //console.log('Parsed date:', date);
       if (isNaN(date.getTime())) return 'Jamais';
       
       const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
       const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${months[date.getMonth()]}/${date.getFullYear()}`;
       
-      // Format time
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       const formattedTime = `${hours}:${minutes}`;
       
-      return `${formattedDate} ${formattedTime}`; // Combine date and time
+      return `${formattedDate} ${formattedTime}`;
     } catch (error) {
-     // console.error('Error formatting date:', dateString, error);
       return 'Jamais';
     }
+  };
+
+  const handleRunScraper = () => {
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmRun = () => {
+    onRunScraper(scraper.id);
+    setDeleteConfirmOpen(false);
   };
 
   return (
@@ -149,25 +162,48 @@ export function ScraperCard({
               <Square className="h-4 w-4" />
             </Button>
           ) : (
-            <Button  className="hover:bg-[#0c8387] hover:text-white" 
-              variant="outline"
-              size="sm"
-              onClick={() => onRunScraper(scraper.id)}
-            >
-              <Play className="h-4 w-4" />
-            </Button>
+            <>
+              <Button
+                className="hover:bg-[#0c8387] hover:text-white"
+                variant="outline"
+                size="sm"
+                onClick={handleRunScraper}
+              >
+                <Play className="h-4 w-4" />
+              </Button>
+
+              <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+                <DialogContent className="border-[#15616D]/20">
+                  <DialogHeader>
+                    <DialogTitle className="text-[#001524]">Êtes-vous sûr ?</DialogTitle>
+                    <DialogDescription className="text-[#15616D]">
+                      Cette action modifiera les données. Êtes-vous sûr de vouloir exécuter ce scraper ?
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)} className="border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10">
+                      Annuler
+                    </Button>
+                    <Button 
+                      onClick={handleConfirmRun} 
+                      className="bg-[#FF6F61] text-white hover:bg-[#FF6F61]/90"
+                    >
+                      Exécuter
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
           )}
           {showViewData && onViewData && (
-       <Button 
-       className="hover:bg-[#0c8387] hover:text-white" 
-       variant="outline" 
-       size="sm" 
-       onClick={() => onViewData(scraper.id)}
-     >
-       <Eye className="h-4 w-4" />
-     </Button>
-     
-       
+            <Button 
+              className="hover:bg-[#0c8387] hover:text-white" 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onViewData(scraper.id)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </CardFooter>

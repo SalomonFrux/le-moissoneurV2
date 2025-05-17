@@ -617,13 +617,15 @@ export function ScrapersPage() {
         <TableCell className="py-3 px-4">
           {entry.email ? (
             <a 
-              href={`mailto:${entry.email}`} 
-              className="text-[#8c4c0b] hover:text-[#8c4c0b] hover:underline flex items-center  transition-colors"
+              href={`mailto:${entry.email}` } 
+              className="text-[#] hover:text-[#] hover:underline flex items-center  transition-colors"
             >
+              
               <Mail className="h-4 w-4" />
-              {entry.email.toLowerCase()}
+              {entry.email.toLowerCase() } 
             </a>
-          ) : <span className="bg-warmbrown-400 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
+          ) :<span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>
+          }
         </TableCell>
         <TableCell className="capitalize py-3 px-4 text-[#15616D]">
           {entry.telephone || <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
@@ -645,7 +647,7 @@ export function ScrapersPage() {
               <LinkIcon className="h-4 w-4" />
               {entry.site_web.toLowerCase()}
             </a>
-          ) : <span className="bg-warmbrown-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
+          ) : <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
         </TableCell>
         <TableCell className="capitalize py-3 px-4 text-[#15616D]">
           {entry.secteur ? 
@@ -785,7 +787,7 @@ export function ScrapersPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -801,11 +803,11 @@ export function ScrapersPage() {
                 <p className="text-sm text-muted-foreground">
                   Activez cette option si les données sont cachées derrière des dropdowns
                 </p>
-              </div>
+              </div> */}
 
               {/* Phase 1 Selectors */}
               {formData.twoPhaseScraping === 'true' && (
-                <div className="space-y-4">
+                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Phase 1 - Liste des entreprises</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">

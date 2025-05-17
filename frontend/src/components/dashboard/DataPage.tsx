@@ -577,7 +577,7 @@ export function DataPage() {
           </TableCell>
 
           <TableCell className="py-4 px-6 text-[#475569]">
-            {entry.source || <span className="bg-brown-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>}
+            {entry.source || <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>}
           </TableCell>
 
           <TableCell className="py-4 px-6">
