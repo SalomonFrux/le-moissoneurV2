@@ -1,7 +1,16 @@
 import { supabase } from '@/lib/supabase';
 import axios from 'axios';
+import { API_URL } from '../config';
+import { authService } from './authService';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// Add auth token to all requests
+axios.interceptors.request.use((config) => {
+  const token = authService.getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export interface ScrapedEntry {
   id: string;

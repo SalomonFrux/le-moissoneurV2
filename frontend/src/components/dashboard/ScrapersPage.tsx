@@ -587,25 +587,28 @@ export function ScrapersPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="rounded-md border overflow-x-auto">
-                  <Table className="rounded-lg overflow-hidden border border-emerald-800 shadow-md">
+                  <Table className="rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
   <TableHeader>
-    <TableRow className="bg-gradient-to-r from-emerald-700 to-emerald-600">
+    <TableRow className="bg-gradient-to-r from-[#15616D] to-[#001524]">
       <TableHead className="text-white font-semibold py-3 px-4">Nom</TableHead>
       <TableHead className="text-white font-semibold py-3 px-4">Email</TableHead>
       <TableHead className="text-white font-semibold py-3 px-4">Téléphone</TableHead>
       <TableHead className="text-white font-semibold py-3 px-4">Adresse</TableHead>
       <TableHead className="text-white font-semibold py-3 px-4">Site Web</TableHead>
       <TableHead className="text-white font-semibold py-3 px-4">Secteur</TableHead>
-      <TableHead className="text-white font-semibold py-3 px-4">Date de collecte</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-4">Date de Collecte</TableHead>
     </TableRow>
   </TableHeader>
   <TableBody>
     {entries.map((entry, index) => (
       <TableRow 
         key={entry.id}
-        className={`${index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'} hover:bg-emerald-100/30`}
+        className={`
+          ${index % 2 === 0 ? 'bg-white' : 'bg-[#15616D]/5'}
+          hover:bg-[#15616D]/10 transition-colors
+        `}
       >
-        <TableCell className="font-medium py-3 px-4">
+        <TableCell className="font-medium capitalize py-3 px-4 text-[#001524]">
           {entry.nom ? 
             entry.nom.charAt(0).toUpperCase() + entry.nom.slice(1).toLowerCase() : 
             <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>
@@ -615,17 +618,17 @@ export function ScrapersPage() {
           {entry.email ? (
             <a 
               href={`mailto:${entry.email}`} 
-              className="text-emerald-600 hover:text-emerald-800 hover:underline flex items-center gap-1"
+              className="text-[#8c4c0b] hover:text-[#8c4c0b] hover:underline flex items-center  transition-colors"
             >
               <Mail className="h-4 w-4" />
               {entry.email.toLowerCase()}
             </a>
-          ) : <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
+          ) : <span className="bg-warmbrown-400 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
         </TableCell>
-        <TableCell className="py-3 px-4">
+        <TableCell className="capitalize py-3 px-4 text-[#15616D]">
           {entry.telephone || <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
         </TableCell>
-        <TableCell className="py-3 px-4">
+        <TableCell className="capitalize py-3 px-4 text-[#15616D]">
           {entry.adresse ? 
             entry.adresse.charAt(0).toUpperCase() + entry.adresse.slice(1).toLowerCase() : 
             <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>
@@ -637,26 +640,27 @@ export function ScrapersPage() {
               href={entry.site_web} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-emerald-600 hover:text-emerald-800 hover:underline flex items-center gap-1"
+              className="text-[#15616D] hover:text-[#001524] hover:underline flex items-center gap-1 transition-colors"
             >
               <LinkIcon className="h-4 w-4" />
               {entry.site_web.toLowerCase()}
             </a>
-          ) : <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
+          ) : <span className="bg-warmbrown-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>}
         </TableCell>
-        <TableCell className="py-3 px-4">
+        <TableCell className="capitalize py-3 px-4 text-[#15616D]">
           {entry.secteur ? 
             entry.secteur.charAt(0).toUpperCase() + entry.secteur.slice(1).toLowerCase() : 
             <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm">-</span>
           }
         </TableCell>
-        <TableCell className="py-3 px-4">
+        <TableCell className="capitalize py-3 px-4 text-[#15616D]/80">
           {formatDate(entry.created_at)}
         </TableCell>
       </TableRow>
     ))}
   </TableBody>
 </Table>
+
                   </div>
                 </CardContent>
                 <CardFooter className="flex items-center justify-between mt-4">
@@ -667,6 +671,7 @@ export function ScrapersPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
+                    className="flex items-center bg-text-dark  text-dark hover:bg-[#001524] transition-colors duration-300 rounded-md px-4 py-2 shadow-md"
                       variant="outline"
                       size="sm"
                       onClick={() => {
@@ -679,6 +684,7 @@ export function ScrapersPage() {
                       Précédent
                     </Button>
                     <Button
+                    className="flex items-center text-dark hover:bg-[#001524] transition-colors duration-300 rounded-md px-4 py-2 shadow-md"
                       variant="outline"
                       size="sm"
                       onClick={() => {

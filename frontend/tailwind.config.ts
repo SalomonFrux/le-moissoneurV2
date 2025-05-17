@@ -78,6 +78,13 @@ export default {
 						800: '#07190F',
 						900: '#020603',
 					},
+					warmbrown: {
+						DEFAULT: '#8c4c0b',
+						50: '#f9f2e9',
+						100: '#f2e5d3',
+						200: '#e5ccaa',
+						300: '#d8b381',
+					},
 					earth: {
 						DEFAULT: '#9C6B22',
 						50: '#FCE8C6',

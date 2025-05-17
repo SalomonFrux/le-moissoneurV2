@@ -1,7 +1,5 @@
-
-
-
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, 
   Database, 
@@ -23,16 +21,16 @@ interface SidebarItemProps {
 function SidebarItem({ icon: Icon, label, active, onClick }: SidebarItemProps) {
   return (
     <button
-      className={cn(
-        "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-        active 
-          ? "bg-white/20 text-white backdrop-blur-sm" 
-          : "text-sidebar-foreground hover:bg-white/10"
-      )}
       onClick={onClick}
+      className={cn(
+        'flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+        active
+          ? 'bg-white/10 text-white'
+          : 'text-white/70 hover:bg-white/10 hover:text-white'
+      )}
     >
-      <Icon className="h-5 w-5" />
-      <span>{label}</span>
+      <Icon className="w-5 h-5 mr-3" />
+      {label}
     </button>
   );
 }
@@ -43,13 +41,21 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activePage, setActivePage }: SidebarProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const navigation = [
-    { name: 'Tableau de bord', icon: Home, id: 'dashboard' },
-    { name: 'Scrapers', icon: Code, id: 'scrapers' },
-    { name: 'Données', icon: Database, id: 'data' },
-    { name: 'Statistiques', icon: BarChart3, id: 'statistics' },
-    { name: 'Paramètres', icon: Settings, id: 'settings' },
+    { name: 'Tableau de bord', icon: Home, path: '/dashboard' },
+    { name: 'Scrapers', icon: Code, path: '/scrapers' },
+    { name: 'Données', icon: Database, path: '/data' },
+    { name: 'Statistiques', icon: BarChart3, path: '/statistics' },
+    { name: 'Paramètres', icon: Settings, path: '/settings' },
   ];
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setActivePage(path.split('/')[1] || 'dashboard');
+  };
 
   return (
     <aside className="bg-sidebar/90 backdrop-blur-md flex-shrink-0 w-64 border-r border-sidebar-border/30 hidden md:block">
@@ -65,11 +71,11 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
         <nav className="flex-1 px-4 space-y-1 mt-4">
           {navigation.map((item) => (
             <SidebarItem
-              key={item.id}
+              key={item.path}
               icon={item.icon}
               label={item.name}
-              active={activePage === item.id}
-              onClick={() => setActivePage(item.id)}
+              active={location.pathname === item.path}
+              onClick={() => handleNavigation(item.path)}
             />
           ))}
         </nav>

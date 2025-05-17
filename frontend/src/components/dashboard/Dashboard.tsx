@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatsCard } from './StatsCard';
 import { ScraperCard } from './ScraperCard';
+import { ArrowRightOnRectangleIcon  } from '@heroicons/react/24/outline'; 
 import { 
   Table, 
   TableBody, 
@@ -147,18 +148,18 @@ export function Dashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch dashboard stats');
-      }
-      const data = await response.json();
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/dashboard`, {
+        headers: {
+          Authorization: `Bearer ${authService.getToken()}`
+        }
+      });
       
-      if (data.stats) {
+      if (response.data.stats) {
         setStats({
-          totalEntries: data.stats.totalEntries || 0,
-          uniqueCountries: data.stats.uniqueCountries || 0,
-          sourcesCount: data.stats.uniqueScrapers || 0,
-          enrichmentRate: data.stats.completeness || 0
+          totalEntries: response.data.stats.totalEntries || 0,
+          uniqueCountries: response.data.stats.uniqueCountries || 0,
+          sourcesCount: response.data.stats.uniqueScrapers || 0,
+          enrichmentRate: response.data.stats.completeness || 0
         });
       }
     } catch (error) {
@@ -372,12 +373,13 @@ export function Dashboard() {
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold font-heading tracking-tight">Tableau de bord</h2>
         <Button 
-          variant="outline"
-          onClick={handleLogout}
-          className="bg-red-50 text-red-600 hover:bg-red-100"
-        >
-          Se déconnecter
-        </Button>
+  variant="outline"
+  onClick={handleLogout}
+  className="flex items-center bg-[#15616D] text-white hover:bg-[#8c4c0b] transition-colors duration-300 rounded-md px-4 py-2 shadow-md"
+>
+  <ArrowRightOnRectangleIcon  className="h-5 w-5 mr-2" /> {/* Icon for logout */}
+  Se déconnecter
+</Button>
       </div>
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
@@ -489,7 +491,7 @@ export function Dashboard() {
                       </CardHeader>
                       <CardContent>
                         <div className="rounded-md border overflow-x-auto">
-                        <Table className="rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
+<Table className="rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
   <TableHeader>
     <TableRow className="bg-gradient-to-r from-[#15616D] to-[#001524]">
       <TableHead className="text-white font-semibold py-3 px-4">Nom</TableHead>

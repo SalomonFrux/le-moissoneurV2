@@ -149,7 +149,7 @@ export function ScraperCard({
               <Square className="h-4 w-4" />
             </Button>
           ) : (
-            <Button className="hover:bg-africa-green-500 hover:text-white"
+            <Button  className="hover:bg-[#0c8387] hover:text-white" 
               variant="outline"
               size="sm"
               onClick={() => onRunScraper(scraper.id)}
@@ -159,7 +159,7 @@ export function ScraperCard({
           )}
           {showViewData && onViewData && (
        <Button 
-       className="hover:bg-[#50C878] hover:text-white" 
+       className="hover:bg-[#0c8387] hover:text-white" 
        variant="outline" 
        size="sm" 
        onClick={() => onViewData(scraper.id)}

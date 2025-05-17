@@ -32,8 +32,9 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-[400px]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Africa Venture</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Le Moissonneur de SIKSO</CardTitle>
           <CardDescription className="text-center">
+            Cette Application est réservée aux utilisateurs autorisés de SIKSO. 
             Connectez-vous pour accéder à l'application
           </CardDescription>
         </CardHeader>

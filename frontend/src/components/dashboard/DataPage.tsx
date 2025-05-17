@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+// Add this import at the top of your file with other imports
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+
+
+// If you don't have @heroicons/react installed, first run:
+// npm install @heroicons/react
 import { 
   Table, 
   TableBody, 
@@ -120,8 +126,6 @@ export function DataPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<ScrapedEntry | null>(null);
 
-
-  
   // Get unique countries from all entries
   const uniqueCountries = useMemo(() => {
     const countries = new Set(entries.map(entry => entry.pays).filter(Boolean));
@@ -460,98 +464,127 @@ export function DataPage() {
           ) : (
             <>
               <div className="rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
-              <Table className="w-full rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
+              <Table className="w-full rounded-xl overflow-hidden border border-[#e5e7eb] shadow-lg">
   <TableHeader>
-    <TableRow className="bg-gradient-to-r from-[#15616D] to-[#001524]">
-      <TableHead className="text-white font-semibold py-3 px-5">Nom</TableHead>
-      <TableHead className="text-white font-semibold py-3 px-5">Email</TableHead>
-      <TableHead className="text-white font-semibold py-3 px-5">Téléphone</TableHead>
-      <TableHead className="text-white font-semibold py-3 px-5">Adresse</TableHead>
-      <TableHead className="text-white font-semibold py-3 px-5">Site Web</TableHead>
-      <TableHead className="text-white font-semibold py-3 px-5">Secteur</TableHead>
-      <TableHead className="text-white font-semibold py-3 px-5">Date</TableHead>
-      <TableHead className="text-white font-semibold py-3 px-5 w-[100px]">Actions</TableHead>
+    <TableRow className="bg-gradient-to-r from-[#0d4b5e] to-[#001a2c]">
+      <TableHead className="text-white font-medium py-4 px-6 text-sm uppercase tracking-wider">Nom De L'Entreprise</TableHead>
+      <TableHead className="text-white font-medium py-4 px-6 text-sm uppercase tracking-wider">Source</TableHead>
+      <TableHead className="text-white font-medium py-4 px-6 text-sm uppercase tracking-wider">Secteur</TableHead>
+      <TableHead className="text-white font-medium py-4 px-6 text-sm uppercase tracking-wider">Pays</TableHead>
+      <TableHead className="text-white font-medium py-4 px-6 text-sm uppercase tracking-wider">Numéro</TableHead>
+      <TableHead className="text-white font-medium py-4 px-6 text-sm uppercase tracking-wider">Coordonnées</TableHead>
+      <TableHead className="text-white font-medium py-4 px-6 text-sm uppercase tracking-wider">Date</TableHead>
+      <TableHead className="text-white font-medium py-4 px-6 text-sm uppercase tracking-wider w-[120px]">Actions</TableHead>
     </TableRow>
   </TableHeader>
+
   <TableBody>
     {entries.map((entry, index) => {
-      const isIncomplete = !entry.nom || !entry.email || !entry.telephone || 
-                         !entry.adresse || !entry.site_web || !entry.secteur;
-      
+      const isIncomplete = !entry.nom || !entry.email || !entry.telephone || !entry.site_web || !entry.secteur;
+
       return (
         <TableRow 
           key={entry.id}
           className={`
-            ${index % 2 === 0 ? 'bg-white' : 'bg-[#15616D]/5'}
-            ${isIncomplete ? 'relative before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-[#FF7D00]' : ''}
-            hover:bg-[#15616D]/10
+            ${index % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]'}
+            ${isIncomplete ? 'border-l-4 border-blue-' : 'border-l-4 border-transparent'}
+            hover:bg-[#f1f5f9] transition-colors
           `}
         >
-          <TableCell className="font-medium py-3 px-5">
-            {entry.nom ? 
-              entry.nom.charAt(0).toUpperCase() + entry.nom.slice(1).toLowerCase() : 
-              <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>
-            }
+          <TableCell className="font-medium py-4 px-6">
+            {entry.nom ? (
+              <span className="text-[#1e293b]">
+                {entry.nom.charAt(0).toUpperCase() + entry.nom.slice(1).toLowerCase()}
+              </span>
+            ) : (
+              <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>
+            )}
           </TableCell>
-          <TableCell className="py-3 px-5">
-            {entry.email ? (
-              <a 
-                href={`mailto:${entry.email}`} 
-                className="text-[#15616D] hover:text-[#001524] hover:underline flex items-center gap-1"
-              >
-                <Mail className="h-4 w-4" />
-                {entry.email.toLowerCase()}
-              </a>
-            ) : <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>}
+
+          <TableCell className="py-4 px-6 text-[#475569]">
+            {entry.source || <span className="bg-brown-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>}
           </TableCell>
-          <TableCell className="py-3 px-5">
-            {entry.telephone || <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>}
+
+          <TableCell className="py-4 px-6">
+            {entry.secteur ? (
+              <span className="text-[#1e293b]">
+                {entry.secteur.charAt(0).toUpperCase() + entry.secteur.slice(1).toLowerCase()}
+              </span>
+            ) : (
+              <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>
+            )}
           </TableCell>
-          <TableCell className="py-3 px-5">
-            {entry.adresse ? 
-              entry.adresse.charAt(0).toUpperCase() + entry.adresse.slice(1).toLowerCase() : 
-              <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>
-            }
+
+          <TableCell className="py-4 px-6 text-[#475569]">
+            {entry.pays || <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>}
           </TableCell>
-          <TableCell className="py-3 px-5">
-            {entry.site_web ? (
-              <a 
-                href={entry.site_web} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-[#15616D] hover:text-[#001524] hover:underline flex items-center gap-1"
-              >
-                <LinkIcon className="h-4 w-4" />
-                {entry.site_web.toLowerCase()}
-              </a>
-            ) : <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>}
+
+          <TableCell className="py-4 px-6 text-[#1e293b]">
+            {entry.telephone || <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>}
           </TableCell>
-          <TableCell className="py-3 px-5">
-            {entry.secteur ? 
-              entry.secteur.charAt(0).toUpperCase() + entry.secteur.slice(1).toLowerCase() : 
-              <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>
-            }
+
+          <TableCell className="py-4 px-6">
+            <div className="flex flex-col gap-3">
+              {entry.email ? (
+                <a 
+                  href={`mailto:${entry.email}`} 
+                  className="flex items-center gap-2 text-[#0d6e8e] hover:text-[#0d4b5e] hover:underline"
+                >
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate max-w-[180px]">{entry.email}</span>
+                </a>
+              ) : (
+                <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>
+              )}
+
+              {entry.site_web ? (
+                <a 
+                  href={entry.site_web} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-[#0d6e8e] hover:text-[#0d4b5e] hover:underline"
+                >
+                  <LinkIcon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate max-w-[180px]">{entry.site_web}</span>
+                </a>
+              ) : (
+                <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-sm">-</span>
+              )}
+            </div>
           </TableCell>
-          <TableCell className="py-3 px-5">
-            {entry.created_at ? new Date(entry.created_at).toLocaleDateString('fr-FR') : '-'}
+
+          <TableCell className="py-4 px-6 text-[#475569]">
+            {new Date(entry.created_at).toLocaleDateString('fr-FR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            })}
           </TableCell>
-          <TableCell className="py-3 px-5">
+
+          <TableCell className="py-4 px-6">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-[#15616D] hover:bg-[#15616D]/10">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-[#0d6e8e] hover:bg-[#0d6e8e]/10 hover:text-[#0d4b5e]"
+                >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="border-[#15616D]/20" align="end">
+              <DropdownMenuContent 
+                className="border border-[#e5e7eb] shadow-lg rounded-md min-w-[160px]"
+                align="end"
+              >
                 <DropdownMenuItem 
                   onClick={() => handleEditClick(entry)}
-                  className="text-[#15616D] focus:bg-[#15616D]/10"
+                  className="text-[#0d6e8e] focus:bg-[#0d6e8e]/10"
                 >
                   <Edit2 className="mr-2 h-4 w-4" />
                   Modifier
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-[#FF6F61] focus:bg-[#FF6F61]/10"
+                  className="text-[#dc2626] focus:bg-[#dc2626]/10"
                   onClick={() => handleDeleteClick(entry)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -565,6 +598,7 @@ export function DataPage() {
     })}
   </TableBody>
 </Table>
+
               </div>
   
               {/* Pagination */}
@@ -589,7 +623,7 @@ export function DataPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="border-[#15616D]/20">
-                      {[5, 10, 25, 50].map((size) => (
+                      {[5, 10, 25, 50,100,200,500,1000].map((size) => (
                         <SelectItem key={size} value={size.toString()} className="focus:bg-[#15616D]/10">
                           {size}
                         </SelectItem>
