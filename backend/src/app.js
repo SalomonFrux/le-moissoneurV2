@@ -4,6 +4,8 @@ const scraperRoutes = require('./routes/scraperRoutes');
 const scrapedDataRoutes = require('./routes/scrapedDataRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const exportRoutes = require('./routes/exportRoutes');
+const authRoutes = require('./routes/authRoutes');
+const { verifyToken } = require('./controllers/authController');
 
 const app = express();
 
@@ -23,11 +25,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-app.use('/api/scrapers', scraperRoutes); // This will handle all routes prefixed with /api/scrapers
-app.use('/api/scraped-data', scrapedDataRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/export', exportRoutes);
+// Public routes
+app.use('/api/auth', authRoutes);
+
+// Protected routes - require authentication
+app.use('/api/scrapers', verifyToken, scraperRoutes);
+app.use('/api/scraped-data', verifyToken, scrapedDataRoutes);
+app.use('/api/dashboard', verifyToken, dashboardRoutes);
+app.use('/api/export', verifyToken, exportRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

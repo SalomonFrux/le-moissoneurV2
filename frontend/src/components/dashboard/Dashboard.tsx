@@ -26,6 +26,8 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination';
 import axios from 'axios';
+import { authService } from '@/services/authService';
+import { useNavigate } from 'react-router-dom';
 
 interface ScraperData {
   id: string;
@@ -141,6 +143,7 @@ export function Dashboard() {
       address: ''
     }
   });
+  const navigate = useNavigate();
 
   const fetchDashboardStats = async () => {
     try {
@@ -149,34 +152,20 @@ export function Dashboard() {
         throw new Error('Failed to fetch dashboard stats');
       }
       const data = await response.json();
-      //console.log('Fetched dashboard stats:', data);
-      
-      // Calculate active sources (scrapers with data)
-      const activeSourcesCount = scrapers?.filter(s => s.data_count > 0)?.length || 0;
       
       if (data.stats) {
         setStats({
           totalEntries: data.stats.totalEntries || 0,
           uniqueCountries: data.stats.uniqueCountries || 0,
-          sourcesCount: activeSourcesCount,
-          enrichmentRate: data.stats.enrichmentRate || 0
+          sourcesCount: data.stats.uniqueScrapers || 0,
+          enrichmentRate: data.stats.completeness || 0
         });
       }
     } catch (error) {
-     // console.error('Error fetching dashboard stats:', error);
+      console.error('Error fetching dashboard stats:', error);
       toast.error('Erreur lors du chargement des statistiques');
     }
   };
-
-  useEffect(() => {
-    if (scrapers.length > 0) {
-      const activeSourcesCount = scrapers.filter(s => s.data_count > 0).length;
-      setStats(prev => ({
-        ...prev,
-        sourcesCount: activeSourcesCount
-      }));
-    }
-  }, [scrapers]);
 
   useEffect(() => {
     async function fetchData() {
@@ -373,9 +362,23 @@ export function Dashboard() {
     }
   };
 
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login');
+  };
+
   return (
     <div className="space-y-8 p-6">
-      <h2 className="text-3xl font-bold font-heading tracking-tight">Tableau de bord</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold font-heading tracking-tight">Tableau de bord</h2>
+        <Button 
+          variant="outline"
+          onClick={handleLogout}
+          className="bg-red-50 text-red-600 hover:bg-red-100"
+        >
+          Se déconnecter
+        </Button>
+      </div>
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
           <div className="relative">

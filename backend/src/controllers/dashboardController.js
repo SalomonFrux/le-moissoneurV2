@@ -30,11 +30,30 @@ async function getDashboardData(req, res) {
     // Count unique scraper_ids
     const uniqueScrapers = new Set(uniqueScrapersData?.map(d => d.scraper_id) || []).size;
 
+    // Get unique countries
+    const { data: countriesData, error: countriesError } = await supabase
+      .from('scraped_data')
+      .select('pays')
+      .not('pays', 'is', null)
+      .not('pays', 'eq', 'Aucune donnée')
+      .not('pays', 'eq', '')
+      .not('pays', 'eq', 'Unknown');
+
+    if (countriesError) {
+      logger.error('Error getting unique countries:', countriesError);
+    }
+
+    // Count unique countries
+    const uniqueCountries = new Set(countriesData?.map(d => d.pays) || []).size;
+
     // Get unique sectors
     const { data: sectorsData, error: sectorsError } = await supabase
       .from('scraped_data')
       .select('secteur')
-      .not('secteur', 'is', null);
+      .not('secteur', 'is', null)
+      .not('secteur', 'eq', 'Aucune donnée')
+      .not('secteur', 'eq', '')
+      .not('secteur', 'eq', 'Unknown');
 
     if (sectorsError) {
       logger.error('Error getting unique sectors:', sectorsError);
@@ -71,6 +90,7 @@ async function getDashboardData(req, res) {
         totalEntries: totalEntries || 0,
         uniqueScrapers: uniqueScrapers || 0,
         uniqueSectors: uniqueSectors || 0,
+        uniqueCountries: uniqueCountries || 0,
         completeness: completeness || 0
       }
     });

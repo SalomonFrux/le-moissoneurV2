@@ -120,6 +120,8 @@ export function DataPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<ScrapedEntry | null>(null);
 
+
+  
   // Get unique countries from all entries
   const uniqueCountries = useMemo(() => {
     const countries = new Set(entries.map(entry => entry.pays).filter(Boolean));
@@ -458,103 +460,111 @@ export function DataPage() {
           ) : (
             <>
               <div className="rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-gradient-to-r from-[#15616D] to-[#001524]">
-                      <TableHead className="text-white font-semibold py-3 px-5">Nom De L'Entreprise</TableHead>
-                      <TableHead className="text-white font-semibold py-3 px-5">Source</TableHead>
-                      <TableHead className="text-white font-semibold py-3 px-5">Secteur</TableHead>
-                      <TableHead className="text-white font-semibold py-3 px-5">Pays</TableHead>
-                      <TableHead className="text-white font-semibold py-3 px-5">Numero</TableHead>
-                      <TableHead className="text-white font-semibold py-3 px-5">Mail & Site Web</TableHead>
-                      <TableHead className="text-white font-semibold py-3 px-5">Date</TableHead>
-                      <TableHead className="text-white font-semibold py-3 px-5 w-[100px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {entries.map((entry, index) => (
-                      <TableRow 
-                        key={entry.id}
-                        className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#15616D]/5'} hover:bg-[#15616D]/10`}
-                      >
-                        <TableCell className="font-medium py-3 px-5"> {entry.nom ? 
-            entry.nom.charAt(0).toUpperCase() + entry.nom.slice(1).toLowerCase() 
-            : '-'}</TableCell>
-                        <TableCell className="py-3 px-5">{entry.source || '-'}</TableCell>
-                        <TableCell className="py-3 px-5">{entry.secteur || '-'}</TableCell>
-                        <TableCell className="py-3 px-5">{entry.pays || '-'}</TableCell>
-                        <TableCell className="py-3 px-5">{entry.telephone || '-'}</TableCell>
-                        <TableCell className="py-3 px-5">
-                          <div className="flex items-center gap-4">
-                            {entry.email && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <a href={`mailto:${entry.email}`} className="flex items-center gap-2 text-[#15616D] hover:text-[#001524] hover:underline">
-                                      <Mail className="h-4 w-4" />
-                                      <span className="truncate max-w-[200px]">{entry.email}</span>
-                                    </a>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-[#001524] text-white">
-                                    <p>{entry.email}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                            {entry.site_web && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <a 
-                                      href={entry.site_web} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer" 
-                                      className="flex items-center gap-2 text-[#15616D] hover:text-[#001524] hover:underline"
-                                    >
-                                      <LinkIcon className="h-4 w-4" />
-                                      <span className="truncate max-w-[200px]">{entry.site_web}</span>
-                                    </a>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-[#001524] text-white">
-                                    <p>{entry.site_web}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3 px-5">
-                          {new Date(entry.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="py-3 px-5">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-[#15616D] hover:bg-[#15616D]/10">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="border-[#15616D]/20" align="end">
-                              <DropdownMenuItem 
-                                onClick={() => handleEditClick(entry)}
-                                className="text-[#15616D] focus:bg-[#15616D]/10"
-                              >
-                                <Edit2 className="mr-2 h-4 w-4" />
-                                Modifier
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="text-[#FF6F61] focus:bg-[#FF6F61]/10"
-                                onClick={() => handleDeleteClick(entry)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Supprimer
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <Table className="w-full rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
+  <TableHeader>
+    <TableRow className="bg-gradient-to-r from-[#15616D] to-[#001524]">
+      <TableHead className="text-white font-semibold py-3 px-5">Nom</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-5">Email</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-5">Téléphone</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-5">Adresse</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-5">Site Web</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-5">Secteur</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-5">Date</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-5 w-[100px]">Actions</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {entries.map((entry, index) => {
+      const isIncomplete = !entry.nom || !entry.email || !entry.telephone || 
+                         !entry.adresse || !entry.site_web || !entry.secteur;
+      
+      return (
+        <TableRow 
+          key={entry.id}
+          className={`
+            ${index % 2 === 0 ? 'bg-white' : 'bg-[#15616D]/5'}
+            ${isIncomplete ? 'relative before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-[#FF7D00]' : ''}
+            hover:bg-[#15616D]/10
+          `}
+        >
+          <TableCell className="font-medium py-3 px-5">
+            {entry.nom ? 
+              entry.nom.charAt(0).toUpperCase() + entry.nom.slice(1).toLowerCase() : 
+              <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>
+            }
+          </TableCell>
+          <TableCell className="py-3 px-5">
+            {entry.email ? (
+              <a 
+                href={`mailto:${entry.email}`} 
+                className="text-[#15616D] hover:text-[#001524] hover:underline flex items-center gap-1"
+              >
+                <Mail className="h-4 w-4" />
+                {entry.email.toLowerCase()}
+              </a>
+            ) : <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>}
+          </TableCell>
+          <TableCell className="py-3 px-5">
+            {entry.telephone || <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>}
+          </TableCell>
+          <TableCell className="py-3 px-5">
+            {entry.adresse ? 
+              entry.adresse.charAt(0).toUpperCase() + entry.adresse.slice(1).toLowerCase() : 
+              <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>
+            }
+          </TableCell>
+          <TableCell className="py-3 px-5">
+            {entry.site_web ? (
+              <a 
+                href={entry.site_web} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-[#15616D] hover:text-[#001524] hover:underline flex items-center gap-1"
+              >
+                <LinkIcon className="h-4 w-4" />
+                {entry.site_web.toLowerCase()}
+              </a>
+            ) : <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>}
+          </TableCell>
+          <TableCell className="py-3 px-5">
+            {entry.secteur ? 
+              entry.secteur.charAt(0).toUpperCase() + entry.secteur.slice(1).toLowerCase() : 
+              <span className="bg-[#FF7D00]/20 text-[#78290F] px-2 py-1 rounded">-</span>
+            }
+          </TableCell>
+          <TableCell className="py-3 px-5">
+            {entry.created_at ? new Date(entry.created_at).toLocaleDateString('fr-FR') : '-'}
+          </TableCell>
+          <TableCell className="py-3 px-5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-[#15616D] hover:bg-[#15616D]/10">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="border-[#15616D]/20" align="end">
+                <DropdownMenuItem 
+                  onClick={() => handleEditClick(entry)}
+                  className="text-[#15616D] focus:bg-[#15616D]/10"
+                >
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Modifier
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-[#FF6F61] focus:bg-[#FF6F61]/10"
+                  onClick={() => handleDeleteClick(entry)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Supprimer
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </TableCell>
+        </TableRow>
+      );
+    })}
+  </TableBody>
+</Table>
               </div>
   
               {/* Pagination */}

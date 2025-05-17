@@ -158,9 +158,16 @@ export function ScraperCard({
             </Button>
           )}
           {showViewData && onViewData && (
-            <Button className="" variant="outline" size="sm" onClick={() => onViewData(scraper.id)}>
-              <Eye className="h-4 w-4" />
-            </Button>
+       <Button 
+       className="hover:bg-[#50C878] hover:text-white" 
+       variant="outline" 
+       size="sm" 
+       onClick={() => onViewData(scraper.id)}
+     >
+       <Eye className="h-4 w-4" />
+     </Button>
+     
+       
           )}
         </div>
       </CardFooter>
