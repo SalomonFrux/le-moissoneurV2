@@ -118,7 +118,7 @@ export function ScrapersPage() {
     try {
       setLoading(true);
       const data = await dataService.getAllScrapers();
-      console.log('Fetched scrapers:', data);
+      //console.log('Fetched scrapers:', data);
       setScrapers(data);
     } catch (error) {
       console.error('Error fetching scrapers:', error);
@@ -350,7 +350,7 @@ export function ScrapersPage() {
         scraper_id: scraperId
       });
       
-      console.log('View data response:', response);
+    //  console.log('View data response:', response);
       
       setSelectedScraperId(scraperId);
       setScrapedDataResponse(response);

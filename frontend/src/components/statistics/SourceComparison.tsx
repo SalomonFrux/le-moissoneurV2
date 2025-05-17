@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { dataService } from '@/services/dataService';
+import { dataService, ScrapedEntry } from '@/services/dataService';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -40,73 +40,96 @@ export function SourceComparison() {
     async function fetchSourceData() {
       try {
         const data = await dataService.fetchAllScrapedData();
+        console.log('Raw data from API:', data);
         
-        // Process source data
-        const sourceData = await Promise.all(data.map(async (group) => {
-          const sourceId = group.entries[0].scraper_id || 'Source inconnue';
-          
-          // Fetch the scraper name using the sourceId
-          const scraper = await dataService.fetchScraperById(sourceId); // Assuming this function exists
-          const sourceName = scraper ? scraper.name : 'Source inconnue'; // Use the fetched name or default
-
-          const acc = {
-            name: sourceName,
-            entries: 0,
-            completeness: 0,
-            mainSectors: {},
-            quality: {
-              email: 0,
-              phone: 0,
-              address: 0,
-              website: 0
-            }
-          };
-
+        // First, collect all unique scraper IDs and their entries
+        const scraperGroups = new Map<string, ScrapedEntry[]>();
+        
+        data.forEach(group => {
           group.entries.forEach(entry => {
-            acc.entries++;
-            
-            // Calculate completeness
-            const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
-            const filledFields = fields.filter(field => entry[field] && entry[field] !== 'Aucune donnée').length;
-            acc.completeness += (filledFields / fields.length) * 100;
-            
-            // Track sectors
-            if (entry.secteur && entry.secteur !== 'Aucune donnée') {
-              const mainSector = entry.secteur.split(' > ')[0].trim();
-              if (!acc.mainSectors[mainSector]) {
-                acc.mainSectors[mainSector] = 0;
+            if (entry.scraper_id) {
+              if (!scraperGroups.has(entry.scraper_id)) {
+                scraperGroups.set(entry.scraper_id, []);
               }
-              acc.mainSectors[mainSector]++;
+              scraperGroups.get(entry.scraper_id)?.push(entry);
             }
-            
-            // Track quality metrics
-            if (entry.email && entry.email !== 'Aucune donnée') acc.quality.email++;
-            if (entry.telephone && entry.telephone !== 'Aucune donnée') acc.quality.phone++;
-            if (entry.adresse && entry.adresse !== 'Aucune donnée') acc.quality.address++;
-            if (entry.site_web && entry.site_web !== 'Aucune donnée') acc.quality.website++;
           });
-          
-          return acc;
-        }));
+        });
 
-        // Convert to array and calculate averages
-        const sourceArray = sourceData.map(source => ({
-          ...source,
-          completeness: Math.round(source.completeness / source.entries),
-          mainSectors: Array.isArray(source.mainSectors)
-            ? source.mainSectors.sort((a, b) => Number(b.count) - Number(a.count)).slice(0, 3)
-            : Object.entries(source.mainSectors)
-                .map(([name, count]) => ({ name, count: Number(count) }))
-                .sort((a, b) => Number(b.count) - Number(a.count))
-                .slice(0, 3),
-          quality: {
-            email: (source.quality.email / source.entries) * 100,
-            phone: (source.quality.phone / source.entries) * 100,
-            address: (source.quality.address / source.entries) * 100,
-            website: (source.quality.website / source.entries) * 100
-          }
-        })).sort((a, b) => b.entries - a.entries);
+        console.log('Scraper groups:', scraperGroups);
+        
+        // Process each unique scraper
+        const sourceData = await Promise.all(
+          Array.from(scraperGroups.entries()).map(async ([scraperId, entries]) => {
+            const scraper = await dataService.fetchScraperById(scraperId);
+            console.log('Fetched scraper:', scraper);
+            
+            if (!scraper) {
+              console.warn('No scraper found for ID:', scraperId);
+              return null;
+            }
 
+            const acc = {
+              name: scraper.name,
+              entries: 0,
+              completeness: 0,
+              mainSectors: {},
+              quality: {
+                email: 0,
+                phone: 0,
+                address: 0,
+                website: 0
+              }
+            };
+
+            entries.forEach(entry => {
+              acc.entries++;
+              
+              // Calculate completeness
+              const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
+              const filledFields = fields.filter(field => entry[field] && entry[field] !== 'Aucune donnée').length;
+              acc.completeness += (filledFields / fields.length) * 100;
+              
+              // Track sectors
+              if (entry.secteur && entry.secteur !== 'Aucune donnée') {
+                const mainSector = entry.secteur.split(' > ')[0].trim();
+                if (!acc.mainSectors[mainSector]) {
+                  acc.mainSectors[mainSector] = 0;
+                }
+                acc.mainSectors[mainSector]++;
+              }
+              
+              // Track quality metrics
+              if (entry.email && entry.email !== 'Aucune donnée') acc.quality.email++;
+              if (entry.telephone && entry.telephone !== 'Aucune donnée') acc.quality.phone++;
+              if (entry.adresse && entry.adresse !== 'Aucune donnée') acc.quality.address++;
+              if (entry.site_web && entry.site_web !== 'Aucune donnée') acc.quality.website++;
+            });
+            
+            return acc;
+          })
+        );
+
+        // Filter out null values and calculate averages
+        const sourceArray = sourceData
+          .filter((source): source is NonNullable<typeof source> => source !== null)
+          .map(source => ({
+            ...source,
+            completeness: Math.round(source.completeness / source.entries),
+            mainSectors: Object.entries(source.mainSectors)
+              .map(([name, count]) => ({ name, count: Number(count) }))
+              .sort((a, b) => Number(b.count) - Number(a.count))
+              .slice(0, 3),
+            quality: {
+              email: (source.quality.email / source.entries) * 100,
+              phone: (source.quality.phone / source.entries) * 100,
+              address: (source.quality.address / source.entries) * 100,
+              website: (source.quality.website / source.entries) * 100
+            }
+          }))
+          .sort((a, b) => b.entries - a.entries);
+
+        console.log('Processed source data:', sourceArray);
         setSources(sourceArray);
       } catch (error) {
         console.error('Error fetching source data:', error);
@@ -156,13 +179,13 @@ export function SourceComparison() {
 return (
   <div className="space-y-6">
     <Card className="p-6">
-      <h3 className="text-lg font-semibold mb-4">Qualité des données par source - 6 Meilleurs sources</h3>
+      <h3 className="text-lg font-semibold mb-4">Qualité des données par source - 5 Meilleurs sources</h3>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={sources
               .sort((a, b) => b.quality.email - a.quality.email) // Sort by email quality (or any other criterion)
-              .slice(0, 6)} // Get the top 6 sources
+              .slice(0, 5)} // Get the top 6 sources
             margin={{
               top: 20,
               right: 30,
@@ -187,11 +210,11 @@ return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {sources
         .sort((a, b) => b.entries - a.entries) // Sort by entries (or any other criterion)
-        .slice(0, 6) // Get the top 6 sources
+        .slice(0, 5) // Get the top 6 sources
         .map((source) => (
           <Card key={source.name} className="p-6 overflow-hidden transition-all duration-300 ease-in-out">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">{source.name}</h3>
+              <h3 className="text-lg font-semibold">{source.name}</h3 >
               <button 
                 className="text-blue-500 hover:underline"
                 onClick={() => toggleSectorExpansion(source.name)} // Toggle sector expansion

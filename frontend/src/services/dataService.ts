@@ -180,19 +180,19 @@ export const dataService = {
       if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
       if (params?.scraper_id) queryParams.append('scraper_id', params.scraper_id);
 
-      console.log('Fetching data with params:', {
-        url: `${API_URL}/api/scraped-data`,
-        queryParams: queryParams.toString(),
-        headers: {
-          Authorization: `Bearer ${authService.getToken()}`
-        }
-      });
+      //console.log('Fetching data with params:', {
+        //url: `${API_URL}/api/scraped-data`,
+        //queryParams: queryParams.toString(),
+        //headers: {
+        //  Authorization: `Bearer ${authService.getToken()}`
+        //}
+      //});
 
       const response = await axios.get<PaginatedResponse<ScrapedEntry>>(
         `${API_URL}/api/scraped-data?${queryParams.toString()}`
       );
 
-      console.log('Response data:', response.data);
+   //   console.log('Response data:', response.data);
 
       if (!response.data) {
         throw new Error('No data received from server');

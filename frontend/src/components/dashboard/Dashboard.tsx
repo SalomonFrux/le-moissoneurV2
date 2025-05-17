@@ -174,7 +174,7 @@ export function Dashboard() {
       try {
         // First fetch the dashboard stats
         await fetchDashboardStats();
-        console.log('Dashboard stats fetched');
+       // console.log('Dashboard stats fetched');
 
         // Then fetch scrapers and data
         const [scrapers, scrapedDataGroups] = await Promise.all([
@@ -182,10 +182,10 @@ export function Dashboard() {
           dataService.fetchAllScrapedData()
         ]);
 
-        console.log('Fetched data:', {
-          scrapers: scrapers.length,
-          scrapedDataGroups: scrapedDataGroups.length
-        });
+        //console.log('Fetched data:', {
+        //  scrapers: scrapers.length,
+        //  scrapedDataGroups: scrapedDataGroups.length
+        //});
 
         // Format the scrapers data
         const scrapersWithFormattedDate = scrapers.map(scraper => ({
