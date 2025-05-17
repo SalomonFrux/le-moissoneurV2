@@ -8,95 +8,70 @@ async function getDashboardData(req, res) {
   try {
     logger.info('Starting getDashboardData...');
 
-    // Get auth header from request
-    const authHeader = req.headers.authorization;
-    logger.info('Auth header present:', !!authHeader);
+    // Get total entries
+    const { count: totalEntries, error: countError } = await supabase
+      .from('scraped_data')
+      .select('*', { count: 'exact', head: true });
 
-    // If we have an auth header, try to use it
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      
-      if (authError) {
-        logger.error('Auth error:', authError);
-      } else {
-        logger.info('Authenticated user:', user?.id);
-      }
+    if (countError) {
+      logger.error('Error getting total entries:', countError);
     }
 
-    // First get scrapers to verify data exists
-    const { data: scrapers, error: scrapersError } = await supabase
-      .from('scrapers')
-      .select('id, name, data_count');
+    // Get unique scrapers that have data
+    const { data: uniqueScrapersData, error: uniqueScrapersError } = await supabase
+      .from('scraped_data')
+      .select('scraper_id')
+      .not('scraper_id', 'is', null);
 
-    logger.info('Scrapers query result:', {
-      hasData: !!scrapers,
-      count: scrapers?.length,
-      dataCounts: scrapers?.map(s => ({ name: s.name, count: s.data_count })),
-      error: scrapersError
-    });
-
-    // Try different approaches to get scraped data
-    const queries = {
-      // Try with service role key
-      withServiceRole: await supabase
-        .from('scraped_data')
-        .select('count'),
-
-      // Try with explicit schema and RLS bypass
-      withBypass: await supabase
-        .from('scraped_data')
-        .select('*')
-        .limit(1),
-
-      // Try with statistics function
-      withStats: await supabase
-        .rpc('get_statistics_summary')
-    };
-
-    // Log query results
-    Object.entries(queries).forEach(([name, result]) => {
-      logger.info(`${name} query result:`, {
-        data: result.data,
-        count: result.count,
-        error: result.error
-      });
-    });
-
-    // If we still can't get data, try a direct count through RPC
-    const { data: directCount, error: directError } = await supabase
-      .rpc('get_total_records');
-
-    logger.info('Direct count result:', { count: directCount, error: directError });
-
-    // Calculate total entries from scrapers as fallback
-    const totalFromScrapers = scrapers?.reduce((sum, s) => sum + (s.data_count || 0), 0) || 0;
-
-    // Create stats using the best available data
-    const stats = {
-      totalEntries: directCount || totalFromScrapers || 0,
-      uniqueCountries: queries.withStats.data?.[0]?.total_countries || 0,
-      sourcesCount: scrapers?.length || 0,
-      enrichmentRate: 0
-    };
-
-    // Calculate enrichment rate if we have data
-    if (stats.sourcesCount > 0) {
-      stats.enrichmentRate = parseFloat(((stats.totalEntries / stats.sourcesCount) * 100).toFixed(2));
+    if (uniqueScrapersError) {
+      logger.error('Error getting unique scrapers:', uniqueScrapersError);
     }
 
-    // Log final results
-    logger.info('Final calculated stats:', stats);
+    // Count unique scraper_ids
+    const uniqueScrapers = new Set(uniqueScrapersData?.map(d => d.scraper_id) || []).size;
+
+    // Get unique sectors
+    const { data: sectorsData, error: sectorsError } = await supabase
+      .from('scraped_data')
+      .select('secteur')
+      .not('secteur', 'is', null);
+
+    if (sectorsError) {
+      logger.error('Error getting unique sectors:', sectorsError);
+    }
+
+    // Count unique sectors
+    const uniqueSectors = new Set(sectorsData?.map(d => d.secteur) || []).size;
+
+    // Calculate completeness rate
+    const { data: completenessData, error: completenessError } = await supabase
+      .from('scraped_data')
+      .select('email, telephone, adresse, site_web');
+
+    if (completenessError) {
+      logger.error('Error calculating completeness:', completenessError);
+    }
+
+    let completeness = 0;
+    if (completenessData && completenessData.length > 0) {
+      const totalFields = completenessData.length * 4; // 4 fields we're checking
+      const filledFields = completenessData.reduce((acc, row) => {
+        return acc + 
+          (row.email ? 1 : 0) +
+          (row.telephone ? 1 : 0) +
+          (row.adresse ? 1 : 0) +
+          (row.site_web ? 1 : 0);
+      }, 0);
+      completeness = Math.round((filledFields / totalFields) * 100);
+    }
 
     // Send response
-    res.json({ 
-      stats,
-      dbStats: queries.withStats.data?.[0],
-      _debug: {
-        scrapersCount: scrapers?.length,
-        totalFromScrapers,
-        directCount,
-        hasAuth: !!authHeader
+    res.json({
+      stats: {
+        totalEntries: totalEntries || 0,
+        uniqueScrapers: uniqueScrapers || 0,
+        uniqueSectors: uniqueSectors || 0,
+        completeness: completeness || 0
       }
     });
 

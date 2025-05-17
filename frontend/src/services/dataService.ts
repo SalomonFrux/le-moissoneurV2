@@ -297,68 +297,15 @@ export const dataService = {
 
   async fetchDashboardStats() {
     try {
-      // Get total entries count with correct table name
-      const { count: totalEntries } = await supabase
-        .from('scraped_data')
-        .select('*', { count: 'exact', head: true });
-
-      // Get unique scrapers count
-      const { data: scraperStats } = await supabase
-        .from('scraped_data')
-        .select('source')  // Using source instead of scraper relationship
-        .not('source', 'is', null)
-        .not('source', 'eq', 'Aucune donnée')
-        .not('source', 'ilike', 'unknown');
-
-      // Count unique sources
-      const uniqueScrapers = new Set(scraperStats?.map(item => item.source)).size;
-
-      // Get unique sectors
-      const { data: sectors } = await supabase
-        .from('scraped_data')
-        .select('secteur')
-        .not('secteur', 'is', null)
-        .not('secteur', 'eq', 'Aucune donnée')
-        .not('secteur', 'ilike', 'unknown');
-
-      const uniqueSectors = new Set(sectors?.map(s => s.secteur.split(' > ')[0])).size;
-
-      // Calculate completeness
-      const fields = ['nom', 'email', 'telephone', 'adresse', 'secteur'];
-      const { data: completenessData } = await supabase
-        .from('scraped_data')
-        .select(fields.join(', '));
-
-      let totalFields = 0;
-      let filledFields = 0;
-
-      completenessData?.forEach(entry => {
-        fields.forEach(field => {
-          totalFields++;
-          if (entry[field] && entry[field] !== 'Aucune donnée' && entry[field].toLowerCase() !== 'unknown') {
-            filledFields++;
-          }
-        });
-      });
-
-      // Get source counts for verification - using a different approach without group
-      const { data: sourceData } = await supabase
-        .from('scraped_data')
-        .select('source');
-
-      const scraperCounts = {};
-      sourceData?.forEach(item => {
-        if (item.source) {
-          scraperCounts[item.source] = (scraperCounts[item.source] || 0) + 1;
-        }
-      });
-
+      const response = await axios.get(`${API_URL}/api/dashboard`);
+      if (!response.data || !response.data.stats) {
+        throw new Error('Invalid response format from dashboard API');
+      }
       return {
-        totalEntries,
-        scraperCounts,
-        uniqueScrapers,
-        uniqueSectors,
-        completeness: Math.round((filledFields / totalFields) * 100)
+        totalEntries: response.data.stats.totalEntries,
+        uniqueScrapers: response.data.stats.uniqueScrapers,
+        uniqueSectors: response.data.stats.uniqueSectors,
+        completeness: response.data.stats.completeness
       };
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
