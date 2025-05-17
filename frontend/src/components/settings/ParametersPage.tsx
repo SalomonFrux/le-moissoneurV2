@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { exportService } from '@/services/exportService';
+import { authService } from '@/services/authService';
 
 interface ExportHistory {
   id: string;
@@ -81,6 +82,7 @@ export function ParametersPage() {
     } finally {
       setIsLoading(false);
     }
+    console.log('Token:', authService.getToken());
   };
 
   const handleExport = async () => {

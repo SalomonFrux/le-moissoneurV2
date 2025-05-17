@@ -249,49 +249,124 @@ export function DataPage() {
   // Handle CSV export with pagination
   const handleCsvExport = async () => {
     try {
+      setLoading(true);
       const allData: ScrapedEntry[] = [];
       let page = 1;
       let hasMore = true;
       const exportLimit = 1000; // Export in chunks of 1000
 
+      // First fetch to check if we have data
+      const initialResponse = await dataService.fetchScrapedData({
+        page,
+        limit: exportLimit,
+        search: filters.search,
+        // Only send country if it's not 'all'
+        ...(filters.country !== 'all' && { country: filters.country }),
+        sortBy: filters.sortBy,
+        sortOrder: filters.sortOrder
+      });
+
+      if (!initialResponse.data || initialResponse.data.length === 0) {
+        toast.error("Aucune donnée à exporter");
+        setLoading(false);
+        return;
+      }
+
+      allData.push(...initialResponse.data);
+      hasMore = initialResponse.data.length === exportLimit;
+      page++;
+
+      // Fetch remaining pages if any
       while (hasMore) {
         const response = await dataService.fetchScrapedData({
           page,
           limit: exportLimit,
           search: filters.search,
-          country: filters.country,
+          ...(filters.country !== 'all' && { country: filters.country }),
           sortBy: filters.sortBy,
           sortOrder: filters.sortOrder
         });
+
+        if (!response.data) break;
 
         const flattenedData = response.data;
         allData.push(...flattenedData);
         hasMore = flattenedData.length === exportLimit;
         page++;
+
+        // Add a progress toast for large datasets
+        toast.info(`Chargement des données... (${allData.length} entrées)`, {
+          duration: 2000
+        });
+      }
+
+      if (allData.length === 0) {
+        toast.error("Aucune donnée à exporter");
+        return;
       }
 
       // Convert data to CSV and download
-      const csvContent = convertToCSV(allData);
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const headers = [
+        'Nom de la compagnie',
+        'Secteur',
+        'Pays',
+        'Site Web',
+        'Email',
+        'Téléphone',
+        'Adresse',
+        'Source',
+        'Date de création'
+      ];
+
+      const rows = allData.map(entry => [
+        entry.nom || '-',
+        entry.secteur || '-',
+        entry.pays || '-',
+        entry.site_web || '-',
+        entry.email || '-',
+        entry.telephone || '-',
+        entry.adresse || '-',
+        entry.source || '-',
+        new Date(entry.created_at).toLocaleDateString('fr-FR')
+      ]);
+
+      const csvContent = [
+        headers.map(header => `"${header}"`).join(','),
+        ...rows.map(row => 
+          row.map(cell => {
+            const value = String(cell).replace(/"/g, '""');
+            return `"${value}"`;
+          }).join(',')
+        )
+      ].join('\n');
+
+      const blob = new Blob(['\ufeff' + csvContent], { 
+        type: 'text/csv;charset=utf-8;' 
+      });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.setAttribute('download', 'scraped_data.csv');
+      link.href = url;
+      const fileName = `donnees_extraites_${new Date().toISOString().split('T')[0]}.csv`;
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-      toast.error("Erreur lors de l'exportation des données");
-    }
-  };
+      URL.revokeObjectURL(url);
 
-  const convertToCSV = (data: any[]) => {
-    const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(row => 
-      Object.values(row).map(value => 
-        typeof value === 'string' ? `"${value.replace(/"/g, '""')}"` : value
-      ).join(',')
-    );
-    return [headers, ...rows].join('\n');
+      toast.success(`Export CSV terminé (${allData.length} entrées)`);
+    } catch (error) {
+      console.error('Export error:', error);
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.error || 
+          "Erreur lors de l'exportation des données"
+        );
+      } else {
+        toast.error("Erreur lors de l'exportation des données");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleExportPdf = async () => {

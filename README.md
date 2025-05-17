@@ -64,6 +64,9 @@ A web application for managing and running web scrapers to collect data from Afr
    PORT=4000
    SUPABASE_URL=your_supabase_url
    SUPABASE_SERVICE_KEY=your_supabase_service_role_key
+   # JWT Configuration
+  JWT_SECRET=your_jwt_secret_here
+  JWT_EXPIRATION=24h
    ```
    
    > Note: Use the Supabase **service role key** for the backend, not the anon key.

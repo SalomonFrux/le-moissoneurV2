@@ -173,16 +173,19 @@ export const dataService = {
       queryParams.append('page', page.toString());
       queryParams.append('limit', limit.toString());
       
-      // Add optional parameters if they exist
-      if (params?.search) queryParams.append('search', params.search);
-      if (params?.country) queryParams.append('country', params.country);
+      // Add optional parameters if they exist and are not empty/null
+      if (params?.search?.trim()) queryParams.append('search', params.search.trim());
+      if (params?.country && params.country !== 'all') queryParams.append('country', params.country);
       if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
       if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
       if (params?.scraper_id) queryParams.append('scraper_id', params.scraper_id);
 
       console.log('Fetching data with params:', {
         url: `${API_URL}/api/scraped-data`,
-        queryParams: queryParams.toString()
+        queryParams: queryParams.toString(),
+        headers: {
+          Authorization: `Bearer ${authService.getToken()}`
+        }
       });
 
       const response = await axios.get<PaginatedResponse<ScrapedEntry>>(
@@ -202,7 +205,12 @@ export const dataService = {
         console.error('Axios error details:', {
           status: error.response?.status,
           data: error.response?.data,
-          headers: error.response?.headers
+          headers: error.response?.headers,
+          config: {
+            url: error.config?.url,
+            params: error.config?.params,
+            headers: error.config?.headers
+          }
         });
       }
       throw error;

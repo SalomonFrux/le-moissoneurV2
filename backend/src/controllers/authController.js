@@ -3,6 +3,11 @@ const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 const { supabase } = require('../db/supabase');
 
+// Ensure JWT_SECRET is available
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is not set');
+}
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -37,15 +42,18 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Generate JWT token with explicit expiration
     const token = jwt.sign(
       { 
         email: user.email,
         role: user.role,
         userId: user.id
       },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
+      process.env.JWT_SECRET,
+      { 
+        expiresIn: process.env.JWT_EXPIRATION || '24h',
+        algorithm: 'HS256' // Explicitly specify the algorithm
+      }
     );
 
     logger.info('Login successful:', { email });
@@ -65,18 +73,30 @@ const login = async (req, res) => {
 
 const verifyToken = (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization;
     
-    if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'No token provided or invalid format' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    req.user = decoded;
-    next();
+    const token = authHeader.split(' ')[1];
+    
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+        algorithms: ['HS256'] // Explicitly specify the allowed algorithms
+      });
+      req.user = decoded;
+      next();
+    } catch (err) {
+      logger.error('Token verification failed:', err);
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Token has expired' });
+      }
+      return res.status(401).json({ error: 'Invalid token' });
+    }
   } catch (error) {
     logger.error('Token verification error:', error);
-    res.status(401).json({ error: 'Invalid token' });
+    res.status(401).json({ error: 'Authentication failed' });
   }
 };
 

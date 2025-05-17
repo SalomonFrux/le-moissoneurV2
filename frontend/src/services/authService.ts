@@ -6,7 +6,16 @@ interface AuthResponse {
   token: string;
   user: {
     email: string;
+    role: string;
   };
+}
+
+interface DecodedToken {
+  email: string;
+  role: string;
+  userId: string;
+  exp: number;
+  iat: number;
 }
 
 export const authService = {
@@ -18,6 +27,11 @@ export const authService = {
       });
 
       const { token, user } = response.data;
+      
+      // Validate token before storing
+      if (!this.isValidToken(token)) {
+        throw new Error('Invalid token received from server');
+      }
       
       // Store token and user info
       localStorage.setItem('token', token);
@@ -38,22 +52,59 @@ export const authService = {
   },
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (token && !this.isValidToken(token)) {
+      // Token is invalid or expired, clear it
+      this.logout();
+      return null;
+    }
+    return token;
   },
 
-  getUser(): { email: string } | null {
+  getUser(): { email: string; role: string } | null {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   },
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    return !!token && this.isValidToken(token);
   },
 
   initializeAuth(): void {
     const token = this.getToken();
-    if (token) {
+    if (token && this.isValidToken(token)) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      this.logout();
+    }
+  },
+
+  private isValidToken(token: string): boolean {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+
+      const decoded = JSON.parse(jsonPayload) as DecodedToken;
+      
+      // Check if token is expired
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (decoded.exp && decoded.exp < currentTime) {
+        return false;
+      }
+
+      // Validate required fields
+      if (!decoded.email || !decoded.userId || !decoded.role) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Token validation error:', error);
+      return false;
     }
   }
 }; 
