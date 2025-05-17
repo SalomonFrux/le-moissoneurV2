@@ -602,7 +602,9 @@ export function ScrapersPage() {
                       <TableBody>
                         {entries.map((entry) => (
                           <TableRow key={entry.id}>
-                            <TableCell className="font-medium">{entry.nom || '-'}</TableCell>
+                            <TableCell className="font-medium"> {entry.nom ? 
+            entry.nom.charAt(0).toUpperCase() + entry.nom.slice(1).toLowerCase() 
+            : '-'}</TableCell>
                             <TableCell>
                               {entry.email ? (
                                 <a href={`mailto:${entry.email}`} className="text-blue-500 hover:underline flex items-center gap-1">

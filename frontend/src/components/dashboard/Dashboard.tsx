@@ -486,46 +486,70 @@ export function Dashboard() {
                       </CardHeader>
                       <CardContent>
                         <div className="rounded-md border overflow-x-auto">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Nom</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Téléphone</TableHead>
-                                <TableHead>Adresse</TableHead>
-                                <TableHead>Site Web</TableHead>
-                                <TableHead>Secteur</TableHead>
-                                <TableHead>Date de collecte</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {selectedScraperData.map((entry) => (
-                                <TableRow key={entry.id}>
-                                  <TableCell className="font-medium">{entry.nom || '-'}</TableCell>
-                                  <TableCell>
-                                    {entry.email ? (
-                                      <a href={`mailto:${entry.email}`} className="text-blue-500 hover:underline flex items-center gap-1">
-                                        <Mail className="h-4 w-4" />
-                                        {entry.email}
-                                      </a>
-                                    ) : '-'}
-                                  </TableCell>
-                                  <TableCell>{entry.telephone || '-'}</TableCell>
-                                  <TableCell>{entry.adresse || '-'}</TableCell>
-                                  <TableCell>
-                                    {entry.site_web ? (
-                                      <a href={entry.site_web} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline flex items-center gap-1">
-                                        <LinkIcon className="h-4 w-4" />
-                                        {entry.site_web}
-                                      </a>
-                                    ) : '-'}
-                                  </TableCell>
-                                  <TableCell className="text-muted-foreground">{entry.secteur || '-'}</TableCell>
-                                  <TableCell>{formatDate(entry.created_at)}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
+                        <Table className="rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
+  <TableHeader>
+    <TableRow className="bg-gradient-to-r from-[#15616D] to-[#001524]">
+      <TableHead className="text-white font-semibold py-3 px-4">Nom</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-4">Email</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-4">Téléphone</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-4">Adresse</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-4">Site Web</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-4">Secteur</TableHead>
+      <TableHead className="text-white font-semibold py-3 px-4">Date de Collecte</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {selectedScraperData.map((entry, index) => (
+      <TableRow 
+        key={entry.id}
+        className={`
+          ${index % 2 === 0 ? 'bg-white' : 'bg-[#15616D]/5'}
+          hover:bg-[#15616D]/10 transition-colors
+        `}
+      >
+        <TableCell className="font-medium capitalize py-3 px-4 text-[#001524]">
+          {entry.nom?.toLowerCase() || '-'}
+        </TableCell>
+        <TableCell className="py-3 px-4">
+          {entry.email ? (
+            <a 
+              href={`mailto:${entry.email}`} 
+              className="text-[#15616D] hover:text-[#001524] hover:underline flex items-center gap-1 transition-colors"
+            >
+              <Mail className="h-4 w-4" />
+              {entry.email}
+            </a>
+          ) : '-'}
+        </TableCell>
+        <TableCell className="capitalize py-3 px-4 text-[#15616D]">
+          {entry.telephone?.toLowerCase() || '-'}
+        </TableCell>
+        <TableCell className="capitalize py-3 px-4 text-[#15616D]">
+          {entry.adresse?.toLowerCase() || '-'}
+        </TableCell>
+        <TableCell className="py-3 px-4">
+          {entry.site_web ? (
+            <a 
+              href={entry.site_web} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-[#15616D] hover:text-[#001524] hover:underline flex items-center gap-1 transition-colors"
+            >
+              <LinkIcon className="h-4 w-4" />
+              {entry.site_web}
+            </a>
+          ) : '-'}
+        </TableCell>
+        <TableCell className="capitalize py-3 px-4 text-[#15616D]">
+          {entry.secteur?.toLowerCase() || '-'}
+        </TableCell>
+        <TableCell className="capitalize py-3 px-4 text-[#15616D]/80">
+          {formatDate(entry.created_at)}
+        </TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
                         </div>
                       </CardContent>
                     </Card>

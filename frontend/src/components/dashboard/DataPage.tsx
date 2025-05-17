@@ -380,29 +380,34 @@ export function DataPage() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Données Extraites</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-3xl font-bold tracking-tight text-[#001524]">Données Extraites</h2>
+          <p className="text-[#15616D]/80">
             Gérez et explorez les données collectées par vos scrapers
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleCsvExport} disabled={loading}>
+          <Button 
+            variant="outline" 
+            onClick={handleCsvExport} 
+            disabled={loading}
+            className="border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10 hover:text-[#001524]"
+          >
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             Exporter CSV
           </Button>
         </div>
       </div>
-
-      <Card>
+  
+      <Card className="border-[#15616D]/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
               <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#15616D]/80" />
                 <Input
                   placeholder="Rechercher..."
                   onChange={handleSearchChange}
-                  className="pl-8"
+                  className="pl-8 border-[#15616D]/30 focus:border-[#15616D]/50"
                   disabled={loading}
                 />
               </div>
@@ -411,14 +416,14 @@ export function DataPage() {
                 onValueChange={handleCountryChange}
                 disabled={loading}
               >
-                <SelectTrigger className="w-[180px]">
-                  <Globe className="mr-2 h-4 w-4" />
+                <SelectTrigger className="w-[180px] border-[#15616D]/30 text-[#15616D]">
+                  <Globe className="mr-2 h-4 w-4 text-[#15616D]" />
                   <SelectValue placeholder="Filtrer par pays" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les pays</SelectItem>
+                <SelectContent className="border-[#15616D]/20">
+                  <SelectItem value="all" className="focus:bg-[#15616D]/10">Tous les pays</SelectItem>
                   {uniqueCountries.map((country) => (
-                    <SelectItem key={country} value={country}>
+                    <SelectItem key={country} value={country} className="focus:bg-[#15616D]/10">
                       {country}
                     </SelectItem>
                   ))}
@@ -429,14 +434,14 @@ export function DataPage() {
                 onValueChange={handleSortChange}
                 disabled={loading}
               >
-                <SelectTrigger className="w-[180px]">
-                  <Calendar className="mr-2 h-4 w-4" />
+                <SelectTrigger className="w-[180px] border-[#15616D]/30 text-[#15616D]">
+                  <Calendar className="mr-2 h-4 w-4 text-[#15616D]" />
                   <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Nom</SelectItem>
-                  <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="count">Nombre d'entrées</SelectItem>
+                <SelectContent className="border-[#15616D]/20">
+                  <SelectItem value="name" className="focus:bg-[#15616D]/10">Nom</SelectItem>
+                  <SelectItem value="date" className="focus:bg-[#15616D]/10">Date</SelectItem>
+                  <SelectItem value="count" className="focus:bg-[#15616D]/10">Nombre d'entrées</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -446,48 +451,51 @@ export function DataPage() {
           {loading ? (
             <div className="flex items-center justify-center h-[calc(100vh-300px)]">
               <div className="flex flex-col items-center gap-2">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Chargement des données...</p>
+                <Loader2 className="h-8 w-8 animate-spin text-[#15616D]" />
+                <p className="text-sm text-[#15616D]/80">Chargement des données...</p>
               </div>
             </div>
           ) : (
             <>
-              <div className="rounded-md border">
+              <div className="rounded-lg overflow-hidden border border-[#15616D]/20 shadow-sm">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Nom De L'Entreprise</TableHead>
-                      <TableHead>Source</TableHead>
-                      <TableHead>Secteur</TableHead>
-                      <TableHead>Pays</TableHead>
-                      <TableHead>Numero</TableHead>
-                      <TableHead>Mail & Site Web</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="w-[100px]">Actions</TableHead>
+                    <TableRow className="bg-gradient-to-r from-[#15616D] to-[#001524]">
+                      <TableHead className="text-white font-semibold py-3 px-5">Nom De L'Entreprise</TableHead>
+                      <TableHead className="text-white font-semibold py-3 px-5">Source</TableHead>
+                      <TableHead className="text-white font-semibold py-3 px-5">Secteur</TableHead>
+                      <TableHead className="text-white font-semibold py-3 px-5">Pays</TableHead>
+                      <TableHead className="text-white font-semibold py-3 px-5">Numero</TableHead>
+                      <TableHead className="text-white font-semibold py-3 px-5">Mail & Site Web</TableHead>
+                      <TableHead className="text-white font-semibold py-3 px-5">Date</TableHead>
+                      <TableHead className="text-white font-semibold py-3 px-5 w-[100px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {entries.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="font-medium">
-                          {entry.nom || '-'}
-                        </TableCell>
-                        <TableCell>{entry.source || '-'}</TableCell>
-                        <TableCell>{entry.secteur || '-'}</TableCell>
-                        <TableCell>{entry.pays || '-'}</TableCell>
-                        <TableCell>{entry.telephone || '-'}</TableCell>
-                        <TableCell>
+                    {entries.map((entry, index) => (
+                      <TableRow 
+                        key={entry.id}
+                        className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#15616D]/5'} hover:bg-[#15616D]/10`}
+                      >
+                        <TableCell className="font-medium py-3 px-5"> {entry.nom ? 
+            entry.nom.charAt(0).toUpperCase() + entry.nom.slice(1).toLowerCase() 
+            : '-'}</TableCell>
+                        <TableCell className="py-3 px-5">{entry.source || '-'}</TableCell>
+                        <TableCell className="py-3 px-5">{entry.secteur || '-'}</TableCell>
+                        <TableCell className="py-3 px-5">{entry.pays || '-'}</TableCell>
+                        <TableCell className="py-3 px-5">{entry.telephone || '-'}</TableCell>
+                        <TableCell className="py-3 px-5">
                           <div className="flex items-center gap-4">
                             {entry.email && (
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <a href={`mailto:${entry.email}`} className="flex items-center gap-2 text-blue-500 hover:underline">
+                                    <a href={`mailto:${entry.email}`} className="flex items-center gap-2 text-[#15616D] hover:text-[#001524] hover:underline">
                                       <Mail className="h-4 w-4" />
                                       <span className="truncate max-w-[200px]">{entry.email}</span>
                                     </a>
                                   </TooltipTrigger>
-                                  <TooltipContent>
+                                  <TooltipContent className="bg-[#001524] text-white">
                                     <p>{entry.email}</p>
                                   </TooltipContent>
                                 </Tooltip>
@@ -501,13 +509,13 @@ export function DataPage() {
                                       href={entry.site_web} 
                                       target="_blank" 
                                       rel="noopener noreferrer" 
-                                      className="flex items-center gap-2 text-blue-500 hover:underline"
+                                      className="flex items-center gap-2 text-[#15616D] hover:text-[#001524] hover:underline"
                                     >
                                       <LinkIcon className="h-4 w-4" />
                                       <span className="truncate max-w-[200px]">{entry.site_web}</span>
                                     </a>
                                   </TooltipTrigger>
-                                  <TooltipContent>
+                                  <TooltipContent className="bg-[#001524] text-white">
                                     <p>{entry.site_web}</p>
                                   </TooltipContent>
                                 </Tooltip>
@@ -515,23 +523,26 @@ export function DataPage() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-3 px-5">
                           {new Date(entry.created_at).toLocaleDateString()}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-3 px-5">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" className="text-[#15616D] hover:bg-[#15616D]/10">
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleEditClick(entry)}>
+                            <DropdownMenuContent className="border-[#15616D]/20" align="end">
+                              <DropdownMenuItem 
+                                onClick={() => handleEditClick(entry)}
+                                className="text-[#15616D] focus:bg-[#15616D]/10"
+                              >
                                 <Edit2 className="mr-2 h-4 w-4" />
                                 Modifier
                               </DropdownMenuItem>
                               <DropdownMenuItem 
-                                className="text-red-600"
+                                className="text-[#FF6F61] focus:bg-[#FF6F61]/10"
                                 onClick={() => handleDeleteClick(entry)}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -545,11 +556,11 @@ export function DataPage() {
                   </TableBody>
                 </Table>
               </div>
-
+  
               {/* Pagination */}
               <div className="flex items-center justify-between mt-6">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[#15616D]/80">
                     Affichage de {((pagination.page - 1) * pagination.limit) + 1} à{' '}
                     {Math.min(pagination.page * pagination.limit, pagination.total)} sur{' '}
                     {pagination.total} entrées
@@ -564,25 +575,26 @@ export function DataPage() {
                       }));
                     }}
                   >
-                    <SelectTrigger className="w-[70px]">
+                    <SelectTrigger className="w-[70px] border-[#15616D]/30 text-[#15616D]">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border-[#15616D]/20">
                       {[5, 10, 25, 50].map((size) => (
-                        <SelectItem key={size} value={size.toString()}>
+                        <SelectItem key={size} value={size.toString()} className="focus:bg-[#15616D]/10">
                           {size}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-
+  
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                     disabled={pagination.page === 1}
+                    className="border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10"
                   >
                     Précédent
                   </Button>
@@ -593,6 +605,11 @@ export function DataPage() {
                       variant={pagination.page === pageNum ? "default" : "outline"}
                       size="sm"
                       onClick={() => setPagination(prev => ({ ...prev, page: pageNum }))}
+                      className={`${
+                        pagination.page === pageNum 
+                          ? 'bg-[#15616D] text-white hover:bg-[#001524]' 
+                          : 'border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10'
+                      }`}
                     >
                       {pageNum}
                     </Button>
@@ -603,6 +620,7 @@ export function DataPage() {
                     size="sm"
                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                     disabled={pagination.page === totalPages}
+                    className="border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10"
                   >
                     Suivant
                   </Button>
@@ -612,118 +630,131 @@ export function DataPage() {
           )}
         </CardContent>
       </Card>
-
+  
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] border-[#15616D]/20">
           <DialogHeader>
-            <DialogTitle>Modifier l'entrée</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-[#001524]">Modifier l'entrée</DialogTitle>
+            <DialogDescription className="text-[#15616D]">
               Modifiez les informations de l'entrée ci-dessous.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="nom" className="text-right">
+              <label htmlFor="nom" className="text-right text-[#15616D]">
                 Nom de l'Entreprise
               </label>
               <Input
                 id="nom"
                 value={currentEntry?.nom || ''}
                 onChange={(e) => setCurrentEntry(prev => prev ? {...prev, nom: e.target.value} : null)}
-                className="col-span-3"
+                className="col-span-3 border-[#15616D]/30 focus:border-[#15616D]/50"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="secteur" className="text-right">
+              <label htmlFor="secteur" className="text-right text-[#15616D]">
                 Secteur
               </label>
               <Input
                 id="secteur"
                 value={currentEntry?.secteur || ''}
                 onChange={(e) => setCurrentEntry(prev => prev ? {...prev, secteur: e.target.value} : null)}
-                className="col-span-3"
+                className="col-span-3 border-[#15616D]/30 focus:border-[#15616D]/50"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="pays" className="text-right">
+              <label htmlFor="pays" className="text-right text-[#15616D]">
                 Pays
               </label>
               <Input
                 id="pays"
                 value={currentEntry?.pays || ''}
                 onChange={(e) => setCurrentEntry(prev => prev ? {...prev, pays: e.target.value} : null)}
-                className="col-span-3"
+                className="col-span-3 border-[#15616D]/30 focus:border-[#15616D]/50"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="site_web" className="text-right">
+              <label htmlFor="site_web" className="text-right text-[#15616D]">
                 Site Web
               </label>
               <Input
                 id="site_web"
                 value={currentEntry?.site_web || ''}
                 onChange={(e) => setCurrentEntry(prev => prev ? {...prev, site_web: e.target.value} : null)}
-                className="col-span-3"
+                className="col-span-3 border-[#15616D]/30 focus:border-[#15616D]/50"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="email" className="text-right">
+              <label htmlFor="email" className="text-right text-[#15616D]">
                 Email
               </label>
               <Input
                 id="email"
                 value={currentEntry?.email || ''}
                 onChange={(e) => setCurrentEntry(prev => prev ? {...prev, email: e.target.value} : null)}
-                className="col-span-3"
+                className="col-span-3 border-[#15616D]/30 focus:border-[#15616D]/50"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="telephone" className="text-right">
+              <label htmlFor="telephone" className="text-right text-[#15616D]">
                 Téléphone
               </label>
               <Input
                 id="telephone"
                 value={currentEntry?.telephone || ''}
                 onChange={(e) => setCurrentEntry(prev => prev ? {...prev, telephone: e.target.value} : null)}
-                className="col-span-3"
+                className="col-span-3 border-[#15616D]/30 focus:border-[#15616D]/50"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="adresse" className="text-right">
+              <label htmlFor="adresse" className="text-right text-[#15616D]">
                 Adresse
               </label>
               <Input
                 id="adresse"
                 value={currentEntry?.adresse || ''}
                 onChange={(e) => setCurrentEntry(prev => prev ? {...prev, adresse: e.target.value} : null)}
-                className="col-span-3"
+                className="col-span-3 border-[#15616D]/30 focus:border-[#15616D]/50"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setEditDialogOpen(false)}
+              className="border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10"
+            >
               Annuler
             </Button>
-            <Button onClick={handleEditSave} disabled={loading}>
+            <Button 
+              onClick={handleEditSave} 
+              disabled={loading}
+              className="bg-[#15616D] text-white hover:bg-[#001524]"
+            >
               Sauvegarder
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
+  
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="border-[#15616D]/20">
           <AlertDialogHeader>
-            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-[#001524]">Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogDescription className="text-[#15616D]">
               Cette action ne peut pas être annulée. Cette entrée sera définitivement supprimée de la base de données.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground">
+            <AlertDialogCancel className="border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10">
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm} 
+              className="bg-[#FF6F61] text-white hover:bg-[#FF6F61]/90"
+            >
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>

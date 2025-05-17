@@ -222,5 +222,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Grant execute permission on the function
-GRANT EXECUTE ON FUNCTION get_statistics_summary() TO authenticated; 
+GRANT EXECUTE ON FUNCTION get_statistics_summary() TO authenticated;
+
+-- Add updated_at column to scrapers table
+ALTER TABLE scrapers
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
 

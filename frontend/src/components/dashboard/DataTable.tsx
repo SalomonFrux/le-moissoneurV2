@@ -113,7 +113,7 @@ export function DataTable({ data, loading, onDelete, onEdit, scraperId }: DataTa
           <TableBody>
             {data.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{truncateText(item.nom)}</TableCell>
+                <TableCell>{truncateText(item.nom?.toLowerCase())}</TableCell>
                 <TableCell>{truncateText(item.secteur)}</TableCell>
                 <TableCell>{item.pays}</TableCell>
                 <TableCell>
