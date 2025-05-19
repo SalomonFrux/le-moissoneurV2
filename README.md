@@ -1,6 +1,6 @@
 # Africa Venture Harvest Scraper
 
-A web application for managing and running web scrapers to collect data from African business and investment websites.
+A web application for managing and running web scrapers to collect data from websites.
 
 ## Project Structure
 
@@ -285,10 +285,7 @@ Or deploy to a service like Heroku, Railway, or DigitalOcean App Platform.
 
 
 
-# Africa Venture Harvest Scraper Project Tree
-A web application for managing and running web scrapers to collect data from African business and investment websites.
-
-
+### The project tree is as follows:
 ```
 SamExtract
 ├─ README-FULLSTACK.md
