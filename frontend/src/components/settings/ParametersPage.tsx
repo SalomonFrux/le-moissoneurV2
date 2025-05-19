@@ -82,7 +82,7 @@ export function ParametersPage() {
     } finally {
       setIsLoading(false);
     }
-    console.log('Token:', authService.getToken());
+   // console.log('Token:', authService.getToken());
   };
 
   const handleExport = async () => {

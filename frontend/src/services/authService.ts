@@ -80,7 +80,7 @@ export const authService = {
     }
   },
 
-  private isValidToken(token: string): boolean {
+  isValidToken(token: string): boolean {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

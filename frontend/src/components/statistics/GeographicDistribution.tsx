@@ -75,7 +75,7 @@ export function GeographicDistribution() {
   const [countries, setCountries] = useState<CountryData[]>([]);
   const [regions, setRegions] = useState<RegionData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [regionDetails, setRegionDetails] = useState<Record<string, { entreprises: number; mainSectors: Set<string> }>>({});
+  const [regionDetails, setRegionDetails] = useState<Record<string, { entreprises: number; mainSectors: Record<string, number> }>>({});
   const [expandedSectors, setExpandedSectors] = useState<{ [key: string]: boolean }>({}); // State to manage expansion of sectors
   const [expandedRegion, setExpandedRegion] = useState<string | null>(null); // Track the expanded region
 
@@ -121,16 +121,17 @@ export function GeographicDistribution() {
           .sort((a, b) => b.entreprises - a.entreprises);
 
         // --- Dynamic region aggregation ---
-        const dynamicRegionDetails: Record<string, { entreprises: number; mainSectors: Set<string> }> = {};
+        const dynamicRegionDetails: Record<string, { entreprises: number; mainSectors: Record<string, number> }> = {};
         allEntries.forEach(entry => {
           const country = entry.pays === 'Aucune donnée' ? 'Non spécifié' : (entry.pays || 'Non spécifié');
           const region = getRegionForCountry(country);
           if (!dynamicRegionDetails[region]) {
-            dynamicRegionDetails[region] = { entreprises: 0, mainSectors: new Set() };
+            dynamicRegionDetails[region] = { entreprises: 0, mainSectors: {} };
           }
           dynamicRegionDetails[region].entreprises++;
           if (entry.secteur && entry.secteur !== 'Aucune donnée') {
-            dynamicRegionDetails[region].mainSectors.add(entry.secteur.split(' > ')[0].trim());
+            const sector = entry.secteur.split(' > ')[0].trim();
+            dynamicRegionDetails[region].mainSectors[sector] = (dynamicRegionDetails[region].mainSectors[sector] || 0) + 1;
           }
         });
         setRegionDetails(dynamicRegionDetails);
@@ -239,7 +240,7 @@ export function GeographicDistribution() {
       {expandedRegion ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:col-span-3 transition-all duration-300">
           {allDynamicRegions.map((region) => {
-            const details = regionDetails[region] || { entreprises: 0, mainSectors: new Set() };
+            const details = regionDetails[region] || { entreprises: 0, mainSectors: {} };
             const total = Object.values(regionDetails).reduce((a, b) => a + b.entreprises, 0);
             return (
               <Card key={region} className="p-6 overflow-hidden transition-all duration-300 ease-in-out">
@@ -258,20 +259,23 @@ export function GeographicDistribution() {
                 </div>
                 {expandedSectors[region] && (
                   <div className="mt-4">
-                    <h4 className="font-semibold">Secteurs principaux:</h4>
+                    <h4 className="font-semibold">les 3 Secteurs principaux:</h4>
                     <ul className="list-disc pl-5">
-                      {[...details.mainSectors].slice(0, 3).map((sector, sectorIndex) => (
-                        <li key={sector} className="flex justify-between">
-                          <span className="flex items-center">
-                            <div 
-                              className="w-3 h-3 rounded-full mr-2"
-                              style={{ backgroundColor: REGION_COLORS[region.name] }} // Color for the sector
-                            />
-                            {sector}
-                          </span>
-                          <span>{details.entreprises} entreprises</span>
-                        </li>
-                      ))}
+                      {Object.entries(details.mainSectors)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 3)
+                        .map(([sector, count]) => (
+                          <li key={sector} className="flex justify-between">
+                            <span className="flex items-center">
+                              <div 
+                                className="w-3 h-3 rounded-full mr-2"
+                                style={{ backgroundColor: REGION_COLORS[region] }} // Color for the sector
+                              />
+                              {sector}
+                            </span>
+                            <span>{count} entreprises</span>
+                          </li>
+                        ))}
                     </ul>
                   </div>
                 )}
