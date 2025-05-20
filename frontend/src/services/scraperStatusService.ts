@@ -54,7 +54,10 @@ class ScraperStatusService {
         transports: ['websocket', 'polling'],
         reconnectionAttempts: this.maxReconnectAttempts,
         reconnectionDelay: this.reconnectTimeout,
-        autoConnect: true
+        autoConnect: true,
+        auth: {
+          token: token
+        }
       });
 
       this.socket.on('connect', () => {
@@ -67,6 +70,7 @@ class ScraperStatusService {
       });
 
       this.socket.on('scraper-status', (data) => {
+        console.log('Received scraper status update:', data);
         if (this.statusCallback) {
           // Convert timestamp strings to Date objects
           const status: ScraperStatus = {
@@ -76,6 +80,7 @@ class ScraperStatusService {
               timestamp: new Date(msg.timestamp)
             })) : []
           };
+          console.log('Processed status object:', status);
           this.statusCallback(status);
         }
       });

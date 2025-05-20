@@ -32,6 +32,7 @@ import { useNavigate } from 'react-router-dom';
 import { scraperStatusService } from '@/services/scraperStatusService';
 import { ScraperStatus } from '@/components/scraper/ScraperStatus';
 import { ScraperStatus as ScraperStatusType } from '@/components/scraper/types';
+import { ScraperProgress } from '@/components/scraper/ScraperProgress';
 
 interface ScraperData {
   id: string;
@@ -104,6 +105,7 @@ interface ScraperConfig {
 
 export function Dashboard() {
   const [scrapers, setScrapers] = useState<Scraper[]>([]);
+  const [activeScraperStatus, setActiveScraperStatus] = useState<{ status: ScraperStatusType; name: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [scrapedData, setScrapedData] = useState<Record<string, ScrapedEntry[]>>({});
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -117,6 +119,19 @@ export function Dashboard() {
   const pageSizeOptions = [4, 6, 8, 12, 20, 50, 100, 200, 500, 1000];
   const [sortBy, setSortBy] = useState<'name' | 'status' | 'dataCount' | 'date'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  useEffect(() => {
+    const activeScrapers = Object.entries(scraperStatus).find(([_, status]) => status.status === 'running');
+    if (activeScrapers) {
+      const [scraperId, status] = activeScrapers;
+      const scraper = scrapers.find(s => s.id === scraperId);
+      if (scraper) {
+        setActiveScraperStatus({ status, name: scraper.name });
+      }
+    } else {
+      setActiveScraperStatus(null);
+    }
+  }, []);
+
   const [stats, setStats] = useState<DashboardStats>({
     totalEntries: 0,
     uniqueCountries: 0,
@@ -380,6 +395,12 @@ export function Dashboard() {
 
   return (
     <div className="space-y-8 p-6">
+      {activeScraperStatus && (
+        <ScraperProgress
+          status={activeScraperStatus.status}
+          scraperName={activeScraperStatus.name}
+        />
+      )}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold font-heading tracking-tight">Tableau de bord</h2>
         <Button 
@@ -577,7 +598,11 @@ export function Dashboard() {
           {/* Active Scraper Status */}
           {Object.entries(scraperStatus).map(([scraperId, status]) => (
             <div key={scraperId} className="mt-4">
-              <ScraperStatus scraperId={scraperId} />
+              <ScraperProgress
+                status={status}
+                scraperName={scrapers.find(s => s.id === scraperId)?.name || scraperId}
+                onRetry={() => handleRunScraper(scraperId)}
+              />
             </div>
           ))}
 

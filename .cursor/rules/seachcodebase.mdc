@@ -4,3 +4,26 @@ globs:
 alwaysApply: false
 ---
 always seach the codebase and apply changes everywhere it needs to be aplied. 
+
+This is the app structure to rememeber:
+"Separate Concerns:
+app.js: Express app creation and configuration (middleware, routes). Exports app.
+server.js: HTTP server creation and Socket.IO setup. Imports app from app.js. Exports server (HTTP) and io (Socket.IO).
+index.js: Main entry point. Imports server from server.js. Starts the server.
+Directional Flow: index.js -> server.js -> app.js. This unidirectional flow prevents modules from trying to import each other in a circle.
+2. Should Socket.IO initialization be in index.js or server.js
+server.js is generally better. This keeps index.js clean as just the entry point that starts the server. server.js becomes the dedicated place for all server-related (HTTP and WebSocket) setup.
+3. How should we handle the Express app instance between these files?
+
+Create and configure app in app.js and export it.
+Import app into server.js to create the http.createServer(app).
+If index.js needs app (e.g., for a very final global error handler that must be registered last), it can also import app from app.js. The key is that app is created once.
+
+app.js - Express app configuration and middleware
+server.js - HTTP server creation and Socket.IO setup
+index.js - Application entry point and error handling
+Each file has a clear, single responsibility, and the dependencies flow in one direction: index.js → server.js → app.js, preventing circular dependencies.
+
+
+
+"

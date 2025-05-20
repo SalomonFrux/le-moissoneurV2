@@ -1,18 +1,15 @@
-const express = require('express');
-const cors = require('cors');
 const http = require('http');
 const jwt = require('jsonwebtoken');
 const { Server } = require('socket.io');
-const scraperStatusHandler = require('./websocket/scraperStatusHandler');
-const routes = require('./routes');
 const logger = require('./utils/logger');
+const app = require('./app');
+const scraperStatusHandler = require('./websocket/scraperStatusHandler');
 
-const app = express();
 const server = http.createServer(app);
 
-// Configure CORS
+// Configure Socket.IO with the same CORS options as Express
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
+  origin: process.env.NODE_ENV === 'production'
     ? ['https://salomonks-moissonneur.vercel.app']
     : ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8083'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -20,12 +17,7 @@ const corsOptions = {
   credentials: true
 };
 
-// Regular HTTP middleware
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use('/api', routes);
-
-// Initialize Socket.IO
+// Initialize Socket.IO with CORS settings
 const io = new Server(server, {
   cors: corsOptions
 });
@@ -49,60 +41,31 @@ io.use((socket, next) => {
 });
 
 // Socket.IO connection handler
-// Update the Socket.IO connection handler
 io.on('connection', (socket) => {
   logger.info(`New client connected: ${socket.id}`);
 
   socket.on('join-scraper', async (scraperId) => {
     logger.info(`Client ${socket.id} attempting to join scraper room: ${scraperId}`);
     
-    // Validate scraper ID exists before joining room
     try {
-      const { data, error } = await supabase
-        .from('scrapers')
-        .select('id, name, status')
-        .eq('id', scraperId)
-        .single();
-      
-      if (error || !data) {
-        logger.error(`Invalid scraper ID ${scraperId}: ${error?.message || 'Not found'}`);
-        
-        // Try to find similar IDs for debugging
-        const { data: similarScrapers } = await supabase
-          .from('scrapers')
-          .select('id, name')
-          .limit(5);
-          
-        logger.info(`Available scrapers: ${JSON.stringify(similarScrapers?.map(s => s.id) || [])}`);
-        
-        // Send error to client
-        socket.emit('scraper-error', {
-          error: `Scraper with ID ${scraperId} not found`,
-          availableIds: similarScrapers?.map(s => s.id) || []
-        });
-        return;
-      }
-      
-      // Join the room if scraper exists
       socket.join(`scraper-${scraperId}`);
       logger.info(`Client ${socket.id} joined scraper room: ${scraperId}`);
       
-      // Send initial status based on current scraper state
+      // Send initial status
       scraperStatusHandler.sendStatus(scraperId, {
-        status: data.status || 'initializing',
+        status: 'initializing',
         currentPage: 0,
         totalItems: 0,
         messages: [{
-          id: require('uuid').v4(),
           type: 'info',
-          text: `Connected to scraper: ${data.name}`,
+          text: 'Initializing scraper...',
           timestamp: new Date()
         }]
       });
-    } catch (err) {
-      logger.error(`Error joining scraper room ${scraperId}: ${err.message}`);
+    } catch (error) {
+      logger.error(`Error joining scraper room ${scraperId}: ${error.message}`);
       socket.emit('scraper-error', {
-        error: `Error joining scraper room: ${err.message}`
+        error: `Error joining scraper room: ${error.message}`
       });
     }
   });
@@ -117,7 +80,8 @@ io.on('connection', (socket) => {
   });
 });
 
-// Update scraperStatusHandler to use Socket.IO
+// Initialize scraperStatusHandler with Socket.IO instance
+logger.info('Initializing scraperStatusHandler with Socket.IO instance');
 scraperStatusHandler.setIo(io);
 
 // Error handling
@@ -126,9 +90,5 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-const PORT = process.env.PORT || 4000;
-
-server.listen(PORT, () => {
-  logger.info(`HTTP Server is running on port ${PORT}`);
-  logger.info(`Socket.IO server is running on port ${PORT}`);
-});
+// Export both server and io instances
+module.exports = { server, io };

@@ -6,15 +6,21 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const exportRoutes = require('./routes/exportRoutes');
 const authRoutes = require('./routes/authRoutes');
 const { verifyToken } = require('./controllers/authController');
+const logger = require('./utils/logger');
 
 const app = express();
 
-// Configure CORS
-app.use(cors({
-  origin: 'http://localhost:8080', // Your frontend URL
+// CORS configuration
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://salomonks-moissonneur.vercel.app']
+    : ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8083'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
-}));
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Log all incoming requests
