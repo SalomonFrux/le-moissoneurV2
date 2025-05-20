@@ -132,19 +132,62 @@ async function getAllScrapers(req, res, next) {
 /**
  * Get a scraper by ID
  */
+// Update the getScraperById function
 async function getScraperById(req, res, next) {
   const { id } = req.params; // Get the ID from the request parameters
 
+  if (!id) {
+    logger.error('Missing scraper ID in request');
+    return res.status(400).json({ error: 'Scraper ID is required' });
+  }
+
+  logger.info(`Fetching scraper with ID: ${id}`);
+
   try {
+    // First try to get the scraper directly
     const { data, error } = await supabase
       .from('scrapers')
       .select('*')
-      .eq('id', id) // Filter by the provided ID
-      .single(); // Fetch a single record
+      .eq('id', id)
+      .single();
 
     if (error) {
       logger.error(`Error fetching scraper with ID ${id}: ${error.message}`);
-      return res.status(500).json({ error: error.message });
+      
+      // If not found, try a more flexible query to debug
+      const { data: allScrapers, error: listError } = await supabase
+        .from('scrapers')
+        .select('id, name')
+        .limit(10);
+        
+      if (!listError && allScrapers && allScrapers.length > 0) {
+        logger.info(`Available scrapers: ${JSON.stringify(allScrapers.map(s => ({ id: s.id, name: s.name })))}`);
+        
+        // Check if there's a case-insensitive match
+        const matchingScraper = allScrapers.find(s => 
+          s.id.toLowerCase() === id.toLowerCase()
+        );
+        
+        if (matchingScraper) {
+          logger.info(`Found case-insensitive match: ${matchingScraper.id}`);
+          
+          // Fetch with the correct case
+          const { data: correctCaseData, error: refetchError } = await supabase
+            .from('scrapers')
+            .select('*')
+            .eq('id', matchingScraper.id)
+            .single();
+            
+          if (!refetchError && correctCaseData) {
+            return res.status(200).json(correctCaseData);
+          }
+        }
+      }
+      
+      return res.status(404).json({ 
+        error: `Scraper with ID ${id} not found`,
+        details: error.message
+      });
     }
 
     if (!data) {
@@ -481,6 +524,56 @@ async function deleteScraper(req, res, next) {
   }
 }
 
+// Add the debug queries function if it's not already there
+async function debugScraperQueries(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    // Test connection
+    const { testSupabaseConnection } = require('../db/supabase');
+    const isConnected = await testSupabaseConnection();
+    
+    // Try different query approaches
+    const directQuery = await supabase
+      .from('scrapers')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    const listQuery = await supabase
+      .from('scrapers')
+      .select('id, name')
+      .limit(10);
+      
+    res.json({
+      connection_test: isConnected,
+      supabase_config: {
+        hasUrl: !!supabase.supabaseUrl,
+        hasKey: !!supabase.supabaseKey,
+      },
+      queries: {
+        direct: {
+          data: directQuery.data,
+          error: directQuery.error,
+          status: directQuery.status
+        },
+        list: {
+          data: listQuery.data,
+          error: listQuery.error,
+          count: listQuery.data?.length || 0
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Debug endpoint error:', error);
+    res.status(500).json({ 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+}
+
+// Update the exports to include debugScraperQueries
 module.exports = {
   getAllScrapers,
   createScraper,
@@ -493,5 +586,6 @@ module.exports = {
   exportToPdf,
   updateScraper,
   deleteScraper,
-  getScraperById
+  getScraperById,
+  debugScraperQueries  // Add this line
 };

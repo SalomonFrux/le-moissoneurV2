@@ -11,9 +11,7 @@ const app = express();
 
 // Configure CORS
 app.use(cors({
-  origin: true, // Allow all origins in development
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: 'http://localhost:8080', // Your frontend URL
   credentials: true
 }));
 
@@ -40,4 +38,4 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message });
 });
 
-module.exports = app; 
+module.exports = app;

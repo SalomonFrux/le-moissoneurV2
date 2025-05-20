@@ -110,6 +110,22 @@ async function getCompaniesWithTitles(req, res, next) {
   }
 }
 
+// Make sure the function exists and is exported
+async function getCompaniesWithTitles(req, res) {
+  try {
+    // Your implementation here
+    const { data, error } = await supabase
+      .from('companies')
+      .select('*');
+    
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching companies:', error);
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   getCompaniesWithTitles
-}; 
+};

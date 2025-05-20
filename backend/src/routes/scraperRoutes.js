@@ -1,47 +1,36 @@
 const express = require('express');
-const { 
-  runScraper, 
-  getScraperStatus, 
-  createScraper, 
-  getAllScrapers, 
-  getScraperData, 
-  exportToPdf, 
-  updateScraper, 
-  deleteScraper, 
-  getScraperById // Ensure this is imported
-} = require('../controllers/scraperController');
+const scraperController = require('../controllers/scraperController');
 const { getCompaniesWithTitles } = require('../controllers/companyController');
 
 const router = express.Router();
 
-// Get all scrapers
-router.get('/', getAllScrapers);
+// Verify each handler exists before using it
+const verifyHandler = (handler, name) => {
+  if (!handler) {
+    throw new Error(`Handler ${name} is not defined`);
+  }
+  return handler;
+};
 
-// Create a new scraper
-router.post('/', createScraper);
+// Static routes first
+router.get('/companies', verifyHandler(getCompaniesWithTitles, 'getCompaniesWithTitles'));
+router.get('/export/pdf', verifyHandler(scraperController.exportToPdf, 'exportToPdf'));
 
-// Update a scraper
-router.put('/:id', updateScraper);
+// Debug route before dynamic routes
+router.get('/debug/:id', verifyHandler(scraperController.debugScraperQueries, 'debugScraperQueries'));
 
-// Delete a scraper
-router.delete('/:id', deleteScraper);
+// Status and data routes
+router.get('/status/:id', verifyHandler(scraperController.getScraperStatus, 'getScraperStatus'));
+router.get('/:id/data', verifyHandler(scraperController.getScraperData, 'getScraperData'));
 
-// Run a scraper
-router.post('/run/:id', runScraper);
+// CRUD operations
+router.get('/', verifyHandler(scraperController.getAllScrapers, 'getAllScrapers'));
+router.post('/', verifyHandler(scraperController.createScraper, 'createScraper'));
+router.put('/:id', verifyHandler(scraperController.updateScraper, 'updateScraper'));
+router.delete('/:id', verifyHandler(scraperController.deleteScraper, 'deleteScraper'));
+router.post('/run/:id', verifyHandler(scraperController.runScraper, 'runScraper'));
 
-// Get scraper status
-router.get('/status/:id', getScraperStatus);
-
-// Get scraper data
-router.get('/:id/data', getScraperData);
-
-// Get companies with their scraped data titles
-router.get('/companies', getCompaniesWithTitles);
-
-// Export data to PDF
-router.get('/export/pdf', exportToPdf);
-
-// Get scraper by ID
-router.get('/:id', getScraperById); // Correctly defined route for getting a scraper by ID
+// Get by ID route last
+router.get('/:id', verifyHandler(scraperController.getScraperById, 'getScraperById'));
 
 module.exports = router;

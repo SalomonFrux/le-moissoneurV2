@@ -29,6 +29,9 @@ import {
 import axios from 'axios';
 import { authService } from '@/services/authService';
 import { useNavigate } from 'react-router-dom';
+import { scraperStatusService } from '@/services/scraperStatusService';
+import { ScraperStatus } from '@/components/scraper/ScraperStatus';
+import { ScraperStatus as ScraperStatusType } from '@/components/scraper/types';
 
 interface ScraperData {
   id: string;
@@ -144,6 +147,7 @@ export function Dashboard() {
       address: ''
     }
   });
+  const [scraperStatus, setScraperStatus] = useState<{ [key: string]: ScraperStatusType }>({});
   const navigate = useNavigate();
 
   const fetchDashboardStats = async () => {
@@ -226,19 +230,19 @@ export function Dashboard() {
     fetchData();
   }, []);
 
-  const handleRunScraper = async (id: string) => {
+  const handleRunScraper = async (scraperId: string) => {
     try {
-      await dataService.runScraper(id);
-      setScrapers((prev) =>
-        prev.map((scraper) =>
-          scraper.id === id ? { ...scraper, status: 'running' } : scraper
-        )
-      );
-      toast.success(`Scraper démarré`, {
-        description: "Collecte de données en cours..."
+      await dataService.runScraper(scraperId);
+      scraperStatusService.connect(scraperId, (status) => {
+        setScraperStatus(prev => ({
+          ...prev,
+          [scraperId]: status
+        }));
       });
+      toast.success('Scraper started successfully');
     } catch (error) {
-      toast.error('Erreur lors du démarrage du scraper');
+      console.error('Error running scraper:', error);
+      toast.error('Failed to start scraper');
     }
   };
 
@@ -294,6 +298,12 @@ export function Dashboard() {
       toast.error('Erreur lors du chargement des données');
     }
   };
+
+  useEffect(() => {
+    return () => {
+      scraperStatusService.disconnect();
+    };
+  }, []);
 
   // Filter scrapers based on search query
   const filteredScrapers = scrapers.filter(scraper =>
@@ -563,6 +573,13 @@ export function Dashboard() {
               </>
             )}
           </div>
+
+          {/* Active Scraper Status */}
+          {Object.entries(scraperStatus).map(([scraperId, status]) => (
+            <div key={scraperId} className="mt-4">
+              <ScraperStatus scraperId={scraperId} />
+            </div>
+          ))}
 
           {/* Pagination */}
           {totalItems > 0 && (
