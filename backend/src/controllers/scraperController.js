@@ -1,6 +1,7 @@
 const logger = require('../utils/logger');
 const { supabase } = require('../db/supabase');
 const { executeScraper } = require('../services/scraperService');
+const scraperStatusHandler = require('../websocket/scraperStatusHandler');
 
 /**
  * Run a scraper by ID
@@ -34,6 +35,13 @@ async function runScraper(req, res, next) {
     executeScraper(scraper)
       .then(() => {
         logger.info(`Scraper ${id} completed successfully`);
+        scraperStatusHandler.updateStatus(id, {
+          status: 'completed',
+          currentPage: 0,
+          totalItems: 0,
+          type: 'success',
+          message: 'Scraping completed successfully'
+        });
       })
       .catch((err) => {
         logger.error(`Error running scraper ${id}: ${err.message}`);
@@ -45,6 +53,15 @@ async function runScraper(req, res, next) {
             last_run: new Date().toISOString()
           })
           .eq('id', id);
+
+        scraperStatusHandler.updateStatus(id, {
+          status: 'error',
+          currentPage: 0,
+          totalItems: 0,
+          type: 'error',
+          message: `Scraping failed: ${err.message}`,
+          error: err.message
+        });
       });
     
     // Immediately respond that the scraper has started
@@ -112,9 +129,6 @@ async function getAllScrapers(req, res, next) {
   }
 }
 
-
-
-
 /**
  * Get a scraper by ID
  */
@@ -143,8 +157,6 @@ async function getScraperById(req, res, next) {
     next(err);
   }
 }
-
-
 
 /**
  * Create a new scraper
