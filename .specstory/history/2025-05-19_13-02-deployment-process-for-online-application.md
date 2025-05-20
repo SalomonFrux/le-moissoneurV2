@@ -12881,6 +12881,332 @@ Read file: backend/src/websocket/scraperStatusHandler.js
 
 ---
 
+I see the issue now. The backend's `sendStatus` method expects status objects to have a `messages` array, but when `updateStatus` is called with a single message update, it converts it to the correct format. 
+
+Let's check how the scrapers call this handler:
+
+---
+
+<details>
+            <summary>Grep search for "scraperStatusHandler\.updateStatus" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/controllers/scraperController.js` | L37 | `scraperStatusHandler.updateStatus(id, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/controllers/scraperController.js` | L56 | `scraperStatusHandler.updateStatus(id, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L23 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L38 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L48 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L62 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L76 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L92 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L140 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L153 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L168 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L187 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L201 | `scraperStatusHandler.updateStatus(scraperId, {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/backend/src/scrapers/playwrightScraper.js` | L213 | `scraperStatusHandler.updateStatus(scraperId, {` |
+
+</details>
+
+---
+
+The problem is that in your logs, it shows `Status update sent to scraper room` but it doesn't show what data is actually being sent. Let's check the client-side websocket code again:
+
+---
+
+<details>
+            <summary>Searched codebase "scraper-status" • **0** results</summary>
+        
+No results found
+</details>
+
+---
+
+Let's search for all instances where "scraper-status" is used:
+
+---
+
+<details>
+            <summary>Grep search for "scraper-status" • **3** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/frontend/src/services/dashboardService.ts` | L30 | `const response = await axios.get(`${API_URL}/api/dashboard/scraper-statuses`);` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/frontend/src/services/scraperStatusService.ts` | L71 | `this.socket.on('scraper-status', (data) => {` |
+| `file:///Users/salomonks/Documents/Dev%20VS%20Code/le-moissoneur-v1/frontend/src/services/scraperStatusService.ts` | L71 | `this.socket.on('scraper-status', (data) => {` |
+
+</details>
+
+---
+
+Let's debug by adding console logging to scraperStatusService.ts to see what data is actually being received:
+
+---
+
+```diff
+  
+        this.socket.on('scraper-status', (data) => {
++         console.log('Received scraper status update:', data);
+          if (this.statusCallback) {
+            // Convert timestamp strings to Date objects
+```
+
+```diff
+              })) : []
+            };
++           console.log('Processed status object:', status);
+            this.statusCallback(status);
+          }
+```
+
+---
+
+Since the Socket.IO connection is working but you're not seeing the progress bar, let's look at how the activeScraperStatus state is handled in ScrapersPage.tsx:
+
+---
+
+```diff
+  useEffect(() => {
+    const activeScrapers = Object.entries(scraperStatus).find(([_, status]) => status.status === 'running');
++   console.log('Current scraper status:', scraperStatus);
++   console.log('Found active scraper:', activeScrapers);
++   
+    if (activeScrapers) {
+      const [scraperId, status] = activeScrapers;
+      const scraper = scrapers.find(s => s.id === scraperId);
++     console.log('Matched scraper:', scraper);
++     
+      if (scraper) {
++       console.log('Setting active scraper status:', { status, name: scraper.name });
+        setActiveScraperStatus({ status, name: scraper.name });
+      }
+```
+
+---
+
+Now, let's also add debug logging in the handleRunScraper function to see if the status updates are being properly stored in the scraperStatus state:
+
+---
+
+```diff
+        // Connect to SSE for status updates
+        scraperStatusService.connect(scraperId, (status) => {
+-         setScraperStatus(prev => ({
++         console.log(`Received status update for scraper ${scraperId}:`, status);
++         setScraperStatus(prev => {
++           const newStatus = {
+              ...prev,
+              [scraperId]: status
+-         }));
++           };
++           console.log('Updated scraper status state:', newStatus);
++           return newStatus;
++         });
+        });
+  
+```
+
+---
+
+Now let's check the component that's displaying the ScraperProgress:
+
+---
+
+Read file: frontend/src/components/dashboard/ScrapersPage.tsx
+
+---
+
+The issue is likely with the ScraperProgress component's implementation. Let's add debug logging to the ScraperProgress component to see if the props are being passed correctly:
+
+---
+
+```diff
+  
+  export function ScraperProgress({ status, scraperName }: ScraperProgressProps) {
++   console.log('ScraperProgress rendered with props:', { status, scraperName });
++   
+    const getProgressValue = () => {
+      if (status.status === 'completed') return 100;
+      if (status.status === 'error') return 0;
+      if (status.totalItems === 0) return 0;
++     console.log('Calculating progress:', status.currentPage, status.totalItems);
+      return Math.round((status.currentPage / status.totalItems) * 100);
+    };
+```
+
+---
+
+I've added debugging logs to help identify where the issue is occurring. Here's what we've discovered and added:
+
+1. **Added console logs to scraperStatusService.ts**:
+   - To see what data is being received from Socket.IO events
+   - To verify the data format matches expected ScraperStatus type
+
+2. **Added console logs to ScrapersPage.tsx**:
+   - In the useEffect for activeScraperStatus to see if it's being set correctly
+   - In handleRunScraper to verify status updates are being properly stored
+
+3. **Added console logs to ScraperProgress.tsx**:
+   - To see what props are being passed to the component
+   - To debug the progress calculation
+
+These logs will help identify where the breakdown is occurring. When you run your application again, you should:
+
+1. Look at the browser console to see what data is flowing through the system
+2. Check if the Socket.IO updates from the backend are arriving to the frontend
+3. Verify if the activeScraperStatus state is being set correctly
+4. Confirm the ScraperProgress component is receiving the proper props
+
+Based on the implementation, the most likely issues are:
+
+1. The socket is receiving updates but the data format is different than expected
+2. The activeScraperStatus state is not being updated (look for the debug logs in the console)
+3. The progress calculation may be incorrect in ScraperProgress
+
+With these logs in place, you'll be able to pinpoint the exact issue and fix it. Let me know what you discover in the logs!
+
+---
+
+_**User**_
+
+{status: 'initializing', currentPage: 0, totalItems: 0, messages: Array(1)}
+currentPage
+: 
+0
+messages
+: 
+[{…}]
+status
+: 
+"initializing"
+totalItems
+: 
+0
+[[Prototype]]
+: 
+Object
+
+
+{status: 'running', currentPage: 0, totalItems: 0, messages: Array(1)}
+currentPage
+: 
+0
+messages
+: 
+[{…}]
+status
+: 
+"running"
+totalItems
+: 
+0
+[[Prototype]]
+: 
+Object
+
+{status: 'running', currentPage: 1, totalItems: 0, messages: Array(1)}
+currentPage
+: 
+1
+messages
+: 
+[{…}]
+status
+: 
+"running"
+totalItems
+: 
+0
+[[Prototype]]
+: 
+Object
+
+{status: 'running', currentPage: 1, totalItems: 10, messages: Array(1)}
+currentPage
+: 
+1
+messages
+: 
+[{…}]
+status
+: 
+"running"
+totalItems
+: 
+10
+[[Prototype]]
+: 
+Object
+
+
+{status: 'error', currentPage: 19, totalItems: 184, messages: Array(1)}
+currentPage
+: 
+19
+messages
+: 
+[{…}]
+status
+: 
+"error"
+totalItems
+: 
+184
+[[Prototype]]
+: 
+Object
+
+{status: 'completed', currentPage: 0, totalItems: 0, messages: Array(1)}
+currentPage
+: 
+0
+messages
+: 
+[{…}]
+status
+: 
+"completed"
+totalItems
+: 
+0
+[[Prototype]]
+: 
+Object
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I found the bug! There's a syntactical error in your ScrapersPage.tsx file. At the bottom of the file, there's a duplicate `status` prop being passed to the ScraperProgress component:
+
+```jsx
+{Object.entries(scraperStatus).map(([scraperId, status]) => (
+  <div key={scraperId} className="mt-4">
+    <ScraperProgress
+      status={activeScraperStatus.status} // This line is incorrect - duplicates the status prop
+      scraperName={activeScraperStatus.name}
+      status={status} // This is the correct one
+      onRetry={() => handleRunScraper(scraperId)}
+    />
+  </div>
+))}
+```
+
+The first `status` prop is incorrectly passing `activeScraperStatus.status` (which is just the string 'running', 'completed', etc.) instead of the full status object. The second `status` prop with the correct value is being ignored due to the duplicate.
+
+Here's how to fix it:
+
+---
+
+
+
+---
+
 
 
 ---

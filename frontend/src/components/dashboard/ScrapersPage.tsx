@@ -1036,9 +1036,8 @@ useEffect(() => {
       {Object.entries(scraperStatus).map(([scraperId, status]) => (
         <div key={scraperId} className="mt-4">
           <ScraperProgress
-            status={activeScraperStatus.status}
-            scraperName={activeScraperStatus.name}
             status={status}
+            scraperName={scrapers.find(s => s.id === scraperId)?.name || 'Scraper'}
             onRetry={() => handleRunScraper(scraperId)}
           />
         </div>
