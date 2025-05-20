@@ -1,6 +1,6 @@
-FROM node:18-slim
+FROM --platform=linux/amd64 node:18-slim
 
-# Install dependencies for Puppeteer
+# Install dependencies for Puppeteer and Playwright
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -22,6 +22,10 @@ RUN apt-get update && apt-get install -y \
     libxkbcommon0 \
     libxrandr2 \
     xdg-utils \
+    libglib2.0-0 \
+    libnss3 \
+    libxss1 \
+    libx11-xcb1 \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
@@ -31,6 +35,9 @@ WORKDIR /app
 # Copy package files and install dependencies
 COPY package*.json ./
 RUN npm ci
+
+# Install Playwright browsers
+RUN npx playwright install --with-deps chromium
 
 # Copy all application files
 COPY . .

@@ -1,4 +1,4 @@
-# Africa Venture Harvest Scraper
+# SamScraper
 
 A web application for managing and running web scrapers to collect data from websites.
 
@@ -651,4 +651,21 @@ Security improvements
 Performance optimization
 Testing
 Documentation
+
+
+
+### For production:
+````
+Install Google Cloud SDK and follow the instructions:
+d /Users/salomonks/Downloads/google-cloud-sdk
+salomonks@Mac google-cloud-sdk % cd ..
+salomonks@Mac Downloads % ./google-cloud-sdk/install.sh
+
+==> Start a new shell for the changes to take effect.
+gcloud components install docker-credential-gcr
+
+
+
+gcloud services enable artifactregistry.googleapis.com --project=samscraper-460319   <--- enable artifact registry very important
+```
 
