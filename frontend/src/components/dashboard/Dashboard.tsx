@@ -247,16 +247,79 @@ export function Dashboard() {
 
   const handleRunScraper = async (scraperId: string) => {
     try {
-      await dataService.runScraper(scraperId);
+      // Set initial status immediately to show that something is happening
+      setScraperStatus(prev => ({
+        ...prev,
+        [scraperId]: {
+          status: 'initializing',
+          currentPage: 0,
+          totalItems: 0,
+          messages: [{
+            id: 'initial',
+            type: 'info',
+            text: 'Starting scraper...',
+            timestamp: new Date()
+          }]
+        }
+      }));
+      
+      // Connect to status service before running scraper
       scraperStatusService.connect(scraperId, (status) => {
-        setScraperStatus(prev => ({
-          ...prev,
-          [scraperId]: status
-        }));
+        setScraperStatus(prev => {
+          // Update the status for this scraper
+          const newStatus = {
+            ...prev,
+            [scraperId]: status
+          };
+          
+          // If scraper is completed or has error, schedule auto-cleanup
+          if (status.status === 'completed' || status.status === 'error') {
+            // Keep the completed status visible for 5 seconds, then clean up
+            setTimeout(() => {
+              setScraperStatus(current => {
+                const updated = { ...current };
+                delete updated[scraperId]; // Remove this scraper's status
+                return updated;
+              });
+              
+              // Also disconnect the socket for this scraper
+              scraperStatusService.disconnect(scraperId);
+            }, 5000);
+          }
+          
+          return newStatus;
+        });
       });
+      
+      // Add a slight delay to ensure Socket.IO connection is established
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await dataService.runScraper(scraperId);
+      
+      // Update scrapers list with correct typing
+      setScrapers(prev => prev.map(s => 
+        s.id === scraperId ? { ...s, status: 'running' as const } : s
+      ));
+      
       toast.success('Scraper started successfully');
+      
     } catch (error) {
       console.error('Error running scraper:', error);
+      setScraperStatus(prev => ({
+        ...prev,
+        [scraperId]: {
+          status: 'error',
+          currentPage: 0,
+          totalItems: 0,
+          messages: [{
+            id: 'error',
+            type: 'error',
+            text: error instanceof Error ? error.message : 'Failed to start scraper',
+            timestamp: new Date()
+          }]
+        }
+      }));
+      
       toast.error('Failed to start scraper');
     }
   };
@@ -395,12 +458,41 @@ export function Dashboard() {
 
   return (
     <div className="space-y-8 p-6">
-      {activeScraperStatus && (
+      {/* Update the ScraperProgress section to match the new compact style */}
+      {Object.keys(scraperStatus).length > 0 && (
+        <div className="sticky top-0 z-50 bg-white p-2 rounded-lg shadow-md mb-4">
+          <h2 className="text-base font-medium mb-2 flex items-center">
+            <span className="relative flex h-2 w-2 mr-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            </span>
+            Scrapers en cours
+          </h2>
+          <div className="space-y-2">
+            {Object.entries(scraperStatus).map(([scraperId, status]) => {
+              const scraper = scrapers.find(s => s.id === scraperId);
+              return (
+                <div key={scraperId} className="last:mb-0">
+                  <ScraperProgress
+                    status={status}
+                    scraperName={scraper?.name || 'Scraper'}
+                    onRetry={() => handleRunScraper(scraperId)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* This is the old activeScraperStatus that we'll now remove */}
+      {/* {activeScraperStatus && (
         <ScraperProgress
           status={activeScraperStatus.status}
           scraperName={activeScraperStatus.name}
         />
-      )}
+      )} */}
+      
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold font-heading tracking-tight">Tableau de bord</h2>
         <Button 
@@ -594,17 +686,6 @@ export function Dashboard() {
               </>
             )}
           </div>
-
-          {/* Active Scraper Status */}
-          {Object.entries(scraperStatus).map(([scraperId, status]) => (
-            <div key={scraperId} className="mt-4">
-              <ScraperProgress
-                status={status}
-                scraperName={scrapers.find(s => s.id === scraperId)?.name || scraperId}
-                onRetry={() => handleRunScraper(scraperId)}
-              />
-            </div>
-          ))}
 
           {/* Pagination */}
           {totalItems > 0 && (
