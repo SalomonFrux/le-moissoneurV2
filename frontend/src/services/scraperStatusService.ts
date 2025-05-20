@@ -7,11 +7,11 @@ type StatusCallback = (status: ScraperStatus) => void;
 
 class ScraperStatusService {
   private socket: Socket | null = null;
-  private statusCallback: StatusCallback | null = null;
-  private currentScraperId: string | null = null;
+  private statusCallbacks: Map<string, StatusCallback> = new Map();
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectTimeout = 1000;
+  private isConnected = false;
 
   constructor() {
     this.connect = this.connect.bind(this);
@@ -19,156 +19,223 @@ class ScraperStatusService {
   }
 
   connect(scraperId: string, onStatusUpdate: StatusCallback) {
+    console.log(`ScraperStatusService: Connecting to scraper ${scraperId}`);
+    
+    // Store the callback for this scraper ID
+    this.statusCallbacks.set(scraperId, onStatusUpdate);
+    
     // Check authentication
     const token = authService.getToken();
     if (!token) {
       console.error('No authentication token available');
-      if (onStatusUpdate) {
-        onStatusUpdate({
-          status: 'error',
-          currentPage: 0,
-          totalItems: 0,
-          messages: [{
-            id: 'auth-error',
-            type: 'error',
-            text: 'Authentication required. Please log in.',
-            timestamp: new Date()
-          }],
-          error: 'Authentication required'
-        });
-      }
+      this.sendErrorStatus(scraperId, 'Authentication required. Please log in.');
       return;
     }
 
-    // Store the current scraper ID
-    this.currentScraperId = scraperId;
-    this.statusCallback = onStatusUpdate;
-
     try {
-      // Close existing connection if any
-      this.disconnect();
+      // Only create a new socket connection if one doesn't exist
+      if (!this.socket || !this.isConnected) {
+        // Close existing connection if any
+        this.disconnect();
 
-      // Create new Socket.IO connection with proper configuration
-      this.socket = io(API_URL, {
-        withCredentials: true,
-        transports: ['websocket', 'polling'],
-        reconnectionAttempts: this.maxReconnectAttempts,
-        reconnectionDelay: this.reconnectTimeout,
-        autoConnect: true,
-        auth: {
-          token: token
-        }
-      });
-
-      this.socket.on('connect', () => {
-        console.log('Socket.IO connection established');
-        this.reconnectAttempts = 0;
-        this.reconnectTimeout = 1000;
-
-        // Join the scraper room
-        this.socket?.emit('join-scraper', scraperId);
-      });
-
-      this.socket.on('scraper-status', (data) => {
-        console.log('Received scraper status update:', data);
-        if (this.statusCallback) {
-          // Convert timestamp strings to Date objects
-          const status: ScraperStatus = {
-            ...data,
-            messages: Array.isArray(data.messages) ? data.messages.map((msg: any) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp)
-            })) : []
-          };
-          console.log('Processed status object:', status);
-          this.statusCallback(status);
-        }
-      });
-
-      // Add error handling for scraper-error event
-      this.socket.on('scraper-error', (error) => {
-        console.error('Scraper error:', error);
-        if (this.statusCallback) {
-          this.statusCallback({
-            status: 'error',
-            currentPage: 0,
-            totalItems: 0,
-            messages: [{
-              id: 'scraper-error',
-              type: 'error',
-              text: error.error || 'Unknown error with scraper' + 
-                (error.availableIds ? ` (Available IDs: ${error.availableIds.join(', ')})` : ''),
-              timestamp: new Date()
-            }],
-            error: error.error || 'Unknown error'
-            // Removed availableIds property
-          });
-        }
-      });
-
-      this.socket.on('connect_error', (error) => {
-        console.error('Socket.IO connection error:', error);
+        console.log(`ScraperStatusService: Creating new Socket.IO connection to ${API_URL}`);
         
-        // Attempt to reconnect
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-          console.log(`Attempting to reconnect (${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})...`);
-          setTimeout(() => {
-            this.reconnectAttempts++;
-            this.reconnectTimeout *= 2; // Exponential backoff
-            this.connect(scraperId, onStatusUpdate);
-          }, this.reconnectTimeout);
-        } else {
-          console.error('Socket.IO connection failed after maximum attempts');
-          if (this.statusCallback) {
-            this.statusCallback({
-              status: 'error',
-              currentPage: 0,
-              totalItems: 0,
-              messages: [{
-                id: 'connection-error',
-                type: 'error',
-                text: 'Connection lost. Please try again.',
-                timestamp: new Date()
-              }],
-              error: 'Connection failed'
+        // Create new Socket.IO connection with proper configuration
+        this.socket = io(API_URL, {
+          withCredentials: true,
+          transports: ['websocket', 'polling'],
+          reconnectionAttempts: this.maxReconnectAttempts,
+          reconnectionDelay: this.reconnectTimeout,
+          autoConnect: true,
+          auth: {
+            token: token
+          }
+        });
+
+        this.socket.on('connect', () => {
+          console.log('Socket.IO connection established');
+          this.isConnected = true;
+          this.reconnectAttempts = 0;
+          this.reconnectTimeout = 1000;
+
+          // Join rooms for all active scrapers
+          this.statusCallbacks.forEach((_, scraperId) => {
+            console.log(`ScraperStatusService: Joining scraper room for ${scraperId}`);
+            this.socket?.emit('join-scraper', scraperId);
+          });
+        });
+
+        this.socket.on('scraper-status', (data) => {
+          console.log('ScraperStatusService: Received scraper status update:', data);
+
+          // Find the appropriate scraper ID from the room ID if available
+          // Backend might not send the scraper ID directly in the message
+          const scraperId = data.scraperId || this.findScraperIdFromRoom(data);
+          
+          if (scraperId && this.statusCallbacks.has(scraperId)) {
+            try {
+              // Handle both message formats
+              // Backend sends either { messages: [...] } or { message: "..." }
+              let messages;
+              
+              if (Array.isArray(data.messages)) {
+                messages = data.messages.map((msg: any) => ({
+                  ...msg,
+                  timestamp: new Date(msg.timestamp)
+                }));
+              } else {
+                // Create a message from the message field and type
+                messages = [{
+                  id: `msg-${Date.now()}`,
+                  type: data.type || 'info' as const,
+                  text: data.message || 'Status updated',
+                  timestamp: new Date()
+                }];
+              }
+              
+              // Construct a valid status object
+              const status: ScraperStatus = {
+                status: data.status,
+                currentPage: data.currentPage || 0,
+                totalItems: data.totalItems || 0,
+                messages
+              };
+              
+              console.log(`ScraperStatusService: Sending status update to callback for ${scraperId}`);
+              const callback = this.statusCallbacks.get(scraperId);
+              if (callback) {
+                callback(status);
+              }
+            } catch (error) {
+              console.error('ScraperStatusService: Error processing status update:', error);
+            }
+          } else {
+            console.warn(`ScraperStatusService: No callback found for scraper ${scraperId || 'unknown'}`);
+            console.log('ScraperStatusService: Active callbacks:', Array.from(this.statusCallbacks.keys()));
+          }
+        });
+
+        // Add error handling for scraper-error event
+        this.socket.on('scraper-error', (error) => {
+          console.error('Scraper error:', error);
+          const scraperId = error.scraperId;
+          if (scraperId && this.statusCallbacks.has(scraperId)) {
+            const callback = this.statusCallbacks.get(scraperId);
+            if (callback) {
+              callback({
+                status: 'error',
+                currentPage: 0,
+                totalItems: 0,
+                messages: [{
+                  id: 'scraper-error',
+                  type: 'error',
+                  text: error.error || 'Unknown error with scraper' + 
+                    (error.availableIds ? ` (Available IDs: ${error.availableIds.join(', ')})` : ''),
+                  timestamp: new Date()
+                }],
+                error: error.error || 'Unknown error'
+              });
+            }
+          }
+        });
+
+        this.socket.on('connect_error', (error) => {
+          this.isConnected = false;
+          console.error('Socket.IO connection error:', error);
+          
+          // Attempt to reconnect
+          if (this.reconnectAttempts < this.maxReconnectAttempts) {
+            console.log(`Attempting to reconnect (${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})...`);
+            setTimeout(() => {
+              this.reconnectAttempts++;
+              this.reconnectTimeout *= 2; // Exponential backoff
+              // Re-establish connection
+              this.socket?.connect();
+            }, this.reconnectTimeout);
+          } else {
+            console.error('Socket.IO connection failed after maximum attempts');
+            // Notify all callbacks about the connection failure
+            this.statusCallbacks.forEach((callback, id) => {
+              this.sendErrorStatus(id, 'Connection lost. Please try again.');
             });
           }
-        }
-      });
+        });
 
-      this.socket.on('disconnect', () => {
-        console.log('Socket.IO disconnected');
-      });
-    } catch (error) {
-      console.error('Error creating Socket.IO connection:', error);
-      if (this.statusCallback) {
-        this.statusCallback({
-          status: 'error',
-          currentPage: 0,
-          totalItems: 0,
-          messages: [{
-            id: 'connection-error',
-            type: 'error',
-            text: 'Failed to establish connection. Please try again.',
-            timestamp: new Date()
-          }],
-          error: error instanceof Error ? error.message : 'Unknown error'
+        this.socket.on('disconnect', () => {
+          this.isConnected = false;
+          console.log('Socket.IO disconnected');
         });
       }
+      
+      // Join the scraper room (even if connection already exists)
+      if (this.socket && this.isConnected) {
+        console.log(`ScraperStatusService: Joining scraper room for ${scraperId}`);
+        this.socket.emit('join-scraper', scraperId);
+      }
+      
+    } catch (error) {
+      console.error('Error creating Socket.IO connection:', error);
+      this.sendErrorStatus(scraperId, error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
+  
+  // Helper to find a scraper ID from room info in the message
+  private findScraperIdFromRoom(data: any): string | null {
+    // If we have a room property, extract scraper ID from it
+    if (data.room && typeof data.room === 'string' && data.room.startsWith('scraper-')) {
+      return data.room.replace('scraper-', '');
+    }
+    
+    // If there's only one active scraper, assume it's for that one
+    if (this.statusCallbacks.size === 1) {
+      return Array.from(this.statusCallbacks.keys())[0];
+    }
+    
+    return null;
+  }
+  
+  // Helper to send error status to a callback
+  private sendErrorStatus(scraperId: string, message: string) {
+    const callback = this.statusCallbacks.get(scraperId);
+    if (callback) {
+      callback({
+        status: 'error',
+        currentPage: 0,
+        totalItems: 0,
+        messages: [{
+          id: 'error-' + Date.now(),
+          type: 'error',
+          text: message,
+          timestamp: new Date()
+        }],
+        error: message
+      });
     }
   }
 
-  disconnect() {
-    if (this.socket) {
-      console.log('Disconnecting Socket.IO');
-      if (this.currentScraperId) {
-        this.socket.emit('leave-scraper', this.currentScraperId);
+  disconnect(scraperId?: string) {
+    if (scraperId) {
+      // Remove just this scraper's callback
+      if (this.socket && this.isConnected) {
+        this.socket.emit('leave-scraper', scraperId);
       }
-      this.socket.disconnect();
-      this.socket = null;
+      this.statusCallbacks.delete(scraperId);
+      console.log(`ScraperStatusService: Disconnected scraper ${scraperId}`);
+    } else {
+      // Disconnect all
+      if (this.socket) {
+        console.log('ScraperStatusService: Disconnecting all scrapers');
+        this.statusCallbacks.forEach((_, id) => {
+          this.socket?.emit('leave-scraper', id);
+        });
+        
+        this.socket.disconnect();
+        this.socket = null;
+        this.isConnected = false;
+      }
+      this.statusCallbacks.clear();
     }
-    this.currentScraperId = null;
-    this.statusCallback = null;
+    
     this.reconnectAttempts = 0;
     this.reconnectTimeout = 1000;
   }

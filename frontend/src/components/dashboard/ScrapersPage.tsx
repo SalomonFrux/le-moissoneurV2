@@ -70,6 +70,79 @@ interface ScraperCardProps {
   showViewData?: boolean;
 }
 
+// Add this debug notification component at the top
+const DebugProgressNotification = ({ status }: { status: { [key: string]: ScraperStatus } }) => {
+  if (Object.keys(status).length === 0) return null;
+  
+  return (
+    <div 
+      id="debug-progress-notification"
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        backgroundColor: '#f44336', 
+        color: 'white',
+        padding: '15px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+        zIndex: 9999,
+        minWidth: '300px',
+        maxWidth: '500px',
+        maxHeight: '400px',
+        overflow: 'auto'
+      }}
+    >
+      <div style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '16px' }}>
+        SCRAPER STATUS (DEBUG)
+      </div>
+      {Object.entries(status).map(([id, statusData]) => (
+        <div key={id} style={{ 
+          marginBottom: '15px', 
+          padding: '12px', 
+          backgroundColor: 'rgba(255,255,255,0.2)',
+          borderRadius: '6px'
+        }}>
+          <div style={{ marginBottom: '8px' }}><strong>ID:</strong> {id.substring(0, 8)}...</div>
+          <div style={{ marginBottom: '5px' }}><strong>Status:</strong> <span style={{
+            backgroundColor: 
+              statusData.status === 'running' ? '#4caf50' : 
+              statusData.status === 'completed' ? '#2196f3' : 
+              statusData.status === 'error' ? '#ff9800' : '#9e9e9e',
+            padding: '2px 6px',
+            borderRadius: '4px'
+          }}>{statusData.status}</span></div>
+          <div style={{ marginBottom: '5px' }}><strong>Progress:</strong> Page {statusData.currentPage} / {statusData.totalItems || '?'} items</div>
+          
+          <div style={{ marginBottom: '5px' }}><strong>Messages:</strong></div>
+          <div style={{ 
+            maxHeight: '120px', 
+            overflow: 'auto', 
+            backgroundColor: 'rgba(0,0,0,0.1)',
+            padding: '8px',
+            borderRadius: '4px',
+            fontSize: '13px'
+          }}>
+            {statusData.messages && statusData.messages.map((msg, i) => (
+              <div key={i} style={{ 
+                marginBottom: '4px', 
+                backgroundColor: 
+                  msg.type === 'error' ? 'rgba(255,0,0,0.2)' : 
+                  msg.type === 'success' ? 'rgba(0,255,0,0.2)' : 
+                  'transparent',
+                padding: '4px',
+                borderRadius: '2px'
+              }}>
+                {msg.text}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export function ScrapersPage() {
   const [scrapers, setScrapers] = useState<Scraper[]>([]);
   const [loading, setLoading] = useState(true);
@@ -331,24 +404,66 @@ useEffect(() => {
 
   const handleRunScraper = async (scraperId: string) => {
     try {
-      await dataService.runScraper(scraperId);
+      console.log(`ScrapersPage: Starting scraper ${scraperId}`);
       
-      // Connect to SSE for status updates
+      // Set initial status immediately to show that something is happening
+      setScraperStatus(prev => ({
+        ...prev,
+        [scraperId]: {
+          status: 'initializing',
+          currentPage: 0,
+          totalItems: 0,
+          messages: [{
+            id: 'initial',
+            type: 'info',
+            text: 'Starting scraper...',
+            timestamp: new Date()
+          }]
+        }
+      }));
+      
+      // This needs to be connected BEFORE we start the scraper
+      // to avoid missing the first status updates
+      console.log(`ScrapersPage: Connecting to status service for ${scraperId}`);
       scraperStatusService.connect(scraperId, (status) => {
-        console.log(`Received status update for scraper ${scraperId}:`, status);
+        console.log(`ScrapersPage: Received status update for scraper ${scraperId}:`, status);
         setScraperStatus(prev => {
           const newStatus = {
             ...prev,
             [scraperId]: status
           };
-          console.log('Updated scraper status state:', newStatus);
+          console.log('ScrapersPage: Updated scraper status state:', newStatus);
           return newStatus;
         });
       });
-
+      
+      // Add a slight delay to ensure Socket.IO connection is established
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Now run the scraper
+      console.log(`ScrapersPage: Calling API to run scraper ${scraperId}`);
+      await dataService.runScraper(scraperId);
+      
       toast.success('Scraper started successfully');
     } catch (error) {
       console.error('Error running scraper:', error);
+      
+      // Set error status
+      setScraperStatus(prev => ({
+        ...prev,
+        [scraperId]: {
+          status: 'error',
+          currentPage: 0,
+          totalItems: 0,
+          messages: [{
+            id: 'error',
+            type: 'error',
+            text: error instanceof Error ? error.message : 'Failed to start scraper',
+            timestamp: new Date()
+          }]
+        }
+      }));
+      
       toast.error('Failed to start scraper');
     }
   };
@@ -473,14 +588,96 @@ useEffect(() => {
     };
   }, []);
 
+  // Add a debug useEffect to track scraper status changes
+  useEffect(() => {
+    console.log("SCRAPER STATUS UPDATED:", scraperStatus);
+    console.log("Keys in scraperStatus:", Object.keys(scraperStatus));
+    console.log("Has scrapers running:", Object.keys(scraperStatus).length > 0);
+  }, [scraperStatus]);
+
+  // Add a debug function to test the scraperStatus state directly
+  const testScraperStatus = () => {
+    const testId = 'test-scraper-id';
+    setScraperStatus(prev => ({
+      ...prev,
+      [testId]: {
+        status: 'running',
+        currentPage: 3,
+        totalItems: 10,
+        messages: [{
+          id: 'test-message',
+          type: 'info',
+          text: 'Test scraper is running',
+          timestamp: new Date()
+        }]
+      }
+    }));
+
+    // Log to help debug
+    console.log('Added test scraper status');
+    
+    // Alert to verify JavaScript is running
+    alert('Test scraper status added! Look for the red box in the bottom right.');
+  };
+
+  // More aggressive debugging with DOM check
+  useEffect(() => {
+    if (Object.keys(scraperStatus).length > 0) {
+      console.log('SCRAPER STATUS EXISTS:', scraperStatus);
+      
+      // Check if the notification element exists in the DOM
+      setTimeout(() => {
+        const element = document.getElementById('debug-progress-notification');
+        console.log('Found notification element:', element);
+        
+        if (!element) {
+          console.error('Could not find notification element in DOM!');
+        }
+      }, 500);
+    }
+  }, [scraperStatus]);
+
   return (
-    <div className="space-y-8 p-6">
-      {activeScraperStatus && (
-        <ScraperProgress
-          status={activeScraperStatus.status}
-          scraperName={activeScraperStatus.name}
-        />
+    <div className="space-y-8 p-6 relative">
+      {/* Show the debug button at the very top for testing */}
+      <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 rounded">
+        <p className="mb-2 font-bold">Debugging Tools</p>
+        <button 
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          onClick={testScraperStatus}
+        >
+          Test Scraper Status
+        </button>
+      </div>
+
+      {/* Debug notification with fixed position */}
+      <DebugProgressNotification status={scraperStatus} />
+      
+      {/* Display all active scrapers at the top with attention-grabbing style */}
+      {Object.keys(scraperStatus).length > 0 && (
+        <div className="sticky top-0 z-50 border-2 border-blue-500 bg-white p-4 rounded-lg shadow-lg mb-6 animate-pulse">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            <span className="relative flex h-3 w-3 mr-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+            </span>
+            Active Scrapers
+          </h2>
+          {Object.entries(scraperStatus).map(([scraperId, status]) => {
+            const scraper = scrapers.find(s => s.id === scraperId);
+            return (
+              <div key={scraperId} className="mb-4 last:mb-0">
+                <ScraperProgress
+                  status={status}
+                  scraperName={scraper?.name || 'Scraper'}
+                  onRetry={() => handleRunScraper(scraperId)}
+                />
+              </div>
+            );
+          })}
+        </div>
       )}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h2 className="text-3xl font-bold font-heading tracking-tight">Scrapers</h2>
@@ -1033,15 +1230,76 @@ useEffect(() => {
         </Card>
       )}
 
-      {Object.entries(scraperStatus).map(([scraperId, status]) => (
-        <div key={scraperId} className="mt-4">
-          <ScraperProgress
-            status={status}
-            scraperName={scrapers.find(s => s.id === scraperId)?.name || 'Scraper'}
-            onRetry={() => handleRunScraper(scraperId)}
-          />
+      {/* Fixed position progress overlay at the bottom */}
+      {Object.keys(scraperStatus).length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t-2 border-blue-500 p-4 z-50">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold flex items-center">
+                <span className="relative flex h-3 w-3 mr-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                Scrapers en cours d'exécution ({Object.keys(scraperStatus).length})
+              </h3>
+              <span className="text-sm text-gray-500">Ne fermez pas cette page</span>
+            </div>
+            
+            <div className="max-h-60 overflow-y-auto">
+              {Object.entries(scraperStatus).map(([scraperId, status]) => {
+                const scraper = scrapers.find(s => s.id === scraperId);
+                console.log(`Rendering scraper progress for ${scraperId}:`, status);
+                
+                // Calculate a percentage for the progress bar
+                let progressPercent = 0;
+                if (status.status === 'completed') {
+                  progressPercent = 100;
+                } else if (status.totalItems > 0) {
+                  progressPercent = Math.round((status.currentPage / status.totalItems) * 100);
+                }
+                
+                // Get the latest message
+                const latestMessage = status.messages && status.messages.length > 0 
+                  ? status.messages[0].text 
+                  : 'No message';
+                
+                return (
+                  <div key={scraperId} className="mb-4 last:mb-0 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium">{scraper?.name || 'Scraper'}</span>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          status.status === 'running' ? 'bg-blue-500' : 
+                          status.status === 'completed' ? 'bg-green-500' : 
+                          status.status === 'error' ? 'bg-red-500' : 'bg-gray-500'
+                        } text-white`}>
+                          {status.status}
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {status.currentPage} / {status.totalItems || '?'} items
+                      </span>
+                    </div>
+                    
+                    {/* Progress bar */}
+                    <div className="w-full h-2 bg-gray-200 rounded overflow-hidden mb-2">
+                      <div 
+                        className={`h-full ${
+                          status.status === 'completed' ? 'bg-green-500' : 
+                          status.status === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                        }`} 
+                        style={{ width: `${progressPercent}%`, transition: 'width 0.5s ease-in-out' }}
+                      ></div>
+                    </div>
+                    
+                    <p className="mt-2 text-sm text-gray-600">{latestMessage}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 }
