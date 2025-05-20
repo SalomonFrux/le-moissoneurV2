@@ -163,7 +163,8 @@ async function executeScraper(scraper) {
             child: scraper.selectors?.child || {},
             pagination: scraper.selectors?.pagination,
             dropdownClick: scraper.selectors?.dropdownClick
-          }
+          },
+          scraper.id // Pass the scraper ID for WebSocket status updates
         );
         
         // Map Playwright results to expected format, preserving existing values
