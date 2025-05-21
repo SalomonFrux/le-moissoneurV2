@@ -10,7 +10,7 @@ const server = http.createServer(app);
 // Configure Socket.IO with the same CORS options as Express
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://salomonks-moissonneur.vercel.app']
+    ? ['https://salomonks-moissonneur.vercel.app', 'https://le-moissoneur.vercel.app', '*']
     : ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8083'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -19,13 +19,15 @@ const corsOptions = {
 
 // Initialize Socket.IO with CORS settings
 const io = new Server(server, {
-  cors: corsOptions
+  cors: corsOptions,
+  transports: ['websocket', 'polling'] // Ensure both transport methods are available
 });
 
 // Socket.IO middleware for authentication
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) {
+    logger.error('Socket connection rejected: No authentication token');
     return next(new Error('Authentication error'));
   }
 
@@ -34,8 +36,10 @@ io.use((socket, next) => {
       algorithms: ['HS256']
     });
     socket.user = decoded;
+    logger.info(`Socket authenticated for user: ${decoded.email || 'unknown'}`);
     next();
   } catch (error) {
+    logger.error(`Socket authentication error: ${error.message}`);
     next(new Error('Authentication error'));
   }
 });
@@ -58,7 +62,7 @@ io.on('connection', (socket) => {
         totalItems: 0,
         messages: [{
           type: 'info',
-          text: 'Initializing scraper...',
+          text: 'Initialisation du scraper...',
           timestamp: new Date()
         }]
       });

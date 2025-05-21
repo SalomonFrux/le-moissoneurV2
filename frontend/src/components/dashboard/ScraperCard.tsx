@@ -47,7 +47,7 @@ export function ScraperCard({
   const getStatusColor = (status: Scraper['status']) => {
     switch (status) {
       case 'running':
-        return 'bg-blue-500';
+        return 'bg-green-500';
       case 'completed':
         return 'bg-green-500';
       case 'error':

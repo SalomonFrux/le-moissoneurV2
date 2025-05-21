@@ -337,7 +337,7 @@ export function ScrapersPage() {
           messages: [{
             id: 'initial',
             type: 'info',
-            text: 'Starting scraper...',
+            text: 'Démarrage du scraper...',
             timestamp: new Date()
           }]
         }
@@ -352,19 +352,17 @@ export function ScrapersPage() {
             [scraperId]: status
           };
           
-          // If scraper is completed or has error, schedule auto-cleanup
+          // Update the scraper's status in the scrapers list when completed or error
           if (status.status === 'completed' || status.status === 'error') {
-            // Keep the completed status visible for 5 seconds, then clean up
-            setTimeout(() => {
-              setScraperStatus(current => {
-                const updated = { ...current };
-                delete updated[scraperId]; // Remove this scraper's status
-                return updated;
-              });
-              
-              // Also disconnect the socket for this scraper
-              scraperStatusService.disconnect(scraperId);
-            }, 5000);
+            setScrapers(currentScrapers => 
+              currentScrapers.map(scraper => 
+                scraper.id === scraperId 
+                  ? { ...scraper, status: 'idle' } 
+                  : scraper
+              )
+            );
+            
+            // NOTE: We no longer auto-remove the status after completion
           }
           
           return newStatus;
@@ -376,6 +374,11 @@ export function ScrapersPage() {
       
       // Now run the scraper
       await dataService.runScraper(scraperId);
+      
+      // Update the scraper's status to running
+      setScrapers(prev => prev.map(s => 
+        s.id === scraperId ? { ...s, status: 'running' as const } : s
+      ));
       
       toast.success('Scraper started successfully');
     } catch (error) {
@@ -390,7 +393,7 @@ export function ScrapersPage() {
           messages: [{
             id: 'error',
             type: 'error',
-            text: error instanceof Error ? error.message : 'Failed to start scraper',
+            text: error instanceof Error ? error.message : 'Impossible de démarrer le scraper',
             timestamp: new Date()
           }]
         }
@@ -398,6 +401,19 @@ export function ScrapersPage() {
       
       toast.error('Failed to start scraper');
     }
+  };
+
+  // Add a function to dismiss a scraper status
+  const handleDismissScraperStatus = (scraperId: string) => {
+    setScraperStatus(prev => {
+      const updated = { ...prev };
+      delete updated[scraperId]; // Remove this scraper's status
+      
+      // Also disconnect the socket for this scraper
+      scraperStatusService.disconnect(scraperId);
+      
+      return updated;
+    });
   };
 
   const handleStopScraper = (id: string) => {
@@ -541,6 +557,7 @@ export function ScrapersPage() {
                     status={status}
                     scraperName={scraper?.name || 'Scraper'}
                     onRetry={() => handleRunScraper(scraperId)}
+                    onDismiss={() => handleDismissScraperStatus(scraperId)}
                   />
                 </div>
               );
@@ -1040,7 +1057,7 @@ export function ScrapersPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="playwright">Playwright (recommandé)</SelectItem>
-                    <SelectItem value="puppeteer">Puppeteer</SelectItem>
+                    {/* <SelectItem value="puppeteer">Puppeteer</SelectItem> */}
                   </SelectContent>
                 </Select>
               </div>

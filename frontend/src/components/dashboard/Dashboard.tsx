@@ -257,7 +257,7 @@ export function Dashboard() {
           messages: [{
             id: 'initial',
             type: 'info',
-            text: 'Starting scraper...',
+            text: 'Démarrage du scraper...',
             timestamp: new Date()
           }]
         }
@@ -272,19 +272,15 @@ export function Dashboard() {
             [scraperId]: status
           };
           
-          // If scraper is completed or has error, schedule auto-cleanup
+          // When scraper completes or has error, update its status in the list
           if (status.status === 'completed' || status.status === 'error') {
-            // Keep the completed status visible for 5 seconds, then clean up
-            setTimeout(() => {
-              setScraperStatus(current => {
-                const updated = { ...current };
-                delete updated[scraperId]; // Remove this scraper's status
-                return updated;
-              });
-              
-              // Also disconnect the socket for this scraper
-              scraperStatusService.disconnect(scraperId);
-            }, 5000);
+            setScrapers(currentScrapers => 
+              currentScrapers.map(s => 
+                s.id === scraperId 
+                  ? { ...s, status: 'idle' } 
+                  : s
+              )
+            );
           }
           
           return newStatus;
@@ -294,6 +290,7 @@ export function Dashboard() {
       // Add a slight delay to ensure Socket.IO connection is established
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      // Now run the scraper
       await dataService.runScraper(scraperId);
       
       // Update scrapers list with correct typing
@@ -314,7 +311,7 @@ export function Dashboard() {
           messages: [{
             id: 'error',
             type: 'error',
-            text: error instanceof Error ? error.message : 'Failed to start scraper',
+            text: error instanceof Error ? error.message : 'Impossible de démarrer le scraper',
             timestamp: new Date()
           }]
         }
@@ -456,6 +453,19 @@ export function Dashboard() {
     navigate('/login');
   };
 
+  // Add a function to dismiss a scraper status
+  const handleDismissScraperStatus = (scraperId: string) => {
+    setScraperStatus(prev => {
+      const updated = { ...prev };
+      delete updated[scraperId]; // Remove this scraper's status
+      
+      // Also disconnect the socket for this scraper
+      scraperStatusService.disconnect(scraperId);
+      
+      return updated;
+    });
+  };
+
   return (
     <div className="space-y-8 p-6">
       {/* Update the ScraperProgress section to match the new compact style */}
@@ -477,6 +487,7 @@ export function Dashboard() {
                     status={status}
                     scraperName={scraper?.name || 'Scraper'}
                     onRetry={() => handleRunScraper(scraperId)}
+                    onDismiss={() => handleDismissScraperStatus(scraperId)}
                   />
                 </div>
               );

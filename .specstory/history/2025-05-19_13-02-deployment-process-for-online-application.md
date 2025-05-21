@@ -15734,3 +15734,434 @@ _**Assistant**_
 
 ---
 
+I'll implement all these changes:
+
+---
+
+```diff
+  import { Card, CardContent } from '@/components/ui/card';
+  import { ScraperStatus } from './types';
++ import { X } from 'lucide-react';
+  
+  interface ScraperProgressProps {
+    status: ScraperStatus;
+    scraperName: string;
+    onRetry?: () => Promise<void>;
++   onDismiss?: () => void;
+  }
+  
+- export function ScraperProgress({ status, scraperName, onRetry }: ScraperProgressProps) {
++ export function ScraperProgress({ status, scraperName, onRetry, onDismiss }: ScraperProgressProps) {
+    // Defensive coding to prevent errors if status is incomplete
+    if (!status || typeof status !== 'object') {
+```
+
+```diff
+    }
+    
+-   const getProgressValue = () => {
+-     if (status.status === 'completed') return 100;
+-     if (status.status === 'error') return 100; // Show full bar for errors too
+-     if (!status.totalItems || status.totalItems <= 0) return 0;
+-     
+-     const calculated = Math.round((status.currentPage / status.totalItems) * 100);
+-     
+-     // Ensure progress is between 0-100
+-     return Math.max(0, Math.min(100, calculated));
++   // Translate status messages to French
++   const translateStatus = (statusText: string) => {
++     const translations: Record<string, string> = {
++       'initializing': 'initialisation',
++       'running': 'en cours',
++       'completed': 'terminé',
++       'error': 'erreur'
++     };
++     
++     return translations[statusText] || statusText;
+    };
+    
+    const getProgressBarColor = () => {
+      switch (status.status) {
+        case 'running':
+-         return 'bg-blue-500';
++         return 'bg-green-500';
+        case 'completed':
+          return 'bg-green-500';
+        case 'error':
+          return 'bg-red-500';
+        default:
+-         return 'bg-gray-500';
++         return 'bg-green-500';
+      }
+    };
+```
+
+```diff
+      // Safely check for messages
+      if (!status.messages || !Array.isArray(status.messages) || status.messages.length === 0) {
+-       return status.status.charAt(0).toUpperCase() + status.status.slice(1);
++       return translateStatus(status.status);
+      }
+      
+```
+
+```diff
+      }
+      
+-     return status.status.charAt(0).toUpperCase() + status.status.slice(1);
++     return translateStatus(status.status);
+    };
+  
+-   // Windows 10-style compact progress bar
+    return (
+      <div className="bg-gray-50 rounded shadow-sm p-2">
+```
+
+```diff
+            <span className="font-medium text-sm">{scraperName}</span>
+            <span className={`px-1.5 py-0.5 rounded-sm text-xs ${
+-             status.status === 'running' ? 'bg-blue-100 text-blue-700' : 
++             status.status === 'running' ? 'bg-green-100 text-green-700' : 
+              status.status === 'completed' ? 'bg-green-100 text-green-700' : 
+              'bg-red-100 text-red-700'
+            }`}>
+-             {status.status}
++             {translateStatus(status.status)}
+            </span>
+          </div>
++         <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500">
+              {status.currentPage} / {status.totalItems || '?'}
+            </span>
++           {onDismiss && (
++             <button 
++               onClick={onDismiss}
++               className="text-gray-400 hover:text-gray-600 transition-colors"
++             >
++               <X className="h-4 w-4" />
++             </button>
++           )}
++         </div>
+        </div>
+        
+-       {/* Windows 10-style progress bar */}
++       {/* Indeterminate animated progress bar */}
+        <div className="h-1.5 w-full bg-gray-100 rounded overflow-hidden">
++         {status.status === 'running' || status.status === 'initializing' ? (
++           <div className={`h-full ${getProgressBarColor()} animate-[pulse_1s_ease-in-out_infinite] w-full`} />
++         ) : (
+            <div 
+-           className={`h-full ${getProgressBarColor()} transition-all duration-300`} 
+-           style={{ width: `${getProgressValue()}%` }}
++             className={`h-full ${getProgressBarColor()} transition-all duration-300 w-full`}
+            />
++         )}
+        </div>
+        
+```
+
+```diff
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+-           Retry
++           Réessayer
+          </button>
+        )}
+```
+
+---
+
+Now I'll update the ScrapersPage and Dashboard components to implement the required changes:
+
+---
+
+```diff
+              id: 'initial',
+              type: 'info',
+-             text: 'Starting scraper...',
++             text: 'Démarrage du scraper...',
+              timestamp: new Date()
+            }]
+```
+
+```diff
+            };
+            
+-           // If scraper is completed or has error, schedule auto-cleanup
++           // Update the scraper's status in the scrapers list when completed or error
+            if (status.status === 'completed' || status.status === 'error') {
+-             // Keep the completed status visible for 5 seconds, then clean up
+-             setTimeout(() => {
+-               setScraperStatus(current => {
+-                 const updated = { ...current };
+-                 delete updated[scraperId]; // Remove this scraper's status
+-                 return updated;
+-               });
++             setScrapers(currentScrapers => 
++               currentScrapers.map(scraper => 
++                 scraper.id === scraperId 
++                   ? { ...scraper, status: 'idle' } 
++                   : scraper
++               )
++             );
+              
+-               // Also disconnect the socket for this scraper
+-               scraperStatusService.disconnect(scraperId);
+-             }, 5000);
++             // NOTE: We no longer auto-remove the status after completion
+            }
+            
+```
+
+```diff
+        // Now run the scraper
+        await dataService.runScraper(scraperId);
++       
++       // Update the scraper's status to running
++       setScrapers(prev => prev.map(s => 
++         s.id === scraperId ? { ...s, status: 'running' as const } : s
++       ));
+        
+        toast.success('Scraper started successfully');
+```
+
+```diff
+              id: 'error',
+              type: 'error',
+-             text: error instanceof Error ? error.message : 'Failed to start scraper',
++             text: error instanceof Error ? error.message : 'Impossible de démarrer le scraper',
+              timestamp: new Date()
+            }]
+```
+
+```diff
+      }
+    };
++ 
++   // Add a function to dismiss a scraper status
++   const handleDismissScraperStatus = (scraperId: string) => {
++     setScraperStatus(prev => {
++       const updated = { ...prev };
++       delete updated[scraperId]; // Remove this scraper's status
++       
++       // Also disconnect the socket for this scraper
++       scraperStatusService.disconnect(scraperId);
++       
++       return updated;
++     });
++   };
+  
+    const handleStopScraper = (id: string) => {
+```
+
+```diff
+                      scraperName={scraper?.name || 'Scraper'}
+                      onRetry={() => handleRunScraper(scraperId)}
++                     onDismiss={() => handleDismissScraperStatus(scraperId)}
+                    />
+                  </div>
+```
+
+---
+
+Now let's update the Dashboard component to implement the same changes:
+
+---
+
+```diff
+              id: 'initial',
+              type: 'info',
+-             text: 'Starting scraper...',
++             text: 'Démarrage du scraper...',
+              timestamp: new Date()
+            }]
+```
+
+```diff
+            };
+            
+-           // If scraper is completed or has error, schedule auto-cleanup
++           // When scraper completes or has error, update its status in the list
+            if (status.status === 'completed' || status.status === 'error') {
+-             // Keep the completed status visible for 5 seconds, then clean up
+-             setTimeout(() => {
+-               setScraperStatus(current => {
+-                 const updated = { ...current };
+-                 delete updated[scraperId]; // Remove this scraper's status
+-                 return updated;
+-               });
+-               
+-               // Also disconnect the socket for this scraper
+-               scraperStatusService.disconnect(scraperId);
+-             }, 5000);
++             setScrapers(currentScrapers => 
++               currentScrapers.map(s => 
++                 s.id === scraperId 
++                   ? { ...s, status: 'idle' } 
++                   : s
++               )
++             );
+            }
+            
+```
+
+```diff
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
++       // Now run the scraper
+        await dataService.runScraper(scraperId);
+        
+```
+
+```diff
+              id: 'error',
+              type: 'error',
+-             text: error instanceof Error ? error.message : 'Failed to start scraper',
++             text: error instanceof Error ? error.message : 'Impossible de démarrer le scraper',
+              timestamp: new Date()
+            }]
+```
+
+```diff
+      navigate('/login');
+    };
++ 
++   // Add a function to dismiss a scraper status
++   const handleDismissScraperStatus = (scraperId: string) => {
++     setScraperStatus(prev => {
++       const updated = { ...prev };
++       delete updated[scraperId]; // Remove this scraper's status
++       
++       // Also disconnect the socket for this scraper
++       scraperStatusService.disconnect(scraperId);
++       
++       return updated;
++     });
++   };
+  
+    return (
+```
+
+```diff
+                      scraperName={scraper?.name || 'Scraper'}
+                      onRetry={() => handleRunScraper(scraperId)}
++                     onDismiss={() => handleDismissScraperStatus(scraperId)}
+                    />
+                  </div>
+```
+
+---
+
+Now let's search for the ScraperCard component to make sure we're fixing the button to revert to "play" after completion:
+
+---
+
+<details>
+            <summary>Searched codebase "ScraperCard" • **1** results</summary>
+        
+| File |
+|------|
+| `undefined` |
+
+</details>
+
+---
+
+Let's look at this file to understand how to modify it:
+
+---
+
+Read file: frontend/src/components/dashboard/ScraperCard.tsx
+
+---
+
+I see the issue with the ScraperCard component. Currently, it's using the scraper's status to determine whether to show the Play button or Stop button. We'll need to update the component based on our earlier improvements in the Dashboard and ScrapersPage:
+
+---
+
+```diff
+      switch (status) {
+        case 'running':
+-         return 'bg-blue-500';
++         return 'bg-green-500';
+        case 'completed':
+          return 'bg-green-500';
+```
+
+---
+
+Great! I've implemented all the requested changes:
+
+1. **Indeterminate Progress Mode**:
+   - Changed the progress bar to an indeterminate mode with a green color that pulses every second
+   - This shows activity without needing to know the exact progress
+
+2. **Keep Progress Bar Visible**:
+   - Removed the auto-cleanup after 5 seconds
+   - Added an X button to manually dismiss the progress bar
+
+3. **Fix ScraperCard Play Button**:
+   - Updated the code to correctly set scraper status back to 'idle' when a scraper completes
+   - This ensures the Play button will be shown after completion
+
+4. **French Translations**:
+   - Added translations for status messages:
+     - initializing → initialisation
+     - running → en cours 
+     - completed → terminé
+     - error → erreur
+   - Also updated other text like "Starting scraper" to "Démarrage du scraper"
+
+These changes will provide a better user experience with:
+- Progress indicators that stay visible until explicitly dismissed
+- Properly functioning control buttons that reflect the actual scraper state
+- French localization for better readability
+
+---
+
+_**User**_
+
+1. Thank you. but can the bar be moving and only be full when completed( terminé) ?
+2. after that I you will help me to prepare the app to redeply to production I need all the feature to work in production like all th urls.... I did this earlier: 
+I already have google SDK. I:
+I am onn silicon so I neeed to build like this: docker build --platform linux/amd64 -t gcr.io/samscraper-460319/samscraper-backend:latest .
+PROJECT_ID=samscraper-460319
+REGION=europe-west1
+SUPABASE_URL="https://rbqkvzdzobxbnkjuprhx.supabase.co"
+SUPABASE_KEY_TO_USE="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJicWt2emR6b2J4Ym5ranVwcmh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTk0Njg5NSwiZXhwIjoyMDYxNTIyODk1fQ.pj0cT5bS6HH7hcDOEaDYLJOsqrz5mBY7E-fLhfiZ-d4"
+JWT_SECRET="c22669fba3350718b42101984add3c57cc89ac4b1b08126c3a3e50108f5ff466dfa39b1c24d389980cf2f881cc70d21d1751c266b87b2777723185c46fc632fa"
+JWT_EXPIRATION="24h"
+
+gcloud run deploy samscraper-backend \
+  --image gcr.io/$PROJECT_ID/samscraper-backend:latest \
+  --platform managed \
+  --region $REGION \
+  --allow-unauthenticated \
+  --port 4000 \
+  --set-env-vars SUPABASE_URL="$SUPABASE_URL",SUPABASE_KEY="$SUPABASE_KEY_TO_USE",JWT_SECRET="$JWT_SECRET",JWT_EXPIRATION="$JWT_EXPIRATION" \
+  --memory 512Mi \
+  --cpu 1 \
+  --project $PROJECT_ID
+
+
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I'll make the progress bar more dynamic as requested:
+
+---
+
+
+
+---
+
+
+
+---
+
