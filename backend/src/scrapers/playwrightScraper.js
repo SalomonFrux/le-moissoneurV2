@@ -11,13 +11,23 @@ const scraperStatusHandler = require('../websocket/scraperStatusHandler');
  */
 async function playwrightScraper(url, selectors, scraperId) {
   const isProduction = process.env.NODE_ENV === 'production';
+  
+  logger.info(`Launching browser in ${isProduction ? 'headless' : 'visible'} mode`);
+  logger.info(`Using chromium at ${process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || 'default location'}`);
+  
   const browser = await chromium.launch({ 
-    headless: isProduction,
+    headless: isProduction ? true : false,  // Always use headless in production
     args: [
+      '--disable-dev-shm-usage',
       '--no-sandbox',
       '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage'
-    ]
+      '--disable-gpu',
+      '--disable-software-rasterizer',
+      '--disable-extensions'
+    ],
+    chromiumSandbox: false,
+    timeout: 60000,
+    executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined
   });
 
   // Send initial status
@@ -30,6 +40,10 @@ async function playwrightScraper(url, selectors, scraperId) {
   });
 
   const page = await browser.newPage();
+  
+  // Set a longer navigation timeout for slower connections
+  page.setDefaultNavigationTimeout(60000);
+  
   let results = [];
   let currentUrl = url;
   let pageNum = 1;
@@ -54,7 +68,7 @@ async function playwrightScraper(url, selectors, scraperId) {
         message: `Navigating to page ${pageNum}`
       });
 
-      await page.goto(currentUrl, { timeout: 60000 });
+      await page.goto(currentUrl, { timeout: 60000, waitUntil: 'domcontentloaded' });
 
       // Click all dropdowns/arrows if a selector is provided
       if (selectors.dropdownClick) {
@@ -87,7 +101,7 @@ async function playwrightScraper(url, selectors, scraperId) {
 
       // Wait for the main container to appear
       try {
-        await page.waitForSelector(selectors.main, { timeout: 3000 });
+        await page.waitForSelector(selectors.main, { timeout: 5000 });
       } catch (e) {
         logger.error(`Main container not found: ${e.message}`);
         scraperStatusHandler.updateStatus(scraperId, {
