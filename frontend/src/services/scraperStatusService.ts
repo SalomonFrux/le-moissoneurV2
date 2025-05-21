@@ -12,6 +12,7 @@ class ScraperStatusService {
   private maxReconnectAttempts = 5;
   private reconnectTimeout = 1000;
   private isConnected = false;
+  private mostRecentScraperId: string | null = null; // Track the most recent scraper
 
   constructor() {
     this.connect = this.connect.bind(this);
@@ -23,6 +24,8 @@ class ScraperStatusService {
     
     // Store the callback for this scraper ID
     this.statusCallbacks.set(scraperId, onStatusUpdate);
+    // Update most recent scraper ID
+    this.mostRecentScraperId = scraperId;
     
     // Check authentication
     const token = authService.getToken();
@@ -70,7 +73,13 @@ class ScraperStatusService {
 
           // Find the appropriate scraper ID from the room ID if available
           // Backend might not send the scraper ID directly in the message
-          const scraperId = data.scraperId || this.findScraperIdFromRoom(data);
+          let scraperId = data.scraperId || this.findScraperIdFromRoom(data);
+          
+          // If we still can't determine the scraper ID, use the most recent one
+          if (!scraperId && this.mostRecentScraperId) {
+            console.log(`ScraperStatusService: Using most recent scraper ID: ${this.mostRecentScraperId}`);
+            scraperId = this.mostRecentScraperId;
+          }
           
           if (scraperId && this.statusCallbacks.has(scraperId)) {
             try {
@@ -118,7 +127,7 @@ class ScraperStatusService {
         // Add error handling for scraper-error event
         this.socket.on('scraper-error', (error) => {
           console.error('Scraper error:', error);
-          const scraperId = error.scraperId;
+          const scraperId = error.scraperId || this.mostRecentScraperId;
           if (scraperId && this.statusCallbacks.has(scraperId)) {
             const callback = this.statusCallbacks.get(scraperId);
             if (callback) {
@@ -220,6 +229,14 @@ class ScraperStatusService {
         this.socket.emit('leave-scraper', scraperId);
       }
       this.statusCallbacks.delete(scraperId);
+      
+      // Update most recent scraper ID if we're removing it
+      if (this.mostRecentScraperId === scraperId) {
+        // Find the next most recent (last) scraper ID if any exist
+        const scraperIds = Array.from(this.statusCallbacks.keys());
+        this.mostRecentScraperId = scraperIds.length > 0 ? scraperIds[scraperIds.length - 1] : null;
+      }
+      
       console.log(`ScraperStatusService: Disconnected scraper ${scraperId}`);
     } else {
       // Disconnect all
@@ -234,6 +251,7 @@ class ScraperStatusService {
         this.isConnected = false;
       }
       this.statusCallbacks.clear();
+      this.mostRecentScraperId = null;
     }
     
     this.reconnectAttempts = 0;
