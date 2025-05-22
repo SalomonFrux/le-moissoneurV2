@@ -32507,3 +32507,698 @@ Would you like me to help you with any of these steps?
 
 ---
 
+_**User**_
+
+I now get this: 
+0|le-moissoneur  | Starting scraper: Charikatestest (c82f7108-e769-4bb4-a58c-e0dd66377177)
+0|le-moissoneur  | Attempting to use Playwright for scraper c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | Starting playwrightScraper for URL: https://www.annuaireci.com/cote-divoire/fr-FR/category/marketing-de-cote-divoire
+0|le-moissoneur  | Selectors: {
+0|le-moissoneur  |   "main": ".table-detail",
+0|le-moissoneur  |   "child": {
+0|le-moissoneur  |     "name": "h1.title",
+0|le-moissoneur  |     "email": "a[href^='mailto:']",
+0|le-moissoneur  |     "phone": "span.palmares-phone",
+0|le-moissoneur  |     "address": "div.col-md-11 > label:last-child",
+0|le-moissoneur  |     "website": "a[href^='http']"
+0|le-moissoneur  |   },
+0|le-moissoneur  |   "pagination": "",
+0|le-moissoneur  |   "dropdownClick": ".accordion-toggle"
+0|le-moissoneur  | }
+0|le-moissoneur  | Chromium found at: /usr/bin/chromium-browser
+0|le-moissoneur  | Updating status for scraper c82f7108-e769-4bb4-a58c-e0dd66377177: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 0,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Starting browser...'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | Launching browser with options: {
+0|le-moissoneur  |   headless: true,
+0|le-moissoneur  |   executablePath: '/usr/bin/chromium-browser',
+0|le-moissoneur  |   timeout: 180000
+0|le-moissoneur  | }
+0|le-moissoneur  | Browser launched successfully
+0|le-moissoneur  | Updating status for scraper c82f7108-e769-4bb4-a58c-e0dd66377177: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 0,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Browser launched successfully'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | New page created
+0|le-moissoneur  | Starting scraping for URL: https://www.annuaireci.com/cote-divoire/fr-FR/category/marketing-de-cote-divoire
+0|le-moissoneur  | Updating status for scraper c82f7108-e769-4bb4-a58c-e0dd66377177: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 1,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Starting scraping from https://www.annuaireci.com/cote-divoire/fr-FR/category/marketing-de-cote-divoire'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | Processing page 1: https://www.annuaireci.com/cote-divoire/fr-FR/category/marketing-de-cote-divoire
+0|le-moissoneur  | Updating status for scraper c82f7108-e769-4bb4-a58c-e0dd66377177: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 1,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Navigating to page 1'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | Successfully navigated to page 1
+0|le-moissoneur  | Found 0 dropdown elements to click
+0|le-moissoneur  | Updating status for scraper c82f7108-e769-4bb4-a58c-e0dd66377177: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 1,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Found 0 dropdown elements to expand'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | Waiting for main selector: .table-detail
+0|le-moissoneur  | Main container not found: page.waitForSelector: Timeout 5000ms exceeded.
+0|le-moissoneur  | Call log:
+0|le-moissoneur  |   - waiting for locator('.table-detail') to be visible
+0|le-moissoneur  | Updating status for scraper c82f7108-e769-4bb4-a58c-e0dd66377177: {
+0|le-moissoneur  |   status: 'error',
+0|le-moissoneur  |   currentPage: 1,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'error',
+0|le-moissoneur  |   message: 'Main container not found on page 1: page.waitForSelector: Timeout 5000ms exceeded.\n' +
+0|le-moissoneur  |     'Call log:\n' +
+0|le-moissoneur  |     "\x1B[2m  - waiting for locator('.table-detail') to be visible\x1B[22m\n"
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | Browser closed successfully
+0|le-moissoneur  | Scraping completed. Total results: 0
+0|le-moissoneur  | No data scraped for c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | No data scraped for c82f7108-e769-4bb4-a58c-e0dd66377177
+0|le-moissoneur  | Scraper c82f7108-e769-4bb4-a58c-e0dd66377177 completed successfully
+0|le-moissoneur  | Updating status for scraper c82f7108-e769-4bb4-a58c-e0dd66377177: {
+0|le-moissoneur  |   status: 'completed',
+0|le-moissoneur  |   currentPage: 0,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'success',
+0|le-moissoneur  |   message: 'Scraping completed successfully'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room c82f7108-e769-4bb4-a58c-e0dd66377177
+
+
+But On my UI I stiil see this: 
+Scrapers en cours
+Charikatestest
+initialisation
+0 / ?
+
+Démarrage du scraper...
+
+
+
+---
+
+_**Assistant**_
+
+I see the issue. The scraper is completing but with an error because it can't find the main selector `.table-detail`. This could be because:
+
+1. The page needs more time to load
+2. The website might be blocking automated access
+3. The selector might be wrong
+
+Let's modify the scraper to:
+1. Increase the timeout
+2. Add page content logging to see what we're actually getting
+3. Add screenshot capability for debugging
+
+Here's what to change in `playwrightScraper.js`. On the VM, run:
+
+```bash
+nano src/scrapers/playwrightScraper.js
+```
+
+Find the section where we navigate to the page and modify it to this:
+
+```javascript
+      try {
+        logger.info(`Navigating to URL: ${currentUrl}`);
+        await page.goto(currentUrl, { waitUntil: 'networkidle', timeout: 60000 });
+        logger.info(`Successfully navigated to page ${pageNum}`);
+
+        // Take a screenshot for debugging
+        await page.screenshot({ path: `/tmp/page-${scraperId}-${pageNum}.png` });
+        
+        // Log page content for debugging
+        const pageContent = await page.content();
+        logger.info(`Page content length: ${pageContent.length}`);
+        logger.info(`First 500 characters of page: ${pageContent.substring(0, 500)}`);
+
+        // Wait longer for the main container
+        logger.info(`Waiting for main selector: ${selectors.main}`);
+        await page.waitForSelector(selectors.main, { 
+          timeout: 30000,
+          state: 'attached'
+        });
+        logger.info('Main selector found');
+
+        // Log the found elements
+        const elements = await page.$$(selectors.main);
+        logger.info(`Found ${elements.length} elements matching selector ${selectors.main}`);
+
+      } catch (error) {
+        logger.error(`Navigation or selector error on page ${pageNum}:`, error);
+        logger.error('Page URL at error:', page.url());
+        
+        // Take error screenshot
+        try {
+          await page.screenshot({ path: `/tmp/error-${scraperId}-${pageNum}.png` });
+          logger.info('Error screenshot saved');
+        } catch (screenshotError) {
+          logger.error('Failed to take error screenshot:', screenshotError);
+        }
+
+        scraperStatusHandler.updateStatus(scraperId, {
+          status: 'error',
+          currentPage: pageNum,
+          totalItems: results.length,
+          type: 'error',
+          message: `Error on page ${pageNum}: ${error.message}`
+        });
+        break;
+      }
+```
+
+After saving the changes:
+
+1. Restart the application:
+```bash
+pm2 restart le-moissoneur
+```
+
+2. Try the scraper again and check the logs:
+```bash
+pm2 logs le-moissoneur
+```
+
+This will help us understand:
+1. If the page is loading at all
+2. What content we're actually getting
+3. If there are any anti-bot measures in place
+4. If the selectors need to be updated
+
+When you run the scraper again, please share the new logs, and I'll help you diagnose the exact issue.
+
+---
+
+_**User**_
+
+I think we make it. The main problem why chromium was not launching fron a contanair and from the 1 GM memory VM we had was that it needed more moemory: 
+
+0|le-moissoneur  | Client eUh8IpLFCHmEuRCuAAAD joined scraper room: 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | POST /api/scrapers/run/80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Starting scraper: Charika-001 (80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621)
+0|le-moissoneur  | Attempting to use Playwright for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Starting playwrightScraper for URL: https://www.charika.ma/palmares-des-1000-plus-grandes-pme-1
+0|le-moissoneur  | Selectors: {
+0|le-moissoneur  |   "main": ".table-detail",
+0|le-moissoneur  |   "child": {
+0|le-moissoneur  |     "name": "h1.title",
+0|le-moissoneur  |     "email": "a[href^='mailto:']",
+0|le-moissoneur  |     "phone": "span.palmares-phone",
+0|le-moissoneur  |     "address": "div.col-md-11 > label:last-child",
+0|le-moissoneur  |     "website": "a[href^='http']"
+0|le-moissoneur  |   },
+0|le-moissoneur  |   "pagination": "",
+0|le-moissoneur  |   "dropdownClick": ".accordion-toggle"
+0|le-moissoneur  | }
+0|le-moissoneur  | Chromium found at: /usr/bin/chromium-browser
+0|le-moissoneur  | Updating status for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 0,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Starting browser...'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Launching browser with options: {
+0|le-moissoneur  |   headless: true,
+0|le-moissoneur  |   executablePath: '/usr/bin/chromium-browser',
+0|le-moissoneur  |   timeout: 180000
+0|le-moissoneur  | }
+0|le-moissoneur  | Browser launched successfully
+0|le-moissoneur  | Updating status for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 0,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Browser launched successfully'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | New page created
+0|le-moissoneur  | Starting scraping for URL: https://www.charika.ma/palmares-des-1000-plus-grandes-pme-1
+0|le-moissoneur  | Updating status for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 1,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Starting scraping from https://www.charika.ma/palmares-des-1000-plus-grandes-pme-1'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Processing page 1: https://www.charika.ma/palmares-des-1000-plus-grandes-pme-1
+0|le-moissoneur  | Updating status for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 1,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Navigating to page 1'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Successfully navigated to page 1
+0|le-moissoneur  | Found 31 dropdown elements to click
+0|le-moissoneur  | Updating status for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 1,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'info',
+0|le-moissoneur  |   message: 'Found 31 dropdown elements to expand'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Waiting for main selector: .table-detail
+0|le-moissoneur  | Main selector found
+0|le-moissoneur  | Found 30 results on page 1
+0|le-moissoneur  | Updating status for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621: {
+0|le-moissoneur  |   status: 'running',
+0|le-moissoneur  |   currentPage: 1,
+0|le-moissoneur  |   totalItems: 30,
+0|le-moissoneur  |   type: 'success',
+0|le-moissoneur  |   message: 'Found 30 items on page 1. Total: 30'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | No pagination selector provided, finishing scrape
+0|le-moissoneur  | Browser closed successfully
+0|le-moissoneur  | Scraping completed. Total results: 30
+0|le-moissoneur  | Stored 30 items for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621. Total items: 30
+0|le-moissoneur  | Scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621 completed successfully
+0|le-moissoneur  | Updating status for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621: {
+0|le-moissoneur  |   status: 'completed',
+0|le-moissoneur  |   currentPage: 0,
+0|le-moissoneur  |   totalItems: 0,
+0|le-moissoneur  |   type: 'success',
+0|le-moissoneur  |   message: 'Scraping completed successfully'
+0|le-moissoneur  | }
+0|le-moissoneur  | Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Client disconnected
+0|le-moissoneur  | GET /api/dashboard
+0|le-moissoneur  | Starting getDashboardData...
+0|le-moissoneur  | GET /api/scrapers
+0|le-moissoneur  | GET /api/scraped-data/all
+0|le-moissoneur  | GET /api/scrapers
+0|le-moissoneur  | GET /api/scraped-data?page=1&limit=5&scraper_id=80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | GET /api/scraped-data?page=1&limit=5&sortBy=name&sortOrder=asc
+0|le-moissoneur  | GET /api/scraped-data?page=2&limit=5&sortBy=name&sortOrder=asc
+0|le-moissoneur  | GET /api/dashboard
+0|le-moissoneur  | Starting getDashboardData...
+0|le-moissoneur  | GET /api/scraped-data/all
+0|le-moissoneur  | GET /api/scraped-data/all
+0|le-moissoneur  | GET /api/scraped-data/all
+0|le-moissoneur  | GET /api/scrapers/80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | Fetching scraper with ID: 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+0|le-moissoneur  | GET /api/scrapers/24981cf5-19a6-40f8-889f-ee689e15e97a
+0|le-moissoneur  | Fetching scraper with ID: 24981cf5-19a6-40f8-889f-ee689e15e97a
+0|le-moissoneur  | GET /api/scrapers/a6c3fcc3-b8d8-4380-adfd-db25b6d1d35e
+0|le-moissoneur  | Fetching scraper with ID: a6c3fcc3-b8d8-4380-adfd-db25b6d1d35e
+0|le-moissoneur  | GET /api/scrapers/232c050a-f09f-4a4b-b08e-8e9421193391
+0|le-moissoneur  | Fetching scraper with ID: 232c050a-f09f-4a4b-b08e-8e9421193391
+0|le-moissoneur  | GET /api/scrapers/bc951115-c3a1-45af-bf77-ec5c74b0e899
+0|le-moissoneur  | Fetching scraper with ID: bc951115-c3a1-45af-bf77-ec5c74b0e899
+0|le-moissoneur  | GET /api/scrapers/712b0326-bb22-4ea2-af81-1237b3f79123
+0|le-moissoneur  | Fetching scraper with ID: 712b0326-bb22-4ea2-af81-1237b3f79123
+0|le-moissoneur  | GET /api/scrapers/9d2eebde-aab5-46ee-8b6e-3ff667e3a911
+0|le-moissoneur  | Fetching scraper with ID: 9d2eebde-aab5-46ee-8b6e-3ff667e3a911
+0|le-moissoneur  | GET /api/scrapers/36ff9d7e-de00-4ea7-83e8-37e9e6ffcbc4
+0|le-moissoneur  | Fetching scraper with ID: 36ff9d7e-de00-4ea7-83e8-37e9e6ffcbc4
+0|le-moissoneur  | GET /api/scrapers/ee62ec46-22ae-4ffd-8c21-cb835a21f736
+0|le-moissoneur  | Fetching scraper with ID: ee62ec46-22ae-4ffd-8c21-cb835a21f736
+0|le-moissoneur  | GET /api/scrapers/0413f023-65ca-4474-8eec-5051ff80d142
+0|le-moissoneur  | Fetching scraper with ID: 0413f023-65ca-4474-8eec-5051ff80d142
+0|le-moissoneur  | GET /api/scrapers/0fba8b39-ec61-4347-99e6-132ab34de565
+0|le-moissoneur  | Fetching scraper with ID: 0fba8b39-ec61-4347-99e6-132ab34de565
+0|le-moissoneur  | GET /api/scrapers/acbdef28-161c-4658-a845-5c873b941861
+0|le-moissoneur  | Fetching scraper with ID: acbdef28-161c-4658-a845-5c873b941861
+0|le-moissoneur  | GET /api/scrapers/2e92a8ec-e39f-4574-b636-7c3b810ff6c0
+0|le-moissoneur  | Fetching scraper with ID: 2e92a8ec-e39f-4574-b636-7c3b810ff6c0
+0|le-moissoneur  | GET /api/scrapers/8a410d13-84e3-49e2-b65d-cd50faccbd68
+0|le-moissoneur  | Fetching scraper with ID: 8a410d13-84e3-49e2-b65d-cd50faccbd68
+0|le-moissoneur  | GET /api/scrapers/fb5f2350-8e70-4b35-8bb6-7a9d1a4601fb
+0|le-moissoneur  | Fetching scraper with ID: fb5f2350-8e70-4b35-8bb6-7a9d1a4601fb
+0|le-moissoneur  | GET /api/scrapers/82b91858-04a7-42d8-87ed-d686044a1c4c
+0|le-moissoneur  | Fetching scraper with ID: 82b91858-04a7-42d8-87ed-d686044a1c4c
+0|le-moissoneur  | GET /api/scraped-data/all
+0|le-moissoneur  | GET /api/scraped-data/all
+0|le-moissoneur  | GET /api/scraped-data/all
+0|le-moissoneur  | GET /api/scraped-data/all
+
+
+---
+
+_**Assistant**_
+
+Yes, exactly! The scraper is now working perfectly on your Oracle VM with 8GB RAM. Let's analyze what's working:
+
+1. Browser Launch: ✅
+```
+Browser launched successfully
+```
+
+2. Page Navigation: ✅
+```
+Successfully navigated to page 1
+```
+
+3. Dropdown Interaction: ✅
+```
+Found 31 dropdown elements to click
+```
+
+4. Data Extraction: ✅
+```
+Found 30 results on page 1
+Stored 30 items for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+```
+
+5. WebSocket Updates: ✅
+```
+Status update sent to scraper room 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621
+```
+
+6. Database Storage: ✅
+```
+Stored 30 items for scraper 80b3ecf8-5ee2-4598-a6e0-1a1b2e10e621. Total items: 30
+```
+
+The key improvements that made this work:
+1. Moving from 1GB to 8GB RAM VM
+2. Proper system configuration with Nginx and SSL
+3. Correct browser path configuration
+4. Adequate memory allocation for Node.js and PM2
+
+Would you like to:
+1. Test another scraper to confirm consistent behavior?
+2. Add pagination support to get more than just the first page?
+3. Optimize any specific part of the scraping process?
+
+Let me know what you'd like to focus on next!
+
+---
+
+_**User**_
+
+Greate Job!!! We are going to save the version One of our app here. maka summary of all the command and process that we did that make the app work. It is going to be a long summary that we will have on the fll deplyment process on Oracle VM 8 GB.  That will will give to somebody that does not know anything about our app and will like to read about it and be able to run it onw their own from start to finish on Oracle.
+
+We will call the app moissoneurv1. 
+
+---
+
+_**Assistant**_
+
+# Moissoneur v1 - Complete Deployment Guide for Oracle VM
+
+## Overview
+Moissoneur v1 is a web scraping application built with Node.js, Playwright, and React. It features a modern UI for managing scrapers, real-time scraping status updates via WebSocket, and secure data storage using Supabase.
+
+## Prerequisites
+- Oracle VM with 8GB RAM and 1 OCPU
+- Ubuntu 20.04 LTS
+- Domain name (for SSL configuration)
+- Supabase account and database
+- Node.js 18.x
+
+## System Requirements
+- RAM: 8GB minimum
+- CPU: 1 OCPU minimum
+- Storage: 50GB recommended
+- OS: Ubuntu 20.04 LTS
+- Node.js: v18.x
+- Database: Supabase (PostgreSQL)
+
+## Step-by-Step Deployment Guide
+
+### 1. Initial Server Setup
+
+```bash
+# Update system packages
+sudo apt-get update
+sudo apt-get upgrade -y
+
+# Install essential tools
+sudo apt-get install -y curl wget git build-essential
+```
+
+### 2. Install Node.js 18.x
+```bash
+# Add NodeSource repository
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+
+# Install Node.js
+sudo apt-get install -y nodejs
+
+# Verify installation
+node -v  # Should show v18.x.x
+npm -v   # Should show compatible npm version
+```
+
+### 3. Install Browser Dependencies
+```bash
+# Install Chromium and its dependencies
+sudo apt-get install -y chromium-browser xvfb
+
+# Install virtual display server
+sudo apt-get install -y xvfb
+```
+
+### 4. Configure Virtual Display (Xvfb)
+```bash
+# Create Xvfb service
+sudo bash -c 'cat > /etc/systemd/system/xvfb.service << EOL
+[Unit]
+Description=X Virtual Frame Buffer Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/Xvfb :99 -screen 0 1920x1080x24 -ac
+[Install]
+WantedBy=multi-user.target
+EOL'
+
+# Start and enable Xvfb
+sudo systemctl daemon-reload
+sudo systemctl enable xvfb
+sudo systemctl start xvfb
+```
+
+### 5. Configure Shared Memory
+```bash
+# Add shared memory configuration
+echo "none /dev/shm tmpfs defaults,size=4g 0 0" | sudo tee -a /etc/fstab
+sudo mount -o remount /dev/shm
+```
+
+### 6. Install and Configure Nginx
+```bash
+# Install Nginx
+sudo apt-get install -y nginx
+
+# Install Certbot for SSL
+sudo apt-get install -y certbot python3-certbot-nginx
+
+# Get SSL certificate
+sudo certbot certonly --standalone -d your-domain.com
+
+# Configure Nginx
+sudo bash -c 'cat > /etc/nginx/sites-available/api.sikso.ch << EOL
+server {
+    listen 80;
+    server_name api.sikso.ch;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name api.sikso.ch;
+
+    ssl_certificate /etc/letsencrypt/live/api.sikso.ch/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.sikso.ch/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+EOL'
+
+# Enable the site
+sudo ln -sf /etc/nginx/sites-available/api.sikso.ch /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# Test and restart Nginx
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+### 7. Application Deployment
+
+#### Clone and Setup
+```bash
+# Clone repository (if using git)
+git clone your-repo-url
+cd your-repo-directory
+
+# Or copy files using scp
+scp -r backend deploy-oracle.sh ubuntu@your-vm-ip:~
+```
+
+#### Environment Configuration
+Create `.env` file in the backend directory:
+```bash
+# Server Configuration
+PORT=4000
+
+# Supabase Configuration
+SUPABASE_URL=your-supabase-url
+SUPABASE_SERVICE_KEY=your-service-key
+SUPABASE_KEY=your-anon-key
+
+# JWT Configuration
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRATION=24h
+
+# Environment
+NODE_ENV=production
+
+# Browser Configuration
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
+PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# Memory Management
+NODE_OPTIONS="--max-old-space-size=6144"  # 6GB for Node.js
+PM2_MEMORY_LIMIT=7168                     # 7GB for PM2
+
+# Display Configuration
+DISPLAY=:99
+SCREEN_WIDTH=1920
+SCREEN_HEIGHT=1080
+```
+
+### 8. Install PM2 and Deploy
+```bash
+# Install PM2 globally
+sudo npm install -y pm2@latest -g
+
+# Install dependencies
+cd backend
+npm install
+
+# Start application with PM2
+pm2 start src/index.js --name "le-moissoneur" \
+    --max-memory-restart 7168M \
+    --node-args="--max-old-space-size=6144" \
+    --env production
+
+# Save PM2 configuration
+pm2 save
+
+# Setup PM2 to start on boot
+pm2 startup
+```
+
+### 9. Verify Deployment
+```bash
+# Check application status
+pm2 status
+
+# Monitor logs
+pm2 logs le-moissoneur
+
+# Monitor resources
+pm2 monit
+```
+
+## Frontend Configuration
+Update your Vercel frontend environment variables:
+```
+VITE_API_URL=https://api.sikso.ch
+```
+
+## Troubleshooting
+
+### Common Issues and Solutions:
+1. Browser Launch Failures
+   - Check Chromium installation: `which chromium-browser`
+   - Verify Xvfb is running: `sudo systemctl status xvfb`
+   - Check shared memory: `df -h /dev/shm`
+
+2. Memory Issues
+   - Monitor memory usage: `free -m`
+   - Check PM2 logs: `pm2 logs`
+   - Adjust memory limits in `.env` if needed
+
+3. SSL/Domain Issues
+   - Verify SSL certificate: `sudo certbot certificates`
+   - Check Nginx configuration: `sudo nginx -t`
+   - Verify DNS settings: `dig api.sikso.ch`
+
+## Maintenance
+
+### Regular Tasks:
+1. SSL Certificate Renewal
+```bash
+sudo certbot renew
+```
+
+2. System Updates
+```bash
+sudo apt-get update
+sudo apt-get upgrade -y
+```
+
+3. Log Rotation
+```bash
+sudo pm2 install pm2-logrotate
+```
+
+### Backup Strategy:
+1. Database: Use Supabase dashboard for backups
+2. Application Code: Maintain version control
+3. Environment Variables: Keep secure copies
+
+## Security Considerations
+1. Firewall configuration (UFW)
+2. Regular security updates
+3. SSL certificate maintenance
+4. Secure environment variable management
+5. Regular log monitoring
+
+Would you like me to expand on any of these sections or add additional information?
+
+---
+
+_**User**_
+
+Yes please and create a Oracle_Deployment.md in the root folder after that. 
+
+---
+
+_**Assistant**_
+
+
+
+---
+
