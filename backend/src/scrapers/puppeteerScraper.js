@@ -5,7 +5,7 @@ const fs = require('fs');
 
 /**
  * Puppeteer scraper: supports clicking dropdowns and extracting any content via multiple selectors.
- * This is optimized for Cloud Run environment.
+ * This is optimized for VM environment.
  * @param {string} url - The starting URL.
  * @param {Object} selectors - Object containing main, child, pagination, and dropdownClick selectors
  * @param {string} scraperId - The ID of the scraper for status updates
@@ -17,7 +17,7 @@ async function puppeteerScraper(url, selectors, scraperId) {
   logger.info(`Launching browser in ${isProduction ? 'headless' : 'visible'} mode`);
   
   // Check if chromium exists at the configured path
-  const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
+  const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
   if (isProduction) {
     try {
       fs.accessSync(executablePath, fs.constants.X_OK);
@@ -26,7 +26,7 @@ async function puppeteerScraper(url, selectors, scraperId) {
       logger.error(`Chromium not found at ${executablePath}: ${err.message}`);
       
       // Log alternative locations that might exist
-      ['/usr/bin/chromium-browser', '/snap/bin/chromium'].forEach(path => {
+      ['/usr/bin/chromium', '/snap/bin/chromium'].forEach(path => {
         try {
           fs.accessSync(path, fs.constants.X_OK);
           logger.info(`Alternative Chromium found at: ${path}`);
@@ -51,7 +51,7 @@ async function puppeteerScraper(url, selectors, scraperId) {
       message: 'Starting browser...'
     });
     
-    // Launch browser with optimized settings for Cloud Run
+    // Launch browser with optimized settings for VM environment
     browser = await puppeteer.launch({
       headless: isProduction ? 'new' : false,
       args: [
@@ -60,17 +60,26 @@ async function puppeteerScraper(url, selectors, scraperId) {
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
         '--disable-gpu',
-        '--window-size=1280,1024',
+        '--window-size=1920,1080',
         '--single-process',
         '--no-zygote',
         '--disable-extensions',
         '--disable-features=site-per-process',
         '--disable-component-extensions-with-background-pages',
-        '--disable-default-apps'
+        '--disable-default-apps',
+        '--ignore-certificate-errors',
+        '--ignore-certificate-errors-spki-list',
+        '--disable-infobars',
+        '--disable-notifications',
+        '--disable-dev-tools'
       ],
       executablePath,
       timeout: 180000, // 3 minutes
-      protocolTimeout: 180000
+      protocolTimeout: 180000,
+      ignoreHTTPSErrors: true,
+      handleSIGINT: true,
+      handleSIGTERM: true,
+      handleSIGHUP: true
     });
     
     if (!browser) {
