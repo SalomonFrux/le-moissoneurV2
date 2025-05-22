@@ -13,7 +13,7 @@ const app = express();
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://salomonks-moissonneur.vercel.app', 'https://le-moissoneur.vercel.app', '*']
+    ? ['https://salomonks-moissonneur.vercel.app', 'https://le-moissoneur.vercel.app']
     : ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8083'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

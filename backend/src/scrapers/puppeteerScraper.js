@@ -1,23 +1,24 @@
-const { chromium } = require('playwright');
+const puppeteer = require('puppeteer');
 const logger = require('../utils/logger');
 const scraperStatusHandler = require('../websocket/scraperStatusHandler');
 const fs = require('fs');
 
 /**
- * Playwright scraper: supports clicking dropdowns and extracting any content via multiple selectors.
+ * Puppeteer scraper: supports clicking dropdowns and extracting any content via multiple selectors.
+ * This is optimized for Cloud Run environment.
  * @param {string} url - The starting URL.
  * @param {Object} selectors - Object containing main, child, pagination, and dropdownClick selectors
  * @param {string} scraperId - The ID of the scraper for status updates
  * @returns {Promise<object[]>}
  */
-async function playwrightScraper(url, selectors, scraperId) {
+async function puppeteerScraper(url, selectors, scraperId) {
   const isProduction = process.env.NODE_ENV === 'production';
   
   logger.info(`Launching browser in ${isProduction ? 'headless' : 'visible'} mode`);
   
   // Check if chromium exists at the configured path
-  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined;
-  if (executablePath) {
+  const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
+  if (isProduction) {
     try {
       fs.accessSync(executablePath, fs.constants.X_OK);
       logger.info(`Chromium found at: ${executablePath}`);
@@ -34,8 +35,6 @@ async function playwrightScraper(url, selectors, scraperId) {
         }
       });
     }
-  } else {
-    logger.info('Using Playwright default browser location');
   }
   
   let browser = null;
@@ -52,40 +51,27 @@ async function playwrightScraper(url, selectors, scraperId) {
       message: 'Starting browser...'
     });
     
-    const launchTimeout = 180000; // 3 minutes
-    
-    // Launch browser with timeout handling
-    let launchPromise = chromium.launch({ 
-      headless: isProduction ? true : false,  // Always use headless in production
+    // Launch browser with optimized settings for Cloud Run
+    browser = await puppeteer.launch({
+      headless: isProduction ? 'new' : false,
       args: [
-        '--disable-dev-shm-usage',
         '--no-sandbox',
         '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
         '--disable-gpu',
-        '--disable-software-rasterizer',
+        '--window-size=1280,1024',
+        '--single-process',
+        '--no-zygote',
         '--disable-extensions',
         '--disable-features=site-per-process',
-        '--disable-background-networking',
-        '--disable-default-apps',
-        '--disable-sync',
-        '--mute-audio',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process', // Important for Cloud Run environment
-        '--no-startup-window'
+        '--disable-component-extensions-with-background-pages',
+        '--disable-default-apps'
       ],
-      chromiumSandbox: false,
-      timeout: launchTimeout,
       executablePath,
-      ignoreDefaultArgs: ['--enable-automation'] // Disable automation flag
+      timeout: 180000, // 3 minutes
+      protocolTimeout: 180000
     });
-    
-    // Add a timeout for browser launch
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error(`Browser launch timed out after ${launchTimeout}ms`)), launchTimeout);
-    });
-    
-    browser = await Promise.race([launchPromise, timeoutPromise]);
     
     if (!browser) {
       throw new Error('Failed to launch browser');
@@ -97,13 +83,13 @@ async function playwrightScraper(url, selectors, scraperId) {
       currentPage: 0,
       totalItems: 0,
       type: 'info',
-      message: 'Browser launched successfully'
+      message: 'Browser started, navigating to website...'
     });
 
     const page = await browser.newPage();
     
     // Set a longer navigation timeout for slower connections
-    page.setDefaultNavigationTimeout(60000);
+    page.setDefaultTimeout(60000);
     
     let currentUrl = url;
 
@@ -126,7 +112,7 @@ async function playwrightScraper(url, selectors, scraperId) {
         message: `Navigating to page ${pageNum}`
       });
 
-      await page.goto(currentUrl, { timeout: 60000, waitUntil: 'domcontentloaded' });
+      await page.goto(currentUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
       // Click all dropdowns/arrows if a selector is provided
       if (selectors.dropdownClick) {
@@ -220,8 +206,10 @@ async function playwrightScraper(url, selectors, scraperId) {
 
       // Handle pagination if selector is provided
       if (!selectors.pagination) break;
-      const nextLink = await page.$(selectors.pagination);
-      if (!nextLink) {
+      
+      // Check if pagination selector exists
+      const nextLinkExists = await page.$(selectors.pagination);
+      if (!nextLinkExists) {
         logger.info('No more pages to process');
         scraperStatusHandler.updateStatus(scraperId, {
           status: 'completed',
@@ -233,7 +221,12 @@ async function playwrightScraper(url, selectors, scraperId) {
         break;
       }
 
-      const href = await nextLink.getAttribute('href');
+      // Try to get the href attribute
+      const href = await page.evaluate((selector) => {
+        const element = document.querySelector(selector);
+        return element ? element.getAttribute('href') : null;
+      }, selectors.pagination);
+
       if (href) {
         const newUrl = href.startsWith('http') ? href : new URL(href, currentUrl).toString();
         if (newUrl === currentUrl) {
@@ -251,8 +244,8 @@ async function playwrightScraper(url, selectors, scraperId) {
       } else {
         try {
           await Promise.all([
-            page.waitForNavigation({ timeout: 60000 }),
-            nextLink.click()
+            page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
+            page.click(selectors.pagination)
           ]);
           currentUrl = page.url();
         } catch (e) {
@@ -291,7 +284,6 @@ async function playwrightScraper(url, selectors, scraperId) {
       message: `Scraping error: ${error.message}`,
       error: error.message
     });
-    throw error;
   } finally {
     if (browser) {
       try {
@@ -317,5 +309,5 @@ async function playwrightScraper(url, selectors, scraperId) {
 }
 
 module.exports = {
-  playwrightScraper
-};
+  puppeteerScraper
+}; 

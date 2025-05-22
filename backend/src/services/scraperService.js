@@ -6,6 +6,7 @@ const { supabase } = require('../db/supabase');
 const { genericScraper } = require('../scrapers/genericScraper');
 const { newsPortalScraper } = require('../scrapers/newsPortalScraper');
 const { playwrightScraper } = require('../scrapers/playwrightScraper');
+const { puppeteerScraper } = require('../scrapers/puppeteerScraper');
 
 // Configuration
 const MAX_RETRIES = 3;
@@ -150,26 +151,67 @@ async function executeScraper(scraper) {
       // Use Playwright if type is 'playwright'
       if (scraper.type === 'playwright') {
         // Get existing data before scraping
-        const { data: existingData } = await supabase
+        const { data: existingData, error } = await supabase
           .from('scraped_data')
           .select('*')
           .eq('scraper_id', scraper.id);
-
-        // Scrape new data
-        scrapedData = await playwrightScraper(
-          scraper.source || scraper.url,
-          {
-            main: scraper.selectors?.main,
-            child: scraper.selectors?.child || {},
-            pagination: scraper.selectors?.pagination,
-            dropdownClick: scraper.selectors?.dropdownClick
-          },
-          scraper.id // Pass the scraper ID for WebSocket status updates
-        );
+          
+        if (error) {
+          logger.error(`Error fetching scraped data: ${JSON.stringify(error)}`);
+          // Continue with empty existing data
+        }
         
-        // Map Playwright results to expected format, preserving existing values
+        const safeExistingData = Array.isArray(existingData) ? existingData : [];
+
+        try {
+          // Try using Playwright first
+          logger.info(`Attempting to use Playwright for scraper ${scraper.id}`);
+          
+          // Scrape new data with Playwright
+          scrapedData = await playwrightScraper(
+            scraper.source || scraper.url,
+            {
+              main: scraper.selectors?.main,
+              child: scraper.selectors?.child || {},
+              pagination: scraper.selectors?.pagination,
+              dropdownClick: scraper.selectors?.dropdownClick
+            },
+            scraper.id // Pass the scraper ID for WebSocket status updates
+          );
+        } catch (playwrightError) {
+          // If Playwright fails, try Puppeteer as a fallback
+          logger.warn(`Playwright failed with error: ${playwrightError.message}. Trying Puppeteer as fallback.`);
+          
+          // Send status update about fallback
+          const scraperStatusHandler = require('../websocket/scraperStatusHandler');
+          scraperStatusHandler.updateStatus(scraper.id, {
+            status: 'running',
+            currentPage: 0,
+            totalItems: 0,
+            type: 'warning',
+            message: `Switching to fallback scraper (Puppeteer): ${playwrightError.message}`
+          });
+          
+          // Scrape with Puppeteer
+          scrapedData = await puppeteerScraper(
+            scraper.source || scraper.url,
+            {
+              main: scraper.selectors?.main,
+              child: scraper.selectors?.child || {},
+              pagination: scraper.selectors?.pagination,
+              dropdownClick: scraper.selectors?.dropdownClick
+            },
+            scraper.id 
+          );
+        }
+        
+        if (scrapedData.length === 0) {
+          logger.warn(`No data scraped for ${scraper.id}`);
+        }
+        
+        // Map results to expected format, preserving existing values
         scrapedData = scrapedData.map((result, index) => {
-          const existing = existingData?.[index] || {};
+          const existing = safeExistingData[index] || {};
           const existingMetadata = existing.metadata || {};
           
           // Only update fields that have new selectors
@@ -189,8 +231,11 @@ async function executeScraper(scraper) {
             metadata: newMetadata
           };
         });
+        
         return;
       }
+      
+      // For other scraper types
       browser = await createBrowserInstance();
       const scrapeOperation = async () => {
         if (scraper.type === 'news') {

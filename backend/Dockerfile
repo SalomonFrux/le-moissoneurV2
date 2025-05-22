@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Install Playwright dependencies
+# Install Chromium dependencies
 RUN apt-get update && apt-get install -y \
     libwoff1 \
     libopus0 \
@@ -26,7 +26,20 @@ RUN apt-get update && apt-get install -y \
     libxshmfence1 \
     chromium \
     fonts-noto-color-emoji \
-    fonts-freefont-ttf
+    fonts-freefont-ttf \
+    dbus \
+    xvfb \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libxtst6 \
+    libasound2 \
+    libatspi2.0-0 \
+    wget \
+    gnupg \
+    ca-certificates
 
 # Set working directory
 WORKDIR /app
@@ -40,13 +53,22 @@ RUN npm ci
 # Copy the rest of the code
 COPY . .
 
-# Set environment variables for Playwright
+# Verify Chromium installation and path
+RUN which chromium || which chromium-browser || echo "Chromium not found in path"
+
+# Set environment variables for Playwright and Puppeteer
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV DISPLAY=:99
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Make the startup script executable
+RUN chmod +x start.sh
 
 # Expose the port the app runs on
 EXPOSE 4000
 
-# Start the app
-CMD ["node", "src/index.js"]
+# Start the app using our startup script
+CMD ["./start.sh"]
