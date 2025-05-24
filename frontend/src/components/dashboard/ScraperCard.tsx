@@ -23,7 +23,7 @@ import { type Scraper } from '@/services/dataService';
 
 interface ScraperCardProps {
   scraper: Scraper;
-  onRunScraper: (id: string) => void;
+  onRunScraper?: (id: string) => void;
   onStopScraper: (id: string) => void;
   onViewData?: (id: string) => void;
   onEditScraper?: (scraper: Scraper) => void;
@@ -94,7 +94,9 @@ export function ScraperCard({
   };
 
   const handleConfirmRun = () => {
-    onRunScraper(scraper.id);
+    if (onRunScraper) {
+      onRunScraper(scraper.id);
+    }
     setDeleteConfirmOpen(false);
   };
 
@@ -162,38 +164,40 @@ export function ScraperCard({
               <Square className="h-4 w-4" />
             </Button>
           ) : (
-            <>
-              <Button
-                className="hover:bg-[#0c8387] hover:text-white"
-                variant="outline"
-                size="sm"
-                onClick={handleRunScraper}
-              >
-                <Play className="h-4 w-4" />
-              </Button>
+            onRunScraper && (
+              <>
+                <Button
+                  className="hover:bg-[#0c8387] hover:text-white"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRunScraper}
+                >
+                  <Play className="h-4 w-4" />
+                </Button>
 
-              <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-                <DialogContent className="border-[#15616D]/20">
-                  <DialogHeader>
-                    <DialogTitle className="text-[#001524]">Êtes-vous sûr ?</DialogTitle>
-                    <DialogDescription className="text-[#15616D]">
-                      Cette action modifiera les données. Êtes-vous sûr de vouloir exécuter ce scraper ?
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)} className="border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10">
-                      Annuler
-                    </Button>
-                    <Button 
-                      onClick={handleConfirmRun} 
-                      className="bg-[#FF6F61] text-white hover:bg-[#FF6F61]/90"
-                    >
-                      Exécuter
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </>
+                <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+                  <DialogContent className="border-[#15616D]/20">
+                    <DialogHeader>
+                      <DialogTitle className="text-[#001524]">Êtes-vous sûr ?</DialogTitle>
+                      <DialogDescription className="text-[#15616D]">
+                        Cette action modifiera les données. Êtes-vous sûr de vouloir exécuter ce scraper ?
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)} className="border-[#15616D] text-[#15616D] hover:bg-[#15616D]/10">
+                        Annuler
+                      </Button>
+                      <Button 
+                        onClick={handleConfirmRun} 
+                        className="bg-[#FF6F61] text-white hover:bg-[#FF6F61]/90"
+                      >
+                        Exécuter
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </>
+            )
           )}
           {showViewData && onViewData && (
             <Button 

@@ -13,126 +13,94 @@ const fs = require('fs');
  */
 async function puppeteerScraper(url, selectors, scraperId) {
   const isProduction = process.env.NODE_ENV === 'production';
-  
-  logger.info(`Launching browser in ${isProduction ? 'headless' : 'visible'} mode`);
-  
-  // Check if chromium exists at the configured path
-  const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
-  if (isProduction) {
-    try {
-      fs.accessSync(executablePath, fs.constants.X_OK);
-      logger.info(`Chromium found at: ${executablePath}`);
-    } catch (err) {
-      logger.error(`Chromium not found at ${executablePath}: ${err.message}`);
-      
-      // Log alternative locations that might exist
-      ['/usr/bin/chromium', '/snap/bin/chromium'].forEach(path => {
-        try {
-          fs.accessSync(path, fs.constants.X_OK);
-          logger.info(`Alternative Chromium found at: ${path}`);
-        } catch (e) {
-          logger.info(`No Chromium at: ${path}`);
-        }
-      });
+  logger.info(`Launching browser in ${isProduction ? 'headless' : 'visible'} mode for Puppeteer`);
+
+  const launchOptions = {
+    headless: isProduction ? 'new' : false,
+    args: [
+      '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas', '--disable-gpu',
+      `--window-size=${process.env.SCREEN_WIDTH || 1920},${process.env.SCREEN_HEIGHT || 1080}`,
+      /*'--single-process',*/ '--no-zygote', // single-process can be problematic
+      '--disable-extensions', '--disable-features=site-per-process',
+      '--disable-component-extensions-with-background-pages', '--disable-default-apps',
+      '--ignore-certificate-errors', '--ignore-certificate-errors-spki-list',
+      '--disable-infobars', '--disable-notifications', '--disable-dev-tools'
+    ],
+    timeout: parseInt(process.env.BROWSER_LAUNCH_TIMEOUT, 10) || 180000,
+    protocolTimeout: parseInt(process.env.BROWSER_LAUNCH_TIMEOUT, 10) || 180000, // Ensure this is adequate
+    ignoreHTTPSErrors: true,
+    handleSIGINT: true,
+    handleSIGTERM: true,
+    handleSIGHUP: true
+  };
+
+  if (isProduction && process.env.PUPPETEER_EXECUTABLE_PATH) {
+    launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+  } else if (!isProduction) {
+    if (process.env.PUPPETEER_EXECUTABLE_PATH_DEV) {
+        launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH_DEV;
     }
   }
-  
+
+  logger.info('Launching browser with Puppeteer options:', launchOptions);
+
   let browser = null;
+  let page = null;
   let results = [];
   let pageNum = 1;
-  
+  let hasNextPage = true;
+
   try {
-    // Set initial status before browser launch
+    browser = await puppeteer.launch(launchOptions);
+    logger.info('Puppeteer browser launched successfully.');
     scraperStatusHandler.updateStatus(scraperId, {
-      status: 'running',
-      currentPage: 0,
-      totalItems: 0,
-      type: 'info',
-      message: 'Starting browser...'
-    });
-    
-    // Launch browser with optimized settings for VM environment
-    browser = await puppeteer.launch({
-      headless: isProduction ? 'new' : false,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu',
-        '--window-size=1920,1080',
-        '--single-process',
-        '--no-zygote',
-        '--disable-extensions',
-        '--disable-features=site-per-process',
-        '--disable-component-extensions-with-background-pages',
-        '--disable-default-apps',
-        '--ignore-certificate-errors',
-        '--ignore-certificate-errors-spki-list',
-        '--disable-infobars',
-        '--disable-notifications',
-        '--disable-dev-tools'
-      ],
-      executablePath,
-      timeout: 180000, // 3 minutes
-      protocolTimeout: 180000,
-      ignoreHTTPSErrors: true,
-      handleSIGINT: true,
-      handleSIGTERM: true,
-      handleSIGHUP: true
-    });
-    
-    if (!browser) {
-      throw new Error('Failed to launch browser');
-    }
-
-    // Send initial status
-    scraperStatusHandler.updateStatus(scraperId, {
-      status: 'running',
-      currentPage: 0,
-      totalItems: 0,
-      type: 'info',
-      message: 'Browser started, navigating to website...'
+      status: 'running', currentPage: 0, totalItems: 0, type: 'info', message: 'Browser (Puppeteer) launched successfully'
     });
 
-    const page = await browser.newPage();
+    logger.info('Puppeteer: Creating new page...');
+    page = await browser.newPage();
+    logger.info('Puppeteer: New page created.');
+
+    const navigationTimeout = parseInt(process.env.NAVIGATION_TIMEOUT, 10) || 60000;
+    logger.info(`Puppeteer: Setting default navigation timeout to ${navigationTimeout}ms`);
+    page.setDefaultNavigationTimeout(navigationTimeout);
+    page.setDefaultTimeout(navigationTimeout); // For other actions
     
-    // Set a longer navigation timeout for slower connections
-    page.setDefaultTimeout(60000);
-    
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+
     let currentUrl = url;
-
-    logger.info(`Starting scraping for URL: ${url}`);
-    scraperStatusHandler.updateStatus(scraperId, {
-      status: 'running',
-      currentPage: pageNum,
-      totalItems: results.length,
-      type: 'info',
-      message: `Starting scraping from ${url}`
-    });
-
-    while (true) {
-      logger.info(`Processing page ${pageNum}: ${currentUrl}`);
+    while (hasNextPage && (pageNum <= (parseInt(process.env.MAX_PAGES_PER_SCRAPE, 10) || 50))) {
+      logger.info(`Puppeteer: Scraping page ${pageNum}: ${currentUrl}`);
       scraperStatusHandler.updateStatus(scraperId, {
-        status: 'running',
-        currentPage: pageNum,
-        totalItems: results.length,
-        type: 'info',
-        message: `Navigating to page ${pageNum}`
+        status: 'running', currentPage: pageNum, totalItems: results.length, type: 'info', message: `Puppeteer: Navigating to page ${pageNum}: ${currentUrl.substring(0,100)}...`
       });
 
-      await page.goto(currentUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      try {
+        logger.info(`Puppeteer: Attempting page.goto(\'${currentUrl}\')`);
+        const response = await page.goto(currentUrl, { waitUntil: 'domcontentloaded' });
+        if (response) {
+            logger.info(`Puppeteer: Navigation to ${currentUrl} successful. Status: ${response.status()}`);
+        } else {
+            logger.warn(`Puppeteer: Navigation to ${currentUrl} returned null/undefined response object.`);
+        }
+        scraperStatusHandler.updateStatus(scraperId, {
+            status: 'running', currentPage: pageNum, totalItems: results.length, type: 'info', message: `Puppeteer: Page ${pageNum} loaded. Searching for content...`
+        });
+      } catch (navError) {
+        logger.error(`Puppeteer page.goto(\'${currentUrl}\') failed:`, navError);
+        scraperStatusHandler.updateStatus(scraperId, {
+            status: 'error', currentPage: pageNum, totalItems: results.length, type: 'error', message: `Puppeteer: Failed to navigate to ${currentUrl.substring(0,100)}: ${navError.message}`
+        });
+        throw navError; // Propagate to main catch
+      }
 
       // Click all dropdowns/arrows if a selector is provided
       if (selectors.dropdownClick) {
         const dropdowns = await page.$$(selectors.dropdownClick);
         logger.info(`Found ${dropdowns.length} dropdown elements to click`);
         scraperStatusHandler.updateStatus(scraperId, {
-          status: 'running',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'info',
-          message: `Found ${dropdowns.length} dropdown elements to expand`
+          status: 'running', currentPage: pageNum, totalItems: results.length, type: 'info', message: `Puppeteer: Found ${dropdowns.length} dropdown elements to expand`
         });
 
         for (const dropdown of dropdowns) {
@@ -140,13 +108,9 @@ async function puppeteerScraper(url, selectors, scraperId) {
             await dropdown.click();
             await page.waitForTimeout(200);
           } catch (e) {
-            logger.warn(`Failed to click dropdown: ${e.message}`);
+            logger.warn(`Puppeteer: Failed to click dropdown: ${e.message}`);
             scraperStatusHandler.updateStatus(scraperId, {
-              status: 'running',
-              currentPage: pageNum,
-              totalItems: results.length,
-              type: 'warning',
-              message: `Failed to click a dropdown element: ${e.message}`
+              status: 'running', currentPage: pageNum, totalItems: results.length, type: 'warning', message: `Puppeteer: Failed to click a dropdown element: ${e.message}`
             });
           }
         }
@@ -154,167 +118,111 @@ async function puppeteerScraper(url, selectors, scraperId) {
 
       // Wait for the main container to appear
       try {
-        await page.waitForSelector(selectors.main, { timeout: 5000 });
-      } catch (e) {
-        logger.error(`Main container not found: ${e.message}`);
-        scraperStatusHandler.updateStatus(scraperId, {
-          status: 'error',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'error',
-          message: `Main container not found on page ${pageNum}: ${e.message}`
-        });
-        break;
-      }
+        logger.info(`Puppeteer: Waiting for main selector: ${selectors.main}`);
+        await page.waitForSelector(selectors.main, { timeout: 15000 });
+        logger.info('Puppeteer: Main selector found.');
+        // Extract data from all matching main containers
+        const pageResults = await page.evaluate((config) => {
+          const mainContainers = document.querySelectorAll(config.main);
+          const results = [];
 
-      // Extract data from all matching main containers
-      const pageResults = await page.evaluate((config) => {
-        const mainContainers = document.querySelectorAll(config.main);
-        const results = [];
+          mainContainers.forEach(container => {
+            const data = {
+              text: container.innerText,
+              metadata: {}
+            };
 
-        mainContainers.forEach(container => {
-          const data = {
-            text: container.innerText,
-            metadata: {}
-          };
-
-          // Extract data using child selectors
-          if (config.child) {
-            Object.entries(config.child).forEach(([key, selector]) => {
-              const element = container.querySelector(selector);
-              if (element) {
-                if (key === 'email' && element.href?.startsWith('mailto:')) {
-                  data.metadata[key] = element.href.replace('mailto:', '');
-                } else if (key === 'website' && element.href) {
-                  data.metadata[key] = element.href;
-                } else if (key === 'phone' && element.href?.startsWith('tel:')) {
-                  data.metadata[key] = element.href.replace('tel:', '');
-                } else {
-                  data.metadata[key] = element.innerText.trim();
+            // Extract data using child selectors
+            if (config.child) {
+              Object.entries(config.child).forEach(([key, selector]) => {
+                const element = container.querySelector(selector);
+                if (element) {
+                  if (key === 'email' && element.href?.startsWith('mailto:')) {
+                    data.metadata[key] = element.href.replace('mailto:', '');
+                  } else if (key === 'website' && element.href) {
+                    data.metadata[key] = element.href;
+                  } else if (key === 'phone' && element.href?.startsWith('tel:')) {
+                    data.metadata[key] = element.href.replace('tel:', '');
+                  } else {
+                    data.metadata[key] = element.innerText.trim();
+                  }
                 }
-              }
-            });
-          }
+              });
+            }
 
-          results.push(data);
+            results.push(data);
+          });
+
+          return results;
+        }, selectors);
+
+        logger.info(`Puppeteer: Found ${pageResults.length} results on page ${pageNum}`);
+        results = results.concat(pageResults);
+
+        scraperStatusHandler.updateStatus(scraperId, {
+          status: 'running', currentPage: pageNum, totalItems: results.length, type: 'success', message: `Puppeteer: Found ${pageResults.length} items on page ${pageNum}. Total: ${results.length}`
         });
-
-        return results;
-      }, selectors);
-
-      logger.info(`Found ${pageResults.length} results on page ${pageNum}`);
-      results = results.concat(pageResults);
-
-      scraperStatusHandler.updateStatus(scraperId, {
-        status: 'running',
-        currentPage: pageNum,
-        totalItems: results.length,
-        type: 'success',
-        message: `Found ${pageResults.length} items on page ${pageNum}. Total: ${results.length}`
-      });
+      } catch (e) {
+        logger.error(`Puppeteer: Main selector ${selectors.main} not found on ${currentUrl}: ${e.message}`);
+        scraperStatusHandler.updateStatus(scraperId, {
+          status: 'error', currentPage: pageNum, totalItems: results.length, type: 'info', message: `Puppeteer: Main content not found on page ${pageNum}.`
+        });
+        hasNextPage = false; 
+        continue;
+      }
 
       // Handle pagination if selector is provided
-      if (!selectors.pagination) break;
-      
-      // Check if pagination selector exists
-      const nextLinkExists = await page.$(selectors.pagination);
-      if (!nextLinkExists) {
-        logger.info('No more pages to process');
-        scraperStatusHandler.updateStatus(scraperId, {
-          status: 'completed',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'success',
-          message: 'Reached the last page'
-        });
-        break;
-      }
-
-      // Try to get the href attribute
-      const href = await page.evaluate((selector) => {
-        const element = document.querySelector(selector);
-        return element ? element.getAttribute('href') : null;
-      }, selectors.pagination);
-
-      if (href) {
-        const newUrl = href.startsWith('http') ? href : new URL(href, currentUrl).toString();
-        if (newUrl === currentUrl) {
-          logger.info('Reached last page (same URL)');
-          scraperStatusHandler.updateStatus(scraperId, {
-            status: 'completed',
-            currentPage: pageNum,
-            totalItems: results.length,
-            type: 'success',
-            message: 'Completed scraping all pages'
-          });
-          break;
-        }
-        currentUrl = newUrl;
-      } else {
+      if (selectors.pagination) {
         try {
-          await Promise.all([
-            page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
-            page.click(selectors.pagination)
-          ]);
-          currentUrl = page.url();
-        } catch (e) {
-          logger.error(`Navigation failed: ${e.message}`);
-          scraperStatusHandler.updateStatus(scraperId, {
-            status: 'error',
-            currentPage: pageNum,
-            totalItems: results.length,
-            type: 'error',
-            message: `Failed to navigate to next page: ${e.message}`
-          });
-          break;
+            const nextPageLink = await page.$(selectors.pagination);
+            if (nextPageLink) {
+                currentUrl = await page.evaluate(el => el.href, nextPageLink); // Make sure this is correct for Puppeteer context
+                logger.info(`Puppeteer: Found next page link: ${currentUrl}`);
+                pageNum++;
+            } else {
+                logger.info('Puppeteer: No next page link found.');
+                hasNextPage = false;
+            }
+        } catch (paginationError) {
+            logger.error('Puppeteer: Error finding or evaluating pagination selector:', paginationError);
+            hasNextPage = false;
         }
-      }
-
-      pageNum++;
-      if (pageNum > 50) {
-        logger.info('Reached maximum page limit (50)');
-        scraperStatusHandler.updateStatus(scraperId, {
-          status: 'completed',
-          currentPage: pageNum - 1,
-          totalItems: results.length,
-          type: 'warning',
-          message: 'Reached maximum page limit (50)'
-        });
-        break;
+      } else {
+        hasNextPage = false;
       }
     }
+    // ... (end of while loop)
+
+    logger.info('Puppeteer: Scraping loop completed.');
+    scraperStatusHandler.updateStatus(scraperId, {
+      status: 'completed', currentPage: pageNum -1, totalItems: results.length, type: 'success', message: 'Scraping process finished by Puppeteer.'
+    });
+    return results;
+
   } catch (error) {
-    logger.error(`Scraping error: ${error.message}`);
+    logger.error(`Puppeteer scraper failed: ${error.message}. Stack: ${error.stack}`);
     scraperStatusHandler.updateStatus(scraperId, {
       status: 'error',
       currentPage: pageNum,
       totalItems: results.length,
       type: 'error',
-      message: `Scraping error: ${error.message}`,
+      message: `Puppeteer failed: ${error.message.substring(0,150)}`,
       error: error.message
     });
+    // Do not fall back from Puppeteer, just let it fail.
+    // throw error; // Optionally re-throw if needed by calling code
+    return []; // Or return empty results on failure
   } finally {
     if (browser) {
+      logger.info('Finalizing Puppeteer: closing browser...');
       try {
         await browser.close();
-      } catch (err) {
-        logger.error(`Error closing browser: ${err.message}`);
+        logger.info('Puppeteer browser closed successfully.');
+      } catch (e) {
+        logger.error('Error closing Puppeteer browser:', e);
       }
     }
-    logger.info(`Scraping completed. Total results: ${results.length}`);
   }
-
-  // Transform the results to match the expected format
-  return results.map(result => ({
-    name: result.metadata.name || '',
-    phone: result.metadata.phone || '',
-    email: result.metadata.email || '',
-    website: result.metadata.website || '',
-    address: result.metadata.address || '',
-    category: result.metadata.category || '',
-    text: result.text,
-    metadata: result.metadata
-  }));
 }
 
 module.exports = {

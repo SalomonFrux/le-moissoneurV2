@@ -18,6 +18,7 @@ class ScraperStatusHandler {
 
     try {
       const message = {
+        scraperId: scraperId,
         ...status,
         messages: status.messages.map(msg => ({
           ...msg,

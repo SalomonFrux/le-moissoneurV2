@@ -155,7 +155,7 @@ export function ScrapersPage() {
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     if (field.startsWith('phase1.')) {
       const subField = field.split('.')[1];
       setFormData(prev => ({
@@ -343,11 +343,15 @@ export function ScrapersPage() {
         }
       }));
       
-      // Connect to status service before running scraper
-      scraperStatusService.connect(scraperId, (status) => {
+      const onStatusUpdateCallback = (status: ScraperStatus) => {
+        console.log(`[[ScrapersPage.tsx]] INSIDE onStatusUpdateCallback for scraperId ${scraperId}`, 
+                    { newStatus: status });
+
         setScraperStatus(prev => {
-          // Update the status for this scraper
-          const newStatus = {
+          console.log(`[[ScrapersPage.tsx]] INSIDE setScraperStatus for scraperId ${scraperId}`, 
+                      { newStatus: status, previousScraperStatuses: prev });
+
+          const newStatusMap = {
             ...prev,
             [scraperId]: status
           };
@@ -357,7 +361,7 @@ export function ScrapersPage() {
             setScrapers(currentScrapers => 
               currentScrapers.map(scraper => 
                 scraper.id === scraperId 
-                  ? { ...scraper, status: 'idle' } 
+                  ? { ...scraper, status: 'idle' as const } // Ensure 'idle' is const
                   : scraper
               )
             );
@@ -365,22 +369,39 @@ export function ScrapersPage() {
             // NOTE: We no longer auto-remove the status after completion
           }
           
-          return newStatus;
+          return newStatusMap;
         });
-      });
+      };
       
-      // Add a slight delay to ensure Socket.IO connection is established
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Connect to status service
+      scraperStatusService.connect(scraperId, onStatusUpdateCallback);
       
-      // Now run the scraper
-      await dataService.runScraper(scraperId);
+      // Add a slight delay to allow Socket.IO connection and room joining to establish
+      // before telling the backend to run the scraper.
+      // This is a pragmatic approach given connect() doesn't return a promise for room join.
+      await new Promise(resolve => setTimeout(resolve, 750)); // Adjusted delay slightly
+
+      console.log(`ScrapersPage.tsx: Attempting to run scraper ${scraperId} after delay.`);
+      try {
+        await dataService.runScraper(scraperId);
+        // Update the scraper's status to running in the main list
+        setScrapers(prevScrapers => prevScrapers.map(s => 
+          s.id === scraperId ? { ...s, status: 'running' as const } : s
+        ));
+        toast.success('Scraper started successfully');
+      } catch (error) {
+        console.error(`Error running scraper ${scraperId} after attempting to connect and delay:`, error);
+        toast.error('Failed to start scraper after attempting connection.');
+        // Set error status via the callback
+        onStatusUpdateCallback({
+          status: 'error',
+          currentPage: 0,
+          totalItems: 0,
+          messages: [{ id: 'run-error', type: 'error', text: 'Failed to start scraper execution.', timestamp: new Date() }],
+          error: (error instanceof Error ? error.message : 'Unknown error')
+        });
+      }
       
-      // Update the scraper's status to running
-      setScrapers(prev => prev.map(s => 
-        s.id === scraperId ? { ...s, status: 'running' as const } : s
-      ));
-      
-      toast.success('Scraper started successfully');
     } catch (error) {
       console.error('Error running scraper:', error);
       // Set error status

@@ -2,6 +2,7 @@ const { chromium } = require('playwright');
 const logger = require('../utils/logger');
 const scraperStatusHandler = require('../websocket/scraperStatusHandler');
 const fs = require('fs');
+const { puppeteerScraper } = require('./puppeteerScraper');
 
 /**
  * Playwright scraper: supports clicking dropdowns and extracting any content via multiple selectors.
@@ -16,138 +17,94 @@ async function playwrightScraper(url, selectors, scraperId) {
   logger.info(`Starting playwrightScraper for URL: ${url}`);
   logger.info(`Selectors:`, JSON.stringify(selectors, null, 2));
   
-  // Check if chromium exists at the configured path
-  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
-  if (executablePath) {
-    try {
-      fs.accessSync(executablePath, fs.constants.X_OK);
-      logger.info(`Chromium found at: ${executablePath}`);
-    } catch (err) {
-      logger.error(`Chromium not found at ${executablePath}: ${err.message}`);
-      throw new Error(`Chromium not found at ${executablePath}: ${err.message}`);
+  const launchOptions = {
+    headless: isProduction ? true : false, // Keep headless true for prod, false for dev
+    args: [
+      '--disable-dev-shm-usage', '--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu',
+      '--disable-software-rasterizer', '--disable-extensions', '--disable-features=site-per-process',
+      '--disable-background-networking', '--disable-default-apps', '--disable-sync', '--mute-audio',
+      '--no-first-run', '--no-zygote', /*'--single-process',*/ '--no-startup-window', // single-process can cause issues
+      `--window-size=${process.env.SCREEN_WIDTH || 1920},${process.env.SCREEN_HEIGHT || 1080}`,
+      '--ignore-certificate-errors', '--ignore-certificate-errors-spki-list',
+      '--disable-infobars', '--disable-notifications', '--disable-dev-tools'
+    ],
+    chromiumSandbox: !isProduction, // false for local dev (Windows), true for production (Linux)
+    timeout: parseInt(process.env.BROWSER_LAUNCH_TIMEOUT, 10) || 180000,
+    ignoreDefaultArgs: ['--enable-automation'],
+    ignoreHTTPSErrors: true,
+    handleSIGINT: true,
+    handleSIGTERM: true,
+    handleSIGHUP: true
+  };
+
+  if (isProduction && process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
+    launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+  } else if (!isProduction) {
+    // For local dev, don't set executablePath to let Playwright use its installed browser
+    // unless explicitly overridden by a .env var for local dev.
+    if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH_DEV) {
+        launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH_DEV;
     }
   }
   
+  logger.info('Launching browser with Playwright options:', launchOptions);
+
   let browser = null;
+  let context = null;
+  let page = null;
   let results = [];
   let pageNum = 1;
-  
+  let hasNextPage = true;
+
   try {
-    // Set initial status before browser launch
+    const browserType = chromium; // Or specify based on config if needed
+    browser = await browserType.launch(launchOptions);
+    logger.info('Playwright browser launched successfully.');
     scraperStatusHandler.updateStatus(scraperId, {
-      status: 'running',
-      currentPage: 0,
-      totalItems: 0,
-      type: 'info',
-      message: 'Starting browser...'
-    });
-    
-    const launchTimeout = 180000; // 3 minutes
-    
-    logger.info('Launching browser with options:', {
-      headless: isProduction,
-      executablePath,
-      timeout: launchTimeout
+      status: 'running', currentPage: 0, totalItems: 0, type: 'info', message: 'Browser launched successfully'
     });
 
-    // Launch browser with timeout handling
-    let launchPromise = chromium.launch({ 
-      headless: isProduction ? true : false,
-      args: [
-        '--disable-dev-shm-usage',
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-gpu',
-        '--disable-software-rasterizer',
-        '--disable-extensions',
-        '--disable-features=site-per-process',
-        '--disable-background-networking',
-        '--disable-default-apps',
-        '--disable-sync',
-        '--mute-audio',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--no-startup-window',
-        '--window-size=1920,1080',
-        '--ignore-certificate-errors',
-        '--ignore-certificate-errors-spki-list',
-        '--disable-infobars',
-        '--disable-notifications',
-        '--disable-dev-tools'
-      ],
-      chromiumSandbox: false,
-      timeout: launchTimeout,
-      executablePath,
-      ignoreDefaultArgs: ['--enable-automation'],
-      ignoreHTTPSErrors: true,
-      handleSIGINT: true,
-      handleSIGTERM: true,
-      handleSIGHUP: true
+    logger.info('Creating new browser context...');
+    context = await browser.newContext({
+        ignoreHTTPSErrors: true, // Already in launchOptions but good for context too
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' // Optional: set a common user agent
     });
-    
-    // Add a timeout for browser launch
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error(`Browser launch timed out after ${launchTimeout}ms`)), launchTimeout);
-    });
-    
-    browser = await Promise.race([launchPromise, timeoutPromise]);
-    
-    if (!browser) {
-      throw new Error('Failed to launch browser');
-    }
+    logger.info('Browser context created.');
 
-    logger.info('Browser launched successfully');
-
-    // Send initial status
-    scraperStatusHandler.updateStatus(scraperId, {
-      status: 'running',
-      currentPage: 0,
-      totalItems: 0,
-      type: 'info',
-      message: 'Browser launched successfully'
-    });
-
-    const page = await browser.newPage();
-    logger.info('New page created');
+    logger.info('Creating new page...');
+    page = await context.newPage();
+    logger.info('New page created.');
     
-    // Set a longer navigation timeout for slower connections
-    page.setDefaultTimeout(60000);
-    
+    const navigationTimeout = parseInt(process.env.NAVIGATION_TIMEOUT, 10) || 60000;
+    logger.info(`Setting default navigation timeout to ${navigationTimeout}ms`);
+    page.setDefaultNavigationTimeout(navigationTimeout);
+    page.setDefaultTimeout(navigationTimeout); // For other actions like clicks, waitForSelector
+
     let currentUrl = url;
 
-    logger.info(`Starting scraping for URL: ${url}`);
-    scraperStatusHandler.updateStatus(scraperId, {
-      status: 'running',
-      currentPage: pageNum,
-      totalItems: results.length,
-      type: 'info',
-      message: `Starting scraping from ${url}`
-    });
-
-    while (true) {
-      logger.info(`Processing page ${pageNum}: ${currentUrl}`);
+    while (hasNextPage && (pageNum <= (parseInt(process.env.MAX_PAGES_PER_SCRAPE, 10) || 50))) {
+      logger.info(`Scraping page ${pageNum}: ${currentUrl}`);
       scraperStatusHandler.updateStatus(scraperId, {
-        status: 'running',
-        currentPage: pageNum,
-        totalItems: results.length,
-        type: 'info',
-        message: `Navigating to page ${pageNum}`
+        status: 'running', currentPage: pageNum, totalItems: results.length, type: 'info', message: `Navigating to page ${pageNum}: ${currentUrl.substring(0, 100)}...`
       });
 
       try {
-        await page.goto(currentUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
-        logger.info(`Successfully navigated to page ${pageNum}`);
-      } catch (error) {
-        logger.error(`Navigation error on page ${pageNum}:`, error);
+        logger.info(`Attempting page.goto(\'${currentUrl}\')`);
+        const response = await page.goto(currentUrl, { waitUntil: 'domcontentloaded' });
+        if (response) {
+            logger.info(`Navigation to ${currentUrl} successful. Status: ${response.status()}`);
+        } else {
+            logger.warn(`Navigation to ${currentUrl} returned null/undefined response object.`);
+        }
         scraperStatusHandler.updateStatus(scraperId, {
-          status: 'error',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'error',
-          message: `Failed to navigate to page ${pageNum}: ${error.message}`
+            status: 'running', currentPage: pageNum, totalItems: results.length, type: 'info', message: `Page ${pageNum} loaded. Searching for content...`
         });
-        break;
+      } catch (navError) {
+        logger.error(`Playwright page.goto(\'${currentUrl}\') failed:`, navError);
+        scraperStatusHandler.updateStatus(scraperId, {
+          status: 'error', currentPage: pageNum, totalItems: results.length, type: 'error', message: `Failed to navigate to ${currentUrl.substring(0,100)}: ${navError.message}`
+        });
+        throw navError; // Propagate error to main catch
       }
 
       // Click all dropdowns/arrows if a selector is provided
@@ -155,11 +112,7 @@ async function playwrightScraper(url, selectors, scraperId) {
         const dropdowns = await page.$$(selectors.dropdownClick);
         logger.info(`Found ${dropdowns.length} dropdown elements to click`);
         scraperStatusHandler.updateStatus(scraperId, {
-          status: 'running',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'info',
-          message: `Found ${dropdowns.length} dropdown elements to expand`
+          status: 'running', currentPage: pageNum, totalItems: results.length, type: 'info', message: `Found ${dropdowns.length} dropdown elements to expand`
         });
 
         for (const dropdown of dropdowns) {
@@ -169,31 +122,10 @@ async function playwrightScraper(url, selectors, scraperId) {
           } catch (e) {
             logger.warn(`Failed to click dropdown: ${e.message}`);
             scraperStatusHandler.updateStatus(scraperId, {
-              status: 'running',
-              currentPage: pageNum,
-              totalItems: results.length,
-              type: 'warning',
-              message: `Failed to click a dropdown element: ${e.message}`
+              status: 'running', currentPage: pageNum, totalItems: results.length, type: 'warning', message: `Failed to click a dropdown element: ${e.message}`
             });
           }
         }
-      }
-
-      // Wait for the main container to appear
-      try {
-        logger.info(`Waiting for main selector: ${selectors.main}`);
-        await page.waitForSelector(selectors.main, { timeout: 5000 });
-        logger.info('Main selector found');
-      } catch (e) {
-        logger.error(`Main container not found: ${e.message}`);
-        scraperStatusHandler.updateStatus(scraperId, {
-          status: 'error',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'error',
-          message: `Main container not found on page ${pageNum}: ${e.message}`
-        });
-        break;
       }
 
       // Extract data from all matching main containers
@@ -236,140 +168,78 @@ async function playwrightScraper(url, selectors, scraperId) {
         results = results.concat(pageResults);
 
         scraperStatusHandler.updateStatus(scraperId, {
-          status: 'running',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'success',
-          message: `Found ${pageResults.length} items on page ${pageNum}. Total: ${results.length}`
+          status: 'running', currentPage: pageNum, totalItems: results.length, type: 'success', message: `Found ${pageResults.length} items on page ${pageNum}. Total: ${results.length}`
         });
       } catch (error) {
         logger.error(`Error extracting data from page ${pageNum}:`, error);
         scraperStatusHandler.updateStatus(scraperId, {
-          status: 'error',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'error',
-          message: `Error extracting data: ${error.message}`
+          status: 'error', currentPage: pageNum, totalItems: results.length, type: 'error', message: `Error extracting data: ${error.message}`
         });
-        break;
+        throw error; // Propagate error to main catch
       }
 
       // Handle pagination if selector is provided
       if (!selectors.pagination) {
         logger.info('No pagination selector provided, finishing scrape');
+        hasNextPage = false;
         break;
       }
 
       try {
-        const nextLink = await page.$(selectors.pagination);
-        if (!nextLink) {
-          logger.info('No more pages to process');
-          scraperStatusHandler.updateStatus(scraperId, {
-            status: 'completed',
-            currentPage: pageNum,
-            totalItems: results.length,
-            type: 'success',
-            message: 'Reached the last page'
-          });
-          break;
-        }
-
-        const href = await nextLink.getAttribute('href');
-        if (href) {
-          const newUrl = href.startsWith('http') ? href : new URL(href, currentUrl).toString();
-          if (newUrl === currentUrl) {
-            logger.info('Reached last page (same URL)');
-            scraperStatusHandler.updateStatus(scraperId, {
-              status: 'completed',
-              currentPage: pageNum,
-              totalItems: results.length,
-              type: 'success',
-              message: 'Completed scraping all pages'
-            });
-            break;
-          }
-          currentUrl = newUrl;
-          logger.info(`Next page URL: ${currentUrl}`);
+        const nextPageLink = await page.$(selectors.pagination);
+        if (nextPageLink) {
+          currentUrl = await page.evaluate(el => el.href, nextPageLink);
+          logger.info(`Found next page link: ${currentUrl}`);
+          pageNum++;
         } else {
-          try {
-            logger.info('Clicking pagination element');
-            await Promise.all([
-              page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
-              nextLink.click()
-            ]);
-            currentUrl = page.url();
-            logger.info(`Navigated to: ${currentUrl}`);
-          } catch (e) {
-            logger.error(`Navigation failed: ${e.message}`);
-            scraperStatusHandler.updateStatus(scraperId, {
-              status: 'error',
-              currentPage: pageNum,
-              totalItems: results.length,
-              type: 'error',
-              message: `Failed to navigate to next page: ${e.message}`
-            });
-            break;
-          }
+          logger.info('No next page link found.');
+          hasNextPage = false;
         }
-      } catch (error) {
-        logger.error(`Error handling pagination: ${error.message}`);
-        scraperStatusHandler.updateStatus(scraperId, {
-          status: 'error',
-          currentPage: pageNum,
-          totalItems: results.length,
-          type: 'error',
-          message: `Pagination error: ${error.message}`
-        });
-        break;
-      }
-
-      pageNum++;
-      if (pageNum > 50) {
-        logger.info('Reached maximum page limit (50)');
-        scraperStatusHandler.updateStatus(scraperId, {
-          status: 'completed',
-          currentPage: pageNum - 1,
-          totalItems: results.length,
-          type: 'warning',
-          message: 'Reached maximum page limit (50)'
-        });
-        break;
+      } catch (paginationError) {
+        logger.error('Error finding or evaluating pagination selector:', paginationError);
+        hasNextPage = false;
       }
     }
-  } catch (error) {
-    logger.error(`Scraping error: ${error.message}`);
+
+    logger.info('Scraping loop completed.');
     scraperStatusHandler.updateStatus(scraperId, {
-      status: 'error',
-      currentPage: pageNum,
-      totalItems: results.length,
-      type: 'error',
-      message: `Scraping error: ${error.message}`,
-      error: error.message
+      status: 'completed', currentPage: pageNum -1, totalItems: results.length, type: 'success', message: 'Scraping process finished by Playwright.'
     });
-    throw error;
-  } finally {
+    return results;
+
+  } catch (error) {
+    logger.error(`Playwright scraper failed: ${error.message}. Stack: ${error.stack}`);
+    // Try to close browser before falling back
     if (browser) {
+        try {
+            logger.info('Closing Playwright browser due to error before fallback...');
+            await browser.close();
+            logger.info('Playwright browser closed.');
+        } catch (closeError) {
+            logger.error('Error closing Playwright browser during fallback prep:', closeError);
+        }
+    }
+    scraperStatusHandler.updateStatus(scraperId, {
+      status: 'running', // Still 'running' because we're trying a fallback
+      currentPage: pageNum, 
+      totalItems: results.length, 
+      type: 'warning',
+      message: `Playwright failed: ${error.message.substring(0,100)}. Switching to Puppeteer fallback.`
+    });
+    return puppeteerScraper(url, selectors, scraperId); // Fallback
+  } finally {
+    if (browser && browser.isConnected()) {
+      logger.info('Finalizing Playwright: closing browser...');
       try {
         await browser.close();
-        logger.info('Browser closed successfully');
-      } catch (err) {
-        logger.error(`Error closing browser: ${err.message}`);
+        logger.info('Playwright browser closed successfully in finally block.');
+      } catch (e) {
+        logger.error('Error closing Playwright browser in finally block:', e);
       }
+    } else if (browser && !browser.isConnected()) {
+        logger.info('Playwright browser already disconnected in finally.')
     }
-    logger.info(`Scraping completed. Total results: ${results.length}`);
   }
-
-  // Transform the results to match the expected format
-  return results.map(result => ({
-    name: result.metadata.name || '',
-    phone: result.metadata.phone || '',
-    email: result.metadata.email || '',
-    website: result.metadata.website || '',
-    address: result.metadata.address || '',
-    category: result.metadata.category || '',
-    text: result.text,
-    metadata: result.metadata
-  }));
 }
 
 module.exports = {

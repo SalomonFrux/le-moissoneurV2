@@ -1,5 +1,5 @@
 ---
-description: remember to to this
+description: Always remember this
 globs: 
 alwaysApply: false
 ---
@@ -50,12 +50,13 @@ VITE_SUPABASE_URL=https://rbqkvzdzobxbnkjuprhx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJicWt2emR6b2J4Ym5ranVwcmh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU5NDY4OTUsImV4cCI6MjA2MTUyMjg5NX0.RjSLzk36i3T1oEcoFZ4rS1UsJ3PpBZcVHQWqectUJOY
 
 # Backend API URL
-# VITE_API_BASE_URL=http://localhost:4000/api
-# VITE_API_URL=http://localhost:4000
-VITE_API_URL=https://api.sikso.ch
-VITE_API_BASE_URL=https://api.sikso.ch/api
+VITE_API_BASE_URL=http://localhost:4000/api
+VITE_API_URL=http://localhost:4000
+
+# Copy this file to .env.local and fill in the values from your Supabase project
 
 
 The main problem:
+
 The update was deploy to Oracle VM as you can see above,  but the thing is that we are not geeting real time update from the websockt. The Frontend UI notification get stuck on "initializing" but never shows the progress of the scraper. 
 We want that fixed, test it on dev environment then make sure it will work on the VM and finaly redoply the working app to Oracle VM.
